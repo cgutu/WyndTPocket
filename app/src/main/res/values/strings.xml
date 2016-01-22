@@ -4,13 +4,16 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
+    <string name="prompt_username">Login</string>
     <string name="prompt_password">Mot de passe</string>
     <string name="action_sign_in">Connexion</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="error_email_not_exist">This email address is not exist</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_email_not_exist">This login is not exist</string>
+    <string name="error_invalid_login">This login is invalid</string>
+    <string name="error_invalid_user_pwd">No user found</string>
+    <string name="error_invalid_password">Please enter a password</string>
+    <string name="error_incorrect_password">Please enter a password</string>
+    <string name="error_connexion">Erreur de connexion. Veuillez ressayer !</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
@@ -27,4 +30,25 @@
     <string name="desc_logo">wynd</string>
     <string name="mdp">Mot de passe oublié</string>
     <string name="ask_count">Demander un compte</string>
+    <string name="desc_cat">Lorem ipsum</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_users">UsersActivity</string>
+    <string name="title_activity_restaurant_fragment">RestaurantFragment</string>
+    <string name="title_activity_test">TestActivity</string>
+    <string name="title_activity_add_user">AddUser</string>
+    <string name="rest_prompt">Choose a restaurant</string>
+
+    <string-array name="restchannels">
+        <item>Exki</item>
+        <item>Quick</item>
+        <item>Indonesia</item>
+        <item>France</item>
+        <item>Italy</item>
+        <item>Singapore</item>
+        <item>New Zealand</item>
+        <item>India</item>
+    </string-array>
+
 </resources>

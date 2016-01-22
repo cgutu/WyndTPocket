@@ -1,0 +1,100 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wynd.app.wyndterminalpocket.HomeFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+      >
+    <LinearLayout
+        android:id="@+id/layout1"
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:background="@drawable/category_shape"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_devices_white"
+            android:contentDescription="@string/desc_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginLeft="20dp"
+            android:gravity="right"
+            android:text="@string/desc_cat"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout2"
+        android:layout_below="@id/layout1"
+        android:layout_width="match_parent"
+        android:background="@drawable/category_shape"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_place_white"
+            android:contentDescription="@string/desc_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginLeft="20dp"
+            android:gravity="right"
+            android:text="@string/desc_cat"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout3"
+        android:layout_below="@id/layout2"
+        android:layout_width="match_parent"
+        android:background="@drawable/category_shape"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_access_time"
+            android:contentDescription="@string/desc_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginLeft="20dp"
+            android:gravity="right"
+            android:text="@string/desc_cat"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout4"
+        android:layout_below="@id/layout3"
+        android:layout_width="match_parent"
+        android:background="@drawable/category_shape"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_library_books_white"
+            android:contentDescription="@string/desc_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:textColor="@android:color/white"
+            android:gravity="right"
+            android:text="@string/desc_cat"/>
+    </LinearLayout>
+</RelativeLayout>
+</FrameLayout>

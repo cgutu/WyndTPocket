@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -33,6 +34,29 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.NetworkError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -40,8 +64,11 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -49,53 +76,47 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-/**
- * A login screen that offers login via email/password.
- */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
+
     private static final int REQUEST_READ_CONTACTS = 0;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world", "admin@example.com:admin"
-    };
-    private static final String[] USER_CREDENTIALS = new String[]{
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
-
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mUserView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private String username, password, userID, parentID, permission;
 
-    private ProgressDialog progress;
-    private  List<String> email;
-    private String sEmail;
+    public static final String API_USER = "Cgutu";
+    public static String API_HASH = "";
+    private static final String hash="bonjour";
+    private SharedPreferences.Editor editor;
+    private SharedPreferences pref;
+    private String message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        pref = getApplicationContext().getSharedPreferences("Infos", 0); // 0 - for private mode
+        editor = pref.edit();
+
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
+        mUserView = (AutoCompleteTextView) findViewById(R.id.username);
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -109,8 +130,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mUserSignInButton = (Button) findViewById(R.id.user_sign_in_button);
+        mUserSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -119,48 +140,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-    }
 
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
 
-        getLoaderManager().initLoader(0, null, this);
-    }
+        try {
 
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
+            API_HASH = AeSimpleSHA1.SHA1(hash);
+            System.out.println("SHA1 API_HASH " + API_HASH);
 
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            System.out.println("Error sha1 " + e);
         }
     }
 
@@ -171,36 +159,29 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
-        mEmailView.setError(null);
+        mUserView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        username = mUserView.getText().toString();
+        password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        // Check for a valid username.
+        if (TextUtils.isEmpty(username)) {
+            mUserView.setError(getString(R.string.error_field_required));
+            focusView = mUserView;
             cancel = true;
         }
 
@@ -211,22 +192,181 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+
+            try {
+                password = AeSimpleSHA1.SHA1(password);
+                System.out.println("SHA1 password " + password);
+
+
+            } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+                System.out.println("Error sha1 " + e);
+            }
+
+
+
+            new LoginTask().execute();
+
+        }
+
+
+    }
+    private class LoginTask extends AsyncTask<Void, Void, InputStream> {
+        int i;
+        String result = null;
+        InputStream is = null;
+        List<NameValuePair> nameValuePairs;
+        JSONArray jsonArray = new JSONArray();
+
+
+        protected InputStream doInBackground(Void... params) {
+
+                //setting nameValuePairs
+                nameValuePairs = new ArrayList<NameValuePair>(1);
+                System.out.println("do in background login task "+password+" "+API_HASH );
+
+                try {
+                    //Setting up the default http client
+                    HttpClient httpClient = new DefaultHttpClient();
+
+                    //setting up the http post method
+                    HttpPost httpPost = new HttpPost("http://5.196.44.136/wyndTapi/api/user/login");
+                    nameValuePairs.add(new BasicNameValuePair("username", username));
+                    nameValuePairs.add(new BasicNameValuePair("secret", password));
+                    httpPost.setHeader("Api-User", API_USER);
+                    httpPost.setHeader("Api-Hash", API_HASH);
+                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                    //getting the response
+                    HttpResponse response = httpClient.execute(httpPost);
+
+                    //setting up the entity
+                    HttpEntity entity = response.getEntity();
+
+                    //setting up the content inside the input stream reader
+                    is = entity.getContent();
+
+                } catch (ClientProtocolException e) {
+
+                    Log.e("ClientProtocole", "Log_tag");
+                    String msg = "Erreur client protocole";
+                    message = "Erreur client protocole";
+
+
+                } catch (IOException e) {
+                    Log.e("Log_tag", "IOException");
+                    e.printStackTrace();
+                    String msg = "Erreur IOException";
+                    message = "Erreur IOException";
+
+                }
+
+            return is;
+        }
+
+
+        protected void onPreExecute() {
+
+        }
+
+        protected void onPostExecute(InputStream is) {
+
+
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                    StringBuilder total = new StringBuilder();
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        total.append(line + "\n");
+                    }
+                    is.close();
+                    String json = total.toString();
+                    JSONTokener tokener = new JSONTokener(json);
+                    JSONObject finalResult = new JSONObject(tokener);
+
+                    int i = 0;
+
+                    String result = finalResult.getString("result");
+                    System.out.println("result " + result);
+
+                    if (!result.isEmpty() && result.equals("success")) {
+                        JSONObject jsonObject = finalResult.getJSONObject("data");
+                        userID = jsonObject.getString("user_id");
+                        parentID = jsonObject.getString("parent_id");
+
+                        editor.putString("username", username);
+                        editor.putString("userID", userID);
+                        editor.putString("parentID", parentID);
+                        editor.apply();
+
+
+                        //check if user is ADMIN
+                        JsonObjectRequest rolesRequest = new JsonObjectRequest
+                                (Request.Method.GET, "http://5.196.44.136/wyndTapi/api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        // the response is already constructed as a JSONObject!
+                                        try {
+                                            response = response.getJSONObject("data");
+                                            System.out.println("response " + response);
+
+                                            permission = response.isNull("permission") ? "" : response.getString("permission");
+                                            System.out.println("user permission " + permission);
+                                            editor.putString("roles", permission);
+                                            editor.apply();
+
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }
+                                }, new Response.ErrorListener() {
+
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+
+                                        error.printStackTrace();
+                                    }
+                                }) {
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String> params = new HashMap<String, String>();
+
+                                System.out.println("api infos sent" + LoginActivity.API_USER + " " + LoginActivity.API_HASH);
+                                params.put("Api-User", LoginActivity.API_USER);
+                                params.put("Api-Hash", LoginActivity.API_HASH);
+
+                                return params;
+                            }
+                        };
+
+                        Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
+
+                        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                        startActivity(intent);
+                        showProgress(false);
+                        finish();
+                    } else {
+                        showProgress(false);
+                        mPasswordView.setError(getString(R.string.error_invalid_user_pwd));
+                        mPasswordView.requestFocus();
+                    }
+
+                    System.out.println("result " + result);
+
+
+                } catch (Exception e) {
+                    Log.i("tagconvertstr", "" + e.toString());
+                    showProgress(false);
+                    mUserView.setError(getString(R.string.error_connexion));
+                    mUserView.requestFocus();
+                }
+
 
 
         }
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
     }
 
     /**
@@ -265,218 +405,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
 
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-
-            try {
-
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                Intent i = new Intent(LoginActivity.this, MenuActivity.class);
-                startActivity(i);
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
-    private class ReadUsers extends AsyncTask<Void, Void, InputStream> {
-        int i;
-        String result = null;
-        InputStream is = null;
-        List<NameValuePair> nameValuePairs;
-        JSONArray jsonArray = new JSONArray();
-
-        protected InputStream doInBackground(Void... params) {
-            //setting nameValuePairs
-            nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background");
-
-            try {
-                //Setting up the default http client
-                HttpClient httpClient = new DefaultHttpClient();
-
-                //setting up the http post method
-                HttpPost httpPost = new HttpPost("http://192.168.103.246:8888/android/index.php");
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                //getting the response
-                HttpResponse response = httpClient.execute(httpPost);
-
-                //setting up the entity
-                HttpEntity entity = response.getEntity();
-
-                //setting up the content inside the input stream reader
-                is = entity.getContent();
-
-            } catch (ClientProtocolException e) {
-
-                Log.e("ClientProtocole", "Log_tag");
-                String msg = "Erreur client protocole";
-
-            } catch (IOException e) {
-                Log.e("Log_tag", "IOException");
-                e.printStackTrace();
-                String msg = "Erreur IOException";
-            }
-            return is;
-        }
-
-        protected void onProgressUpdate(Void params) {
-
-        }
-
-        protected void onPreExecute() {
-            progress = new ProgressDialog(LoginActivity.this);
-            // progress.setMessage("Chargement...");
-            //progress.show();
-        }
-
-        protected void onPostExecute(InputStream is) {
-
-            try {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                StringBuilder total = new StringBuilder();
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    total.append(line + "\n");
-                }
-                is.close();
-                String json = total.toString();
-                JSONTokener tokener = new JSONTokener(json);
-                JSONArray finalResult = new JSONArray(tokener);
-
-                int i=0;
-                int nbreponse = 0;
-                // Access by key : value
-                nbreponse = finalResult.length();
-                String nb = String.valueOf(nbreponse);
-                System.out.println("nb reponse "+ nb);
-
-                email = new ArrayList<String>(nbreponse);
-
-
-                for (i = 0; i < finalResult.length(); i++) {
-
-                    JSONObject element = finalResult.getJSONObject(i);
-                    email.add(element.getString("email"));
-                    System.out.println("email " + element);
-                }
-
-                for(i=0; i<finalResult.length(); i++){
-                    getUser(i);
-                }
-
-
-            } catch (Exception e) {
-                Log.i("tagconvertstr", "" + e.toString());
-            }
-
-        }
-    }
-    protected void getUser(int i){
-        sEmail = email.get(i);
-
-        System.out.println("email : "+sEmail);
-    }
 }
 
