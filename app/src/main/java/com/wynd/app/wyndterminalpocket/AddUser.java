@@ -1,6 +1,7 @@
 package com.wynd.app.wyndterminalpocket;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -49,7 +50,9 @@ public class AddUser extends AppCompatActivity {
     private String restId;
     private String message;
     private EditText mUsernameView, mEmailView, mPasswordView, mPhoneView;
-    private String email, username, phone, password, permission;
+    private String email, username, phone, password, permission, savedRestId, ID;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     private Button btnSubmit;
 
@@ -74,7 +77,18 @@ public class AddUser extends AppCompatActivity {
         Intent intent = getIntent();
 
         restId = intent.getStringExtra("restId");
-        System.out.println("adduser for " + restId);
+
+        pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        System.out.println("rest id test " + pref.getString("restId", ""));
+        savedRestId = pref.getString("restId", "");
+
+        if(restId == null){
+            ID = savedRestId;
+        }else{
+            ID = restId;
+        }
+
+        System.out.println("adduser for " + restId+ " or "+ID);
 
         mUsernameView = (EditText) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -120,24 +134,24 @@ public class AddUser extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background adduser task "+restId +" "+username+" "+password+" "+email+"");
+            System.out.println("do in background adduser task "+ID +" "+username+" "+password+" "+email+"");
 
             try {
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
 
                 //setting up the http post method
-                HttpPost httpPost = new HttpPost("http://5.196.44.136/wyndTapi/api/user/add");
+                HttpPost httpPost = new HttpPost(Globales.baseUrl+"api/user/add");
 
                 nameValuePairs.add(new BasicNameValuePair("username", username));
                 nameValuePairs.add(new BasicNameValuePair("secret", password));
                 nameValuePairs.add(new BasicNameValuePair("email", email));
                 nameValuePairs.add(new BasicNameValuePair("phone", phone));
-                nameValuePairs.add(new BasicNameValuePair("rest_channel_id", restId));
+                nameValuePairs.add(new BasicNameValuePair("rest_channel_id", ID));
                 nameValuePairs.add(new BasicNameValuePair("permission", "USER"));
 
-                httpPost.setHeader("Api-User", LoginActivity.API_USER);
-                httpPost.setHeader("Api-Hash", LoginActivity.API_HASH);
+                httpPost.setHeader("Api-User", Globales.API_USER);
+                httpPost.setHeader("Api-Hash", Globales.API_HASH);
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                 //getting the response
@@ -196,8 +210,9 @@ public class AddUser extends AppCompatActivity {
                     JSONObject jsonObject = finalResult.getJSONObject("data");
                     System.out.println("data " + jsonObject);
 
-                    Intent intent = new Intent(AddUser.this, MenuActivity.class);
+                    Intent intent = new Intent(AddUser.this, UsersActivity.class);
                     startActivity(intent);
+                    finish();
                 }
 
                 System.out.println("result " + result);
@@ -211,6 +226,5 @@ public class AddUser extends AppCompatActivity {
 
         }
     }
-
 
 }

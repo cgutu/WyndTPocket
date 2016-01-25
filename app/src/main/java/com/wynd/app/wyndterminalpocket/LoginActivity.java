@@ -100,9 +100,6 @@ public class LoginActivity extends AppCompatActivity {
     private View mLoginFormView;
     private String username, password, userID, parentID, permission;
 
-    public static final String API_USER = "Cgutu";
-    public static String API_HASH = "";
-    private static final String hash="bonjour";
     private SharedPreferences.Editor editor;
     private SharedPreferences pref;
     private String message;
@@ -144,8 +141,8 @@ public class LoginActivity extends AppCompatActivity {
 
         try {
 
-            API_HASH = AeSimpleSHA1.SHA1(hash);
-            System.out.println("SHA1 API_HASH " + API_HASH);
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+            System.out.println("SHA1 API_HASH " + Globales.API_HASH);
 
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             System.out.println("Error sha1 " + e);
@@ -224,18 +221,18 @@ public class LoginActivity extends AppCompatActivity {
 
                 //setting nameValuePairs
                 nameValuePairs = new ArrayList<NameValuePair>(1);
-                System.out.println("do in background login task "+password+" "+API_HASH );
+                System.out.println("do in background login task "+password+" "+Globales.API_HASH );
 
                 try {
                     //Setting up the default http client
                     HttpClient httpClient = new DefaultHttpClient();
 
                     //setting up the http post method
-                    HttpPost httpPost = new HttpPost("http://5.196.44.136/wyndTapi/api/user/login");
+                    HttpPost httpPost = new HttpPost(Globales.baseUrl+"api/user/login");
                     nameValuePairs.add(new BasicNameValuePair("username", username));
                     nameValuePairs.add(new BasicNameValuePair("secret", password));
-                    httpPost.setHeader("Api-User", API_USER);
-                    httpPost.setHeader("Api-Hash", API_HASH);
+                    httpPost.setHeader("Api-User", Globales.API_USER);
+                    httpPost.setHeader("Api-Hash", Globales.API_HASH);
                     httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                     //getting the response
@@ -303,7 +300,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         //check if user is ADMIN
                         JsonObjectRequest rolesRequest = new JsonObjectRequest
-                                (Request.Method.GET, "http://5.196.44.136/wyndTapi/api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
+                                (Request.Method.GET, Globales.baseUrl+"api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
                                     @Override
                                     public void onResponse(JSONObject response) {
                                         // the response is already constructed as a JSONObject!
@@ -334,9 +331,9 @@ public class LoginActivity extends AppCompatActivity {
                             public Map<String, String> getHeaders() throws AuthFailureError {
                                 Map<String, String> params = new HashMap<String, String>();
 
-                                System.out.println("api infos sent" + LoginActivity.API_USER + " " + LoginActivity.API_HASH);
-                                params.put("Api-User", LoginActivity.API_USER);
-                                params.put("Api-Hash", LoginActivity.API_HASH);
+                                System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
+                                params.put("Api-User", Globales.API_USER);
+                                params.put("Api-Hash", Globales.API_HASH);
 
                                 return params;
                             }

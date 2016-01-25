@@ -2,6 +2,7 @@ package com.wynd.app.wyndterminalpocket;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -44,6 +45,14 @@ public class UsersActivity extends AppCompatActivity {
     private UserAdapter ra;
     private Spinner restSpinner;
     private Button btnSubmit;
+    private static String ROLE_ADMIN = "ADMIN";
+    private static String ROLE_USER = "USER";
+    private static String ROLE_SUPER_ADMIN = "SUPER ADMIN";
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
+    private String savedRestId;
+    private String ID;
+    private List<UserInfo> user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +66,16 @@ public class UsersActivity extends AppCompatActivity {
         restId = intent.getStringExtra("restId");
         System.out.println("test click " + restId);
 
+        pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        System.out.println("rest id test " + pref.getString("restId", ""));
+        savedRestId = pref.getString("restId", "");
+
+        if(restId == null){
+            ID = savedRestId;
+        }else{
+            ID = restId;
+        }
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -65,7 +84,7 @@ public class UsersActivity extends AppCompatActivity {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
                 Intent i = new Intent(UsersActivity.this, AddUser.class);
-                i.putExtra("restId",restId);
+                i.putExtra("restId",ID);
                 startActivity(i);
             }
         });
@@ -78,14 +97,18 @@ public class UsersActivity extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
 
+        user = new ArrayList<>();
+        ra = new UserAdapter(user);
+        recList.setAdapter(ra);
+
         JsonObjectRequest userRequest = new JsonObjectRequest
-                (Request.Method.GET, "http://5.196.44.136/wyndTapi/api/restaurant/get/user/in_restaurant/"+restId, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/user/in_restaurant/"+ID, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-                            System.out.println("response "+response);
+                            System.out.println("response " + response);
 
                             for (int i = 0; i < values.length(); i++) {
 
@@ -93,6 +116,8 @@ public class UsersActivity extends AppCompatActivity {
                                 users.put(restaurants);
 
                             }
+
+
                             System.out.println("users " + users);
                             ra = new UserAdapter(createList(users));
                             recList.setAdapter(ra);
@@ -115,9 +140,9 @@ public class UsersActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
 
-                System.out.println("api infos sent" + LoginActivity.API_USER + " "+LoginActivity.API_HASH);
-                params.put("Api-User", LoginActivity.API_USER);
-                params.put("Api-Hash", LoginActivity.API_HASH);
+                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                params.put("Api-User", Globales.API_USER);
+                params.put("Api-Hash", Globales.API_HASH);
 
                 return params;
             }
@@ -140,8 +165,22 @@ public class UsersActivity extends AppCompatActivity {
                 ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX +  json_data.getString("email"));
                 ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX +  json_data.getString("phone"));
                 ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
-                ui.permission = (json_data.isNull("permission") ? "" : UserInfo.PERMISSION_PREFIX +  json_data.getString("permission"));
 
+                String permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
+
+                if(!permission.isEmpty() && permission.equals("2")){
+                    ui.permission = ROLE_ADMIN;
+                }else if(!permission.isEmpty() && permission.equals("1")){
+                    ui.permission = ROLE_USER;
+                }else{
+                    ui.permission = ROLE_SUPER_ADMIN;
+                }
+
+
+                editor = pref.edit();
+                editor.putString("restId", json_data.getString("rest_channel"));
+                editor.putString("userID", json_data.getString("id"));
+                editor.apply();
                 result.add(ui);
             }
 
@@ -151,7 +190,5 @@ public class UsersActivity extends AppCompatActivity {
 
         return result;
     }
-
-
 
 }

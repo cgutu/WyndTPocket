@@ -103,7 +103,7 @@ public class ProfilFragment extends Fragment {
          /* ------------------------------------------- */
 
             JsonObjectRequest jsonRequest = new JsonObjectRequest
-                    (Request.Method.GET, "http://5.196.44.136/wyndTapi/api/user/get/info/"+userID, null, new Response.Listener<JSONObject>() {
+                    (Request.Method.GET, Globales.baseUrl+"api/user/get/info/"+userID, null, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             // the response is already constructed as a JSONObject!
@@ -125,7 +125,7 @@ public class ProfilFragment extends Fragment {
 
                                     if(!restaurantID.isEmpty()){
                                         final JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                                                (Request.Method.GET, "http://5.196.44.136/wyndTapi/api/restaurant/get/by/id/"+restaurantID, null, new Response.Listener<JSONObject>() {
+                                                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/by/id/"+restaurantID, null, new Response.Listener<JSONObject>() {
                                                     @Override
                                                     public void onResponse(JSONObject response) {
 
@@ -161,9 +161,9 @@ public class ProfilFragment extends Fragment {
                                             public Map<String, String> getHeaders() throws AuthFailureError {
                                                 Map<String, String>  params = new HashMap<String, String>();
 
-                                                System.out.println("api infos sent" + LoginActivity.API_USER + " "+LoginActivity.API_HASH);
-                                                params.put("Api-User", LoginActivity.API_USER);
-                                                params.put("Api-Hash", LoginActivity.API_HASH);
+                                                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                                                params.put("Api-User", Globales.API_USER);
+                                                params.put("Api-Hash", Globales.API_HASH);
 
                                                 return params;
                                             }
@@ -189,9 +189,9 @@ public class ProfilFragment extends Fragment {
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String>  params = new HashMap<String, String>();
 
-                    System.out.println("api infos sent" + LoginActivity.API_USER + " "+LoginActivity.API_HASH);
-                    params.put("Api-User", LoginActivity.API_USER);
-                    params.put("Api-Hash", LoginActivity.API_HASH);
+                    System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                    params.put("Api-User", Globales.API_USER);
+                    params.put("Api-Hash", Globales.API_HASH);
 
                     return params;
                 }

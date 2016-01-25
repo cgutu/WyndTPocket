@@ -34,7 +34,7 @@ public class MenuActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-        displayView(R.id.nav_gallery);
+       // displayView(R.id.nav_gallery);
 
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);

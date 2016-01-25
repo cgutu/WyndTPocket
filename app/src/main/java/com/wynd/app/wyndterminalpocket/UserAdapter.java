@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -43,14 +45,24 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public void onBindViewHolder(UserAdapter.UserViewHolder userViewHolder, int i)  {
         final UserInfo ri = userList.get(i);
-        userViewHolder.vEmail.setText(ri.email);
+     //   userViewHolder.vEmail.setText(ri.email);
         userViewHolder.vName.setText(ri.username);
-        userViewHolder.vPhone.setText(ri.phone);
-        userViewHolder.vChannel.setText(ri.rest_channel);
-        userViewHolder.vPermission.setText(ri.permission);
-        userViewHolder.vId.setText(ri.id);
+//        userViewHolder.vPhone.setText(ri.phone);
+//        userViewHolder.vChannel.setText(ri.rest_channel);
+          userViewHolder.vPermission.setText(ri.permission);
+//        userViewHolder.vId.setText(ri.id);
+//
+//        userViewHolder.vId.setVisibility(View.INVISIBLE);
 
-        userViewHolder.vId.setVisibility(View.INVISIBLE);
+        userViewHolder.vCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), ProfilActivity.class);
+                intent.putExtra("userID",ri.id);
+                intent.putExtra("restId",ri.rest_channel);
+                v.getContext().startActivity(intent);
+            }
+        });
 
     }
 
@@ -65,34 +77,36 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return userViewHolder;
     }
 
-    public static class UserViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class UserViewHolder extends RecyclerView.ViewHolder {
         protected TextView vEmail;
         protected TextView vName;
         protected TextView vPhone;
         protected TextView vChannel;
         protected TextView vId;
         protected TextView vPermission;
+        protected CardView vCardView;
 
         public UserViewHolder(View v) {
             super(v);
-            vEmail = (TextView) v.findViewById(R.id.txtEmail);
+           // vEmail = (TextView) v.findViewById(R.id.txtEmail);
             vName = (TextView) v.findViewById(R.id.txtName);
-            vPhone = (TextView) v.findViewById(R.id.txtPhone);
-            vChannel = (TextView) v.findViewById(R.id.txtChannel);
-            vId = (TextView) v.findViewById(R.id.txtID);
-            vPermission = (TextView) v.findViewById(R.id.txtPermission);
+//            vPhone = (TextView) v.findViewById(R.id.txtPhone);
+//            vChannel = (TextView) v.findViewById(R.id.txtChannel);
+//            vId = (TextView) v.findViewById(R.id.txtID);
+           vPermission = (TextView) v.findViewById(R.id.txtPermission);
+            vCardView= (CardView) v.findViewById(R.id.card_view);
 
-            v.setOnClickListener(this);
+            //v.setOnClickListener(this);
 
 
         }
 
-        @Override
-        public void onClick(View v) {
+//        @Override
+//        public void onClick(View v) {
 //            Intent intent = new Intent(v.getContext(), UsersActivity.class);
 //            intent.putExtra("restId",vId.getText());
 //            v.getContext().startActivity(intent);
-        }
+//        }
     }
 
 

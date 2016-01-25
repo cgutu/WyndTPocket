@@ -6,27 +6,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     card_view:cardCornerRadius="4dp"
+    card_view:cardElevation="4dp"
+    card_view:cardBackgroundColor="@android:color/white"
     android:foreground="?android:attr/selectableItemBackground"
-    android:clickable="true"
     android:layout_margin="5dp">
 
+    <RelativeLayout
+        android:id="@+id/head"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
         <RelativeLayout
+            android:id="@+id/header"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/picture"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="left"
-                android:src="@drawable/picto_wynd"/>
-
-            <RelativeLayout
-                android:id="@+id/header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="100dp"
-                android:layout_marginTop="10dp"
+                android:layout_gravity="left"
+                android:src="@drawable/exemple"
+                android:contentDescription="@string/exki_logo" />
+
+            <RelativeLayout
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="110dp"
                 android:layout_marginBottom="10dp"
                 android:layout_gravity="end">
                 <TextView
@@ -73,44 +80,38 @@
 
 
             </RelativeLayout>
-            <LinearLayout
-                android:id="@+id/buttons"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_below="@+id/picture"
-                android:gravity="center_horizontal"
-                android:layout_alignParentStart="true">
 
-                <Button android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnUsers"
-                    android:text="Users"/>
-                <Button android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/btnTerminals"
-                    android:text="Terminals"/>
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/expandable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/card_detailing"
-                android:orientation="vertical"
-                android:layout_below="@+id/buttons"
-                android:layout_alignParentStart="true">
-
-                  <TextView
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="TEST"/>
-
-            </LinearLayout>
 
 
         </RelativeLayout>
 
+    <LinearLayout
+        android:id="@+id/expandable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="horizontal"
+        android:layout_below="@+id/header"
+        android:layout_gravity="bottom"
+        >
 
+
+        <Button android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/buttons_chape"
+            android:textColor="@drawable/text_color"
+            android:id="@+id/btnUsers"
+            android:layout_weight="1"
+            android:text="Utilisateurs"/>
+        <Button android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/buttons_chape"
+            android:textColor="@drawable/text_color"
+            android:id="@+id/btnTerminals"
+            android:text="Terminaux"/>
+
+    </LinearLayout>
+    </RelativeLayout>
 </android.support.v7.widget.CardView>

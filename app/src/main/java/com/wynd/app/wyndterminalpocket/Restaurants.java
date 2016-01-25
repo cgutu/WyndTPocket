@@ -95,7 +95,7 @@ public class Restaurants extends Fragment{
 
             //get all restaurants
             JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                    (Request.Method.GET, "http://5.196.44.136/wyndTapi/api/restaurant/get/all/chains", null, new Response.Listener<JSONObject>() {
+                    (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/chains", null, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
 
@@ -115,6 +115,7 @@ public class Restaurants extends Fragment{
                                 recList.setAdapter(ra);
 
 
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -132,9 +133,9 @@ public class Restaurants extends Fragment{
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String>  params = new HashMap<String, String>();
 
-                    System.out.println("api infos sent" + LoginActivity.API_USER + " "+LoginActivity.API_HASH);
-                    params.put("Api-User", LoginActivity.API_USER);
-                    params.put("Api-Hash", LoginActivity.API_HASH);
+                    System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                    params.put("Api-User", Globales.API_USER);
+                    params.put("Api-Hash", Globales.API_HASH);
 
                     return params;
                 }
@@ -154,6 +155,11 @@ public class Restaurants extends Fragment{
         rootView =  inflater.inflate(R.layout.fragment_restaurants, container, false);
         recList = (RecyclerView) rootView.findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
+
+        resto = new ArrayList<>();
+        ra = new RestaurantAdapter(resto);
+        recList.setAdapter(ra);
+
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);

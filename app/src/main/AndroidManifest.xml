@@ -52,11 +52,29 @@
         <activity
             android:name=".AddUser"
             android:label="@string/title_activity_add_user"
-            android:parentActivityName=".MenuActivity"
+            android:parentActivityName=".UsersActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
+                android:value="com.wynd.app.wyndterminalpocket.UsersActivity" />
+        </activity>
+        <activity
+            android:name=".ProfilActivity"
+            android:label="@string/title_activity_profil"
+            android:parentActivityName=".UsersActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.UsersActivity" />
+        </activity>
+        <activity
+            android:name=".EditUserProfil"
+            android:label="@string/title_activity_edit_user_profil"
+            android:parentActivityName=".ProfilActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.ProfilActivity" />
         </activity>
     </application>
 

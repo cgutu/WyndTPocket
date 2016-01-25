@@ -18,7 +18,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="title_activity_menu">MenuActivity</string>
+    <string name="title_activity_menu">Homepage</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -34,11 +34,12 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_users">UsersActivity</string>
+    <string name="title_activity_users">Utilisateurs</string>
     <string name="title_activity_restaurant_fragment">RestaurantFragment</string>
     <string name="title_activity_test">TestActivity</string>
-    <string name="title_activity_add_user">AddUser</string>
+    <string name="title_activity_add_user">Ajouter</string>
     <string name="rest_prompt">Choose a restaurant</string>
+    <string name="exki_logo">exki_logo</string>
 
     <string-array name="restchannels">
         <item>Exki</item>
@@ -50,5 +51,7 @@
         <item>New Zealand</item>
         <item>India</item>
     </string-array>
+    <string name="title_activity_profil">Profil</string>
+    <string name="title_activity_edit_user_profil">Modifier</string>
 
 </resources>

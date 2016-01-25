@@ -9,4 +9,8 @@
     <color name="card_shadow_1">#d4d4d4</color>
     <color name="card_shadow_2">#dddddd</color>
     <color name="card_detailing">#eee</color>
+
+    <color name="red">#f07a7f</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
 </resources>

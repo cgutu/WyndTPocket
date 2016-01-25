@@ -65,6 +65,8 @@ public class Users extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        recList.setAdapter(ra); // Here, mAdapter is null
+
         String restId = "1";
 
         JsonObjectRequest restaurantRequest = new JsonObjectRequest
@@ -102,9 +104,9 @@ public class Users extends Fragment {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
 
-                System.out.println("api infos sent" + LoginActivity.API_USER + " "+LoginActivity.API_HASH);
-                params.put("Api-User", LoginActivity.API_USER);
-                params.put("Api-Hash", LoginActivity.API_HASH);
+                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                params.put("Api-User", Globales.API_USER);
+                params.put("Api-Hash", Globales.API_HASH);
 
                 return params;
             }

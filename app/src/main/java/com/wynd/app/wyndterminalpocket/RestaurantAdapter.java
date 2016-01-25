@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +44,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         this.restaurantList = restaurantList;
         this.FragManager = fmanager;
 
+    }
+    public RestaurantAdapter(Context appContext) {
+        this.mContext = appContext;
     }
 
 
@@ -65,7 +70,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         restaurantViewHolder.vExpandable.setVisibility(View.GONE);
 
 
-        restaurantViewHolder.vBtnUsers.setOnClickListener(new View.OnClickListener() {
+        restaurantViewHolder.vHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -133,52 +138,17 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 }
             }
         });
-        restaurantViewHolder.vBtnTerminals.setOnClickListener(new View.OnClickListener() {
+
+        restaurantViewHolder.vBtnUsers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(restaurantViewHolder.vExpandable.getVisibility() == View.VISIBLE){
-
-                    int finalHeight = restaurantViewHolder.vExpandable.getHeight();
-
-                    ValueAnimator animator = ValueAnimator.ofInt(finalHeight, 0);
-
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            //Update Height
-                            int value = (Integer) valueAnimator.getAnimatedValue();
-                            ViewGroup.LayoutParams layoutParams = restaurantViewHolder.vExpandable.getLayoutParams();
-                            layoutParams.height = value;
-                            restaurantViewHolder.vExpandable.setLayoutParams(layoutParams);
-                        }
-                    });
-
-                    animator.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            //Height=0, but it set visibility to GONE
-                            restaurantViewHolder.vExpandable.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-
-                        }
-                    });
-                    animator.start();
-                }
+                Intent intent = new Intent(v.getContext(), UsersActivity.class);
+                intent.putExtra("restId",ri.id);
+                System.out.println("restId "+ri.id);
+                v.getContext().startActivity(intent);
             }
         });
+
 
     }
 
@@ -194,7 +164,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         return restaurantViewHolder;
     }
 
-    public static class RestaurantViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class RestaurantViewHolder extends RecyclerView.ViewHolder {
         protected TextView vEmail;
         protected TextView vName;
         protected TextView vPhone;
@@ -218,19 +188,20 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             vExpandable = (LinearLayout) v.findViewById(R.id.expandable);
             vHeader = (RelativeLayout) v.findViewById(R.id.header);
 
-            v.setOnClickListener(this);
+         //   v.setOnClickListener(this);
 
 
         }
 
-        @Override
-        public void onClick(View v) {
-
-            Intent intent = new Intent(v.getContext(), UsersActivity.class);
-            intent.putExtra("restId",vId.getText());
-            v.getContext().startActivity(intent);
-        }
+//        @Override
+//        public void onClick(View v) {
+//
+////            Intent intent = new Intent(v.getContext(), UsersActivity.class);
+////            intent.putExtra("restId",vId.getText());
+////            v.getContext().startActivity(intent);
+//        }
     }
+
 
 
 
