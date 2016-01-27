@@ -1,9 +1,11 @@
 package com.wynd.app.wyndterminalpocket;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,7 +79,7 @@ public class ProfilFragment extends Fragment {
         }
         pref = getContext().getSharedPreferences("Infos", 0);
 
-        userID = pref.getString("userID", "");
+        userID = pref.getString("myuserID", "");
         parentID = pref.getString("parentID", "");
 
         System.out.println("params: userid -" + userID + " parentid - " + parentID);
@@ -218,6 +220,18 @@ public class ProfilFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getContext(), " "+restaurantObject.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                Intent i = new Intent(getActivity(), EditMyProfil.class);
+                i.putExtra("userID",userID);
+                startActivity(i);
             }
         });
 

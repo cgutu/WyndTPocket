@@ -8,12 +8,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -63,6 +65,7 @@ public class AddUser extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -97,16 +100,19 @@ public class AddUser extends AppCompatActivity {
 
 
 
-
         btnSubmit = (Button) findViewById(R.id.submit);
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                username = mUsernameView.getText().toString();
-                email = mEmailView.getText().toString();
-                phone = mPhoneView.getText().toString();
-                password = mPasswordView.getText().toString();
-                new AddUserTask().execute();
+
+                 checkForm();
+//                username = mUsernameView.getText().toString();
+//                email = mEmailView.getText().toString();
+//                phone = mPhoneView.getText().toString();
+//                password = mPasswordView.getText().toString();
+//
+//                new AddUserTask().execute();
+
             }
         });
 
@@ -120,6 +126,47 @@ public class AddUser extends AppCompatActivity {
 //                android.R.layout.simple_spinner_item, list);
 //        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 //        spinner.setAdapter(dataAdapter);
+    }
+    private void checkForm(){
+
+        mUsernameView.setError(null);
+        mPasswordView.setError(null);
+        mEmailView.setError(null);
+        mPhoneView.setError(null);
+
+        boolean cancel = false;
+        View focusView = null;
+
+        username = mUsernameView.getText().toString();
+        email = mEmailView.getText().toString();
+        phone = mPhoneView.getText().toString();
+        password = mPasswordView.getText().toString();
+
+        if (TextUtils.isEmpty(username) ) {
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
+            cancel = true;
+        }else if (TextUtils.isEmpty(password) ) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        }else if (TextUtils.isEmpty(email) ) {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        }else if (TextUtils.isEmpty(phone) ) {
+            mPhoneView.setError(getString(R.string.error_field_required));
+            focusView = mPhoneView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            new AddUserTask().execute();
+        }
     }
 
     private class AddUserTask extends AsyncTask<Void, Void, InputStream> {
@@ -209,6 +256,13 @@ public class AddUser extends AppCompatActivity {
                 if (!result.isEmpty() && result.equals("success")) {
                     JSONObject jsonObject = finalResult.getJSONObject("data");
                     System.out.println("data " + jsonObject);
+
+                    editor = pref.edit();
+                    editor.putString("restId", ID);
+                    editor.apply();
+
+                    System.out.println("Utilisateur ajouté pour "+ID);
+                    Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
 
                     Intent intent = new Intent(AddUser.this, UsersActivity.class);
                     startActivity(intent);

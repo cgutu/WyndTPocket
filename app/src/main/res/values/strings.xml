@@ -18,7 +18,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="title_activity_menu">Homepage</string>
+    <string name="title_activity_menu"> </string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -53,5 +53,9 @@
     </string-array>
     <string name="title_activity_profil">Profil</string>
     <string name="title_activity_edit_user_profil">Modifier</string>
+    <string name="title_activity_edit_my_profil">Modifier mon profil</string>
+    <string name="title_activity_mon_restaurant">MonRestaurant</string>
+    <string name="title_activity_ask_account">Demander un compte</string>
+    <string name="title_activity_terminals">Terminals</string>
 
 </resources>

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.wynd.app.wyndterminalpocket.ProfilFragment">
+    tools:context="com.wynd.app.wyndterminalpocket.MonRestaurant">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -12,45 +12,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <RelativeLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
 
                 <LinearLayout
-                    android:id="@+id/l1"
+                    android:id="@+id/header"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="30dp"
-                    android:background="@color/colorPrimary"
-                    android:paddingBottom="30dp"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    >
+                    android:layout_height="wrap_content">
+
                     <ImageView
-                        android:id="@+id/img"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:src="@drawable/ic_profil"/>
-                    <TextView
-                        android:id="@+id/username"
-                        android:paddingTop="10dp"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="@string/prompt_username"
-                        android:textColor="@color/white"
-                        android:gravity="center_horizontal" />
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/exki"/>
                 </LinearLayout>
 
                 <RelativeLayout
                     android:id="@+id/l2"
-                    android:layout_below="@id/l1"
+                    android:layout_below="@id/header"
                     android:layout_width="match_parent"
                     android:background="@color/white"
                     android:orientation="horizontal"
                     android:layout_height="match_parent">
 
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="10dp"
+                        android:text="Restaurant name"
+                        android:layout_alignParentTop="true"
+                        android:layout_centerHorizontal="true" />
+
                     <LinearLayout
                         android:id="@+id/layout1"
+                        android:layout_below="@id/name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
                         <ImageView
@@ -63,7 +59,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingTop="10dp"
-                            android:text="test"/>
+                            android:text="email"/>
                     </LinearLayout>
                     <LinearLayout
                         android:id="@+id/layout2"
@@ -80,7 +76,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingTop="10dp"
-                            android:text="test"/>
+                            android:text="phone"/>
                     </LinearLayout>
                     <LinearLayout
                         android:id="@+id/layout3"
@@ -92,30 +88,28 @@
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_phone_black"/>
                         <TextView
-                            android:id="@+id/permission"
+                            android:id="@+id/channel"
                             android:layout_marginStart="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingTop="10dp"
-                            android:text="test"/>
+                            android:text="channel"/>
                     </LinearLayout>
-                    <LinearLayout
-                        android:id="@+id/layout4"
-                        android:layout_below="@id/layout3"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/ic_phone_black"/>
-                        <TextView
-                            android:id="@+id/restaurant"
-                            android:layout_marginStart="10dp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingTop="10dp"
-                            android:text="test"/>
-                    </LinearLayout>
+
+                </RelativeLayout>
+                <RelativeLayout
+                android:id="@+id/l3"
+                android:layout_below="@id/l2"
+                android:layout_width="match_parent"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:layout_height="match_parent">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_height="wrap_content"
+                        android:text="Terminals / Livreurs"/>
 
                 </RelativeLayout>
 
@@ -123,13 +117,4 @@
         </ScrollView>
 
     </RelativeLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_mode_edit_white" />
-
 </FrameLayout>

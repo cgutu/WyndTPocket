@@ -1,5 +1,7 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -53,10 +55,12 @@ public class UsersActivity extends AppCompatActivity {
     private String savedRestId;
     private String ID;
     private List<UserInfo> user;
+    private String myuserID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_users);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,6 +73,7 @@ public class UsersActivity extends AppCompatActivity {
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         System.out.println("rest id test " + pref.getString("restId", ""));
         savedRestId = pref.getString("restId", "");
+        myuserID = pref.getString("myuserID", "");
 
         if(restId == null){
             ID = savedRestId;
@@ -89,6 +94,7 @@ public class UsersActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
 
         recList = (RecyclerView) findViewById(R.id.cardList);
@@ -149,6 +155,9 @@ public class UsersActivity extends AppCompatActivity {
         };
 
         Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        editor = pref.edit();
+        editor.putString("Check", "1");
+        editor.apply();
     }
 
     private List<UserInfo> createList(JSONArray jsonArray) {
@@ -160,28 +169,31 @@ public class UsersActivity extends AppCompatActivity {
                 UserInfo ui = new UserInfo();
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
-                ui.id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
-                ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX +  json_data.getString("username"));
-                ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX +  json_data.getString("email"));
-                ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX +  json_data.getString("phone"));
-                ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
+                String id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
+                if(!id.equals(myuserID)){
+                    ui.id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
+                    ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX +  json_data.getString("username"));
+                    ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX +  json_data.getString("email"));
+                    ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX +  json_data.getString("phone"));
+                    ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
 
-                String permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
+                    String permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
 
-                if(!permission.isEmpty() && permission.equals("2")){
-                    ui.permission = ROLE_ADMIN;
-                }else if(!permission.isEmpty() && permission.equals("1")){
-                    ui.permission = ROLE_USER;
-                }else{
-                    ui.permission = ROLE_SUPER_ADMIN;
+                    if(!permission.isEmpty() && permission.equals("2")){
+                        ui.permission = ROLE_ADMIN;
+                    }else if(!permission.isEmpty() && permission.equals("1")){
+                        ui.permission = ROLE_USER;
+                    }else{
+                        ui.permission = ROLE_SUPER_ADMIN;
+                    }
+
+
+                    editor = pref.edit();
+                    editor.putString("restId", json_data.getString("rest_channel"));
+                    editor.putString("userID", json_data.getString("id"));
+                    editor.apply();
+                    result.add(ui);
                 }
-
-
-                editor = pref.edit();
-                editor.putString("restId", json_data.getString("rest_channel"));
-                editor.putString("userID", json_data.getString("id"));
-                editor.apply();
-                result.add(ui);
             }
 
         }catch (JSONException e){
@@ -190,5 +202,4 @@ public class UsersActivity extends AppCompatActivity {
 
         return result;
     }
-
 }

@@ -10,7 +10,9 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,40 +22,70 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ProfilFragment.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, Restaurants.OnFragmentInteractionListener,
-        Users.OnFragmentInteractionListener {
+        Users.OnFragmentInteractionListener, MonRestaurant.OnFragmentInteractionListener {
 
     private SharedPreferences pref;
     private boolean viewIsAtHome;
-    private String userID, parentID, permission;
+    private String userID, parentID, permission, rest_channel;
     private boolean mState = false;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
        // displayView(R.id.nav_gallery);
 
+        if (savedInstanceState == null) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.content_frame, new HomeFragment());
+            fragmentTransaction.commit();
+        }
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         String username = pref.getString("username", "");
-        userID = pref.getString("userID", "");
+        userID = pref.getString("myuserID", "");
         parentID = pref.getString("parentID", "");
         permission = pref.getString("roles", "");
+        rest_channel = pref.getString("rest_channel", "");
+        String s1 = pref.getString("Check", "");
 
         System.out.println("params! userid :" + userID + " parentid: " + parentID + " roles: " + permission);
 
         if(!permission.isEmpty() && !permission.equals("ADMIN")){
             mState = true;
-            System.out.println("state "+mState);
+            System.out.println("state " + mState);
+        }
+
+        System.out.println("s1 "+s1);
+        if(!s1.isEmpty() && s1.equals("1")){
+            editor = pref.edit();
+            editor.putString("Check", "0");
+            editor.apply();
+
+            displayView(R.id.nav_slideshow);
+        }else if(!s1.isEmpty() && s1.equals("editmonprofil")){
+            editor = pref.edit();
+            editor.putString("Check", "0");
+            editor.apply();
+
+            displayView(R.id.nav_camera);
+        }else if(!s1.isEmpty() && s1.equals("exitterminals")){
+            editor = pref.edit();
+            editor.putString("Check", "0");
+            editor.apply();
+
+            displayView(R.id.nav_slideshow);
         }
 
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Bonjour "+username);
+        //toolbar.setTitle("Bonjour "+username);
         setSupportActionBar(toolbar);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -125,44 +157,90 @@ public class MenuActivity extends AppCompatActivity
 //        if (id == R.id.action_settings) {
 //            return true;
 //        }
-        if (id == R.id.logout) {
+//        if (id == R.id.logout) {
+//
+//            AlertDialog.Builder builder1 = new AlertDialog.Builder(MenuActivity.this);
+//            builder1.setMessage("Etes-vous sûr de vouloir vous déconnecter ?");
+//            builder1.setCancelable(true);
+//
+//            builder1.setPositiveButton(
+//                    "Oui",
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int id) {
+//                            dialog.dismiss();
+//                            //clear session& logout
+//                            SharedPreferences.Editor editor = pref.edit();
+//                            editor.remove("username");
+//                            editor.apply();
+//
+//                            Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
+//                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                            startActivity(intent);
+//
+//                        }
+//                    });
+//
+//            builder1.setNegativeButton(
+//                    "Non",
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int id) {
+//                            dialog.dismiss();
+//                        }
+//                    });
+//
+//            AlertDialog alert11 = builder1.create();
+//            alert11.show();
+//
+//            return true;
+//        }
 
-            AlertDialog.Builder builder1 = new AlertDialog.Builder(MenuActivity.this);
-            builder1.setMessage("Etes-vous sûr de vouloir vous déconnecter ?");
-            builder1.setCancelable(true);
+        Fragment fragment1 = null;
+        switch (id) {
+            case R.id.logout:
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(MenuActivity.this);
+                builder1.setMessage("Etes-vous sûr de vouloir vous déconnecter ?");
+                builder1.setCancelable(true);
 
-            builder1.setPositiveButton(
-                    "Oui",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                            //clear session& logout
-                            SharedPreferences.Editor editor = pref.edit();
-                            editor.remove("username");
-                            editor.apply();
+                builder1.setPositiveButton(
+                        "Oui",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                                //clear session& logout
+                                SharedPreferences.Editor editor = pref.edit();
+                                editor.remove("username");
+                                editor.apply();
 
-                            Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(intent);
+                                Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
 
-                        }
-                    });
+                            }
+                        });
 
-            builder1.setNegativeButton(
-                    "Non",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    });
+                builder1.setNegativeButton(
+                        "Non",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
 
-            AlertDialog alert11 = builder1.create();
-            alert11.show();
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
 
-            return true;
+                return true;
+            default:
+                fragment1 = new HomeFragment();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction
+                        .replace(R.id.content_frame, fragment1);
+                transaction.commit();
+
+                return true;
         }
 
-        return super.onOptionsItemSelected(item);
+       // return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -213,14 +291,26 @@ public class MenuActivity extends AppCompatActivity
 
                 break;
             case R.id.nav_slideshow:
-                fragment = new Restaurants();
-                title = "Restaurants";
+
+                pref = getApplicationContext().getSharedPreferences("Infos", 0);
+                permission = pref.getString("roles", "");
+
+                System.out.println("user permission "+permission);
+                if(!permission.isEmpty() && permission.equals("CHAIN_ADMIN")){
+                    fragment = new Restaurants();
+                    title = "Restaurants";
+                }else if(!permission.isEmpty() && permission.equals("USER")){
+                    fragment = new MonRestaurant();
+                    title = "Mon Restaurant";
+                }
+
                 viewIsAtHome = false;
                 break;
-//            case R.id.nav_manage:
-//                Intent i = new Intent(MenuActivity.this, TestActivity.class);
-//                startActivity(i);
-//                break;
+            default:
+                fragment = new HomeFragment();
+                title = "Home";
+                viewIsAtHome = true;
+                break;
 
         }
 

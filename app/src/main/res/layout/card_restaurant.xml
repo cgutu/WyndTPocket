@@ -8,6 +8,8 @@
     card_view:cardCornerRadius="4dp"
     card_view:cardElevation="4dp"
     card_view:cardBackgroundColor="@android:color/white"
+    android:clickable="true"
+    android:background="?android:selectableItemBackground"
     android:foreground="?android:attr/selectableItemBackground"
     android:layout_margin="5dp">
 
@@ -103,14 +105,14 @@
             android:textColor="@drawable/text_color"
             android:id="@+id/btnUsers"
             android:layout_weight="1"
-            android:text="Utilisateurs"/>
+            android:text="Managers"/>
         <Button android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/buttons_chape"
             android:textColor="@drawable/text_color"
             android:id="@+id/btnTerminals"
-            android:text="Terminaux"/>
+            android:text="Terminals/Livreurs"/>
 
     </LinearLayout>
     </RelativeLayout>

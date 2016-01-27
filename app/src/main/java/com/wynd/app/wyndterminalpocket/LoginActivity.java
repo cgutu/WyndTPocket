@@ -98,11 +98,12 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private String username, password, userID, parentID, permission;
+    private String username, password, userID, parentID, permission, rest_channel;
 
     private SharedPreferences.Editor editor;
     private SharedPreferences pref;
     private String message;
+    private Button askaccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +148,15 @@ public class LoginActivity extends AppCompatActivity {
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             System.out.println("Error sha1 " + e);
         }
+
+        askaccount = (Button) findViewById(R.id.askaccount);
+        askaccount.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(LoginActivity.this, AskAccount.class);
+                startActivity(i);
+            }
+        });
     }
 
 
@@ -279,6 +289,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     is.close();
                     String json = total.toString();
+                    System.out.println("total: " + json);
                     JSONTokener tokener = new JSONTokener(json);
                     JSONObject finalResult = new JSONObject(tokener);
 
@@ -293,7 +304,7 @@ public class LoginActivity extends AppCompatActivity {
                         parentID = jsonObject.getString("parent_id");
 
                         editor.putString("username", username);
-                        editor.putString("userID", userID);
+                        editor.putString("myuserID", userID);
                         editor.putString("parentID", parentID);
                         editor.apply();
 
@@ -309,8 +320,10 @@ public class LoginActivity extends AppCompatActivity {
                                             System.out.println("response " + response);
 
                                             permission = response.isNull("permission") ? "" : response.getString("permission");
-                                            System.out.println("user permission " + permission);
+                                            rest_channel = response.isNull("rest_channel") ? "" : response.getString("rest_channel");
+                                            System.out.println("user permission " + permission + " rest_channel "+rest_channel);
                                             editor.putString("roles", permission);
+                                            editor.putString("rest_channel", rest_channel);
                                             editor.apply();
 
 

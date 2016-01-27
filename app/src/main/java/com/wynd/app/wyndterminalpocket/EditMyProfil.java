@@ -1,6 +1,7 @@
 package com.wynd.app.wyndterminalpocket;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -50,17 +51,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EditUserProfil extends AppCompatActivity {
+public class EditMyProfil extends AppCompatActivity {
 
     private String userID;
     private EditText username, password, email, permission, phone, rest_channel;
     private Button submit;
     private String Username, Password, Email, Permission, Phone, Rest_channel, message;
 
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_user_profil);
+        setContentView(R.layout.activity_edit_my_profil);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -68,22 +72,19 @@ public class EditUserProfil extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
         phone = (EditText) findViewById(R.id.phone);
-        permission = (EditText) findViewById(R.id.permission);
-        rest_channel = (EditText) findViewById(R.id.restchannel);
+//        permission = (EditText) findViewById(R.id.permission);
+//        rest_channel = (EditText) findViewById(R.id.restchannel);
         submit = (Button) findViewById(R.id.submit);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
         System.out.println("userID " + userID);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        editor = pref.edit();
+        editor.putString("Check", "editmonprofil");
+        editor.apply();
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -99,10 +100,17 @@ public class EditUserProfil extends AppCompatActivity {
 
                             username.setText(response.isNull("username") ? "" : response.getString("username"));
                             password.setText(response.isNull("hash") ? "" : response.getString("hash"));
-                            permission.setText(response.isNull("permission") ? "" : response.getString("permission"));
+                            Permission = response.isNull("permission") ? "" : response.getString("permission");
+                            if(Permission.equals("ADMIN")){
+                                Permission = "2";
+                            }else if(Permission.equals("USER")){
+                                Permission = "1";
+                            }else if(Permission.equals("SUPER_ADMIN")){
+                                Permission = "3";
+                            }
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
                             phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
-                            rest_channel.setText(response.isNull("rest_channel") ? "" : response.getString("rest_channel"));
+                            Rest_channel = response.isNull("rest_channel") ? "" : response.getString("rest_channel");
 
 
 
@@ -141,8 +149,8 @@ public class EditUserProfil extends AppCompatActivity {
                 Email = email.getText().toString();
                 Password = password.getText().toString();
                 Phone = phone.getText().toString();
-                Permission = permission.getText().toString();
-                Rest_channel = rest_channel.getText().toString();
+              //Permission = permission.getText().toString();
+                //Rest_channel = rest_channel.getText().toString();
 
 
                 try {
@@ -197,7 +205,7 @@ public class EditUserProfil extends AppCompatActivity {
                 nameValuePairs.add(new BasicNameValuePair("rest_channel_id", Rest_channel));
 
 
-                 //StringEntity se = new StringEntity(json);
+                //StringEntity se = new StringEntity(json);
                 //se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 
 //                httpPut.addHeader("content-type", "application/x-www-form-urlencoded");
@@ -205,7 +213,7 @@ public class EditUserProfil extends AppCompatActivity {
 
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
-               // httpPut.setEntity(se);
+                // httpPut.setEntity(se);
                 httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                 //getting the response
@@ -258,7 +266,7 @@ public class EditUserProfil extends AppCompatActivity {
                     System.out.println("result " + jsonObject);
 
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(EditUserProfil.this, UsersActivity.class);
+                    Intent intent = new Intent(EditMyProfil.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
 
@@ -275,3 +283,4 @@ public class EditUserProfil extends AppCompatActivity {
     }
 
 }
+

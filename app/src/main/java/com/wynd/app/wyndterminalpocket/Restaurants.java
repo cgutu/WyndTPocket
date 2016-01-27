@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -49,7 +50,7 @@ public class Restaurants extends Fragment{
 
     private SharedPreferences pref;
     private OnFragmentInteractionListener mListener;
-    private String userID, parentID, permission, rest;
+    private String userID, parentID, permission, rest_channel;
     private JSONArray chains = new JSONArray();
     List<String> name, email, phone, channel;
     private RecyclerView recList;
@@ -87,11 +88,12 @@ public class Restaurants extends Fragment{
         userID = pref.getString("userID", "");
         parentID = pref.getString("parentID", "");
         permission = pref.getString("roles", "");
+        rest_channel = pref.getString("rest_channel", "");
 
         System.out.println("params! userid :" + userID + " parentid: " + parentID + " roles: " + permission);
 
         //if user is ADMIN, user can see the all restaurants, add a restaurant and add a new user with USER ROLES
-        if(!permission.isEmpty() && permission.equals("ADMIN")){
+        if(!permission.isEmpty() && permission.equals("CHAIN_ADMIN")){
 
             //get all restaurants
             JsonObjectRequest restaurantRequest = new JsonObjectRequest
@@ -153,6 +155,7 @@ public class Restaurants extends Fragment{
         // Inflate the layout for this fragment
 
         rootView =  inflater.inflate(R.layout.fragment_restaurants, container, false);
+        setHasOptionsMenu(true);
         recList = (RecyclerView) rootView.findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
 
@@ -172,6 +175,7 @@ public class Restaurants extends Fragment{
                         .setAction("Action", null).show();
             }
         });
+
 
         return rootView;
     }

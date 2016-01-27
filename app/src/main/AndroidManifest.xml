@@ -76,6 +76,33 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.ProfilActivity" />
         </activity>
+        <activity
+            android:name=".EditMyProfil"
+            android:label="@string/title_activity_edit_my_profil"
+            android:parentActivityName=".MenuActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
+        </activity>
+        <activity
+            android:name=".AskAccount"
+            android:label="@string/title_activity_ask_account"
+            android:parentActivityName=".LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.LoginActivity" />
+        </activity>
+        <activity
+            android:name=".Terminals"
+            android:label="@string/title_activity_terminals"
+            android:parentActivityName=".MenuActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
+        </activity>
     </application>
 
 </manifest>

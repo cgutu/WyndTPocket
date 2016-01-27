@@ -1,53 +1,92 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.wynd.app.wyndterminalpocket.EditMyProfil"
     android:focusableInTouchMode="true"
-    tools:context="com.wynd.app.wyndterminalpocket.AddUser">
+    tools:showIn="@layout/activity_edit_my_profil">
 
-    <!-- Login progress -->
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/l1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+        android:paddingTop="30dp"
+        android:background="@color/colorPrimary"
+        android:paddingBottom="30dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:text="Ajouter un utilisateur"/>
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            >
+            <ImageView
+                android:id="@+id/itemImage"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentLeft="true"
+                android:scaleType="centerInside"
+                android:gravity="right|center_vertical"
+                android:src="@drawable/ic_profil"
+                />
+            <ImageView
+                android:id="@+id/currentLentItem"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_shape"
+                android:padding="10dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_mode_edit_white"
+                android:layout_alignParentTop="true"
+                android:layout_alignEnd="@+id/itemImage" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l2"
+        android:padding="5dp"
+        android:background="@color/white"
+        android:layout_below="@id/l1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="INFORMATIONS"/>
+    </LinearLayout>
 
     <ScrollView
-        android:id="@+id/add_form"
+        android:id="@+id/edit_form"
+        android:layout_below="@id/l2"
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/add_user_form"
             android:layout_width="match_parent"
-            android:layout_marginTop="20dp"
+            android:padding="10dp"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                >
 
                 <EditText
                     android:id="@+id/username"
+                    android:hint="Username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Username"
                     android:imeActionId="@+id/username"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -62,9 +101,9 @@
 
                 <EditText
                     android:id="@+id/password"
+                    android:hint="Password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Password"
                     android:imeActionId="@+id/password"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -80,9 +119,9 @@
 
                 <EditText
                     android:id="@+id/email"
+                    android:hint="Email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Email"
                     android:imeActionId="@+id/email"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -97,9 +136,9 @@
 
                 <EditText
                     android:id="@+id/phone"
+                    android:hint="Phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Phone"
                     android:imeActionId="@+id/phone"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -108,30 +147,15 @@
                     android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>
-
-            <!--<android.support.design.widget.TextInputLayout-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_marginTop="20dp"-->
-                <!--android:layout_height="wrap_content">-->
-            <!--<Spinner-->
-                <!--android:id="@+id/rest_channel_id"-->
-
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-
-                <!--android:prompt="@string/rest_prompt" />-->
-            <!--</android.support.design.widget.TextInputLayout>-->
-
-
             <!--<android.support.design.widget.TextInputLayout-->
                 <!--android:layout_width="match_parent"-->
                 <!--android:layout_height="wrap_content">-->
 
                 <!--<EditText-->
                     <!--android:id="@+id/permission"-->
+                    <!--android:hint="Permission"-->
                     <!--android:layout_width="match_parent"-->
                     <!--android:layout_height="wrap_content"-->
-                    <!--android:hint="permission"-->
                     <!--android:imeActionId="@+id/permission"-->
                     <!--android:imeActionLabel="@string/action_sign_in_short"-->
                     <!--android:imeOptions="actionUnspecified"-->
@@ -140,13 +164,31 @@
                     <!--android:singleLine="true" />-->
 
             <!--</android.support.design.widget.TextInputLayout>-->
+            <!--<android.support.design.widget.TextInputLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content">-->
+
+                <!--<EditText-->
+                    <!--android:id="@+id/restchannel"-->
+                    <!--android:hint="RestChannel"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:imeActionId="@+id/restchannel"-->
+                    <!--android:imeActionLabel="@string/action_sign_in_short"-->
+                    <!--android:imeOptions="actionUnspecified"-->
+                    <!--android:inputType="text"-->
+                    <!--android:maxLines="1"-->
+                    <!--android:singleLine="true" />-->
+
+            <!--</android.support.design.widget.TextInputLayout>-->
+
             <Button
                 android:id="@+id/submit"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Ajouter"
+                android:text="Modifier"
                 android:background="@drawable/shape_button"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />
@@ -154,4 +196,5 @@
 
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+
+</RelativeLayout>
