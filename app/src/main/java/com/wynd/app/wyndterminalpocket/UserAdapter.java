@@ -49,7 +49,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         userViewHolder.vName.setText(ri.username);
 //        userViewHolder.vPhone.setText(ri.phone);
 //        userViewHolder.vChannel.setText(ri.rest_channel);
-          userViewHolder.vPermission.setText(ri.permission);
+         // userViewHolder.vPermission.setText(ri.permission);
 //        userViewHolder.vId.setText(ri.id);
 //
 //        userViewHolder.vId.setVisibility(View.INVISIBLE);
@@ -93,7 +93,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 //            vPhone = (TextView) v.findViewById(R.id.txtPhone);
 //            vChannel = (TextView) v.findViewById(R.id.txtChannel);
 //            vId = (TextView) v.findViewById(R.id.txtID);
-           vPermission = (TextView) v.findViewById(R.id.txtPermission);
+         //  vPermission = (TextView) v.findViewById(R.id.txtPermission);
             vCardView= (CardView) v.findViewById(R.id.card_view);
 
             //v.setOnClickListener(this);

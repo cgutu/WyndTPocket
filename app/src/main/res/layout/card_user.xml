@@ -69,14 +69,14 @@
                 <!--android:textSize="10sp"-->
                 <!--android:gravity="center_vertical"-->
                 <!--android:layout_below="@id/txtChannel"/>-->
-            <TextView
-            android:id="@+id/txtPermission"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Role"
-            android:textSize="10sp"
-            android:gravity="center"
-            android:layout_below="@id/txtPhone"/>
+            <!--<TextView-->
+            <!--android:id="@+id/txtPermission"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Role"-->
+            <!--android:textSize="10sp"-->
+            <!--android:gravity="center"-->
+            <!--android:layout_below="@id/txtPhone"/>-->
             <!--<TextView-->
                 <!--android:id="@+id/txtID"-->
                 <!--android:layout_width="wrap_content"-->
@@ -102,7 +102,16 @@
 
 
         </RelativeLayout>
-
+        <ImageView
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:src="@drawable/ic_info_black"
+            android:contentDescription="@string/exki_logo"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="30dp" />
 
     </RelativeLayout>
 

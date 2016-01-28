@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -69,12 +70,14 @@ public class EditMyProfil extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         username = (EditText) findViewById(R.id.username);
-        password = (EditText) findViewById(R.id.password);
+       // password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
         phone = (EditText) findViewById(R.id.phone);
 //        permission = (EditText) findViewById(R.id.permission);
 //        rest_channel = (EditText) findViewById(R.id.restchannel);
-        submit = (Button) findViewById(R.id.submit);
+       // submit = (Button) findViewById(R.id.submit);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
@@ -99,13 +102,16 @@ public class EditMyProfil extends AppCompatActivity {
                             System.out.println("response " + response);
 
                             username.setText(response.isNull("username") ? "" : response.getString("username"));
-                            password.setText(response.isNull("hash") ? "" : response.getString("hash"));
+                           // password.setText(response.isNull("hash") ? "" : response.getString("hash"));
+                            Password = (response.isNull("hash") ? "" : response.getString("hash"));
                             Permission = response.isNull("permission") ? "" : response.getString("permission");
                             if(Permission.equals("ADMIN")){
                                 Permission = "2";
                             }else if(Permission.equals("USER")){
                                 Permission = "1";
                             }else if(Permission.equals("SUPER_ADMIN")){
+                                Permission = "5";
+                        }else if(Permission.equals("CHAIN_ADMIN")){
                                 Permission = "3";
                             }
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
@@ -142,28 +148,59 @@ public class EditMyProfil extends AppCompatActivity {
         Volley.newRequestQueue(getApplicationContext()).add(userRequest);
 
         //on submit, the admin can update user's profil
-        submit.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Username = username.getText().toString();
-                Email = email.getText().toString();
-                Password = password.getText().toString();
-                Phone = phone.getText().toString();
-              //Permission = permission.getText().toString();
-                //Rest_channel = rest_channel.getText().toString();
 
-
-                try {
-                    Password = AeSimpleSHA1.SHA1(Password);
-                    System.out.println("SHA1 user password " + Password);
-                    new EditTask().execute();
-
-                } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-                    System.out.println("Error sha1 " + e);
-                }
+                checkForm();
 
             }
         });
+    }
+    private void checkForm(){
+
+        username.setError(null);
+        email.setError(null);
+        phone.setError(null);
+
+        boolean cancel = false;
+        View focusView = null;
+
+        Username = username.getText().toString();
+        Email = email.getText().toString();
+        //Password = password.getText().toString();
+        Phone = phone.getText().toString();
+
+        //                try {
+//                    Password = AeSimpleSHA1.SHA1(Password);
+//                    System.out.println("SHA1 user password " + Password);
+//                    new EditTask().execute();
+//
+//                } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+//                    System.out.println("Error sha1 " + e);
+//                }
+
+        if (TextUtils.isEmpty(Username) ) {
+            username.setError(getString(R.string.error_field_required));
+            focusView = username;
+            cancel = true;
+        }else if (TextUtils.isEmpty(Email) ) {
+            email.setError(getString(R.string.error_field_required));
+            focusView = email;
+            cancel = true;
+        }else if (TextUtils.isEmpty(Phone) ) {
+            phone.setError(getString(R.string.error_field_required));
+            focusView = phone;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            new EditTask().execute();
+        }
     }
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
         int i;
@@ -182,14 +219,14 @@ public class EditMyProfil extends AppCompatActivity {
             String json = "";
 
             try {
-                jsonObject.put("username", Username);
-                jsonObject.put("secret", Password);
-                jsonObject.put("email", Email);
-                jsonObject.put("phone", Phone);
-                jsonObject.put("permission",Permission);
-                jsonObject.put("rest_channel_id",Rest_channel);
-
-                json = jsonObject.toString();
+ //               jsonObject.put("username", Username);
+//                jsonObject.put("secret", Password);
+//                jsonObject.put("email", Email);
+//                jsonObject.put("phone", Phone);
+//                jsonObject.put("permission",Permission);
+//                jsonObject.put("rest_channel_id",Rest_channel);
+//
+//                json = jsonObject.toString();
 
                 System.out.println("submit "+Username+Email+Password+Phone+Permission+Rest_channel);
                 //Setting up the default http client
@@ -281,6 +318,5 @@ public class EditMyProfil extends AppCompatActivity {
 
         }
     }
-
 }
 

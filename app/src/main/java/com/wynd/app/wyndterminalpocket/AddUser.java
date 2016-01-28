@@ -1,8 +1,12 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -55,6 +59,9 @@ public class AddUser extends AppCompatActivity {
     private String email, username, phone, password, permission, savedRestId, ID;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private View mProgressView;
+    private View mFormview;
+
 
     private Button btnSubmit;
 
@@ -66,16 +73,12 @@ public class AddUser extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
+        mFormview = findViewById(R.id.add_form);
+        mProgressView = findViewById(R.id.login_progress);
 
         Intent intent = getIntent();
 
@@ -100,18 +103,12 @@ public class AddUser extends AppCompatActivity {
 
 
 
-        btnSubmit = (Button) findViewById(R.id.submit);
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
+       // btnSubmit = (Button) findViewById(R.id.submit);
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                  checkForm();
-//                username = mUsernameView.getText().toString();
-//                email = mEmailView.getText().toString();
-//                phone = mPhoneView.getText().toString();
-//                password = mPasswordView.getText().toString();
-//
-//                new AddUserTask().execute();
 
             }
         });
@@ -165,6 +162,8 @@ public class AddUser extends AppCompatActivity {
             // form field with an error.
             focusView.requestFocus();
         } else {
+            showProgress(true);
+
             new AddUserTask().execute();
         }
     }
@@ -264,9 +263,14 @@ public class AddUser extends AppCompatActivity {
                     System.out.println("Utilisateur ajouté pour "+ID);
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
 
+                    showProgress(false);
                     Intent intent = new Intent(AddUser.this, UsersActivity.class);
                     startActivity(intent);
                     finish();
+                }else{
+                    showProgress(false);
+                    mUsernameView.setError(getString(R.string.error_invalid_user_pwd));
+                    mUsernameView.requestFocus();
                 }
 
                 System.out.println("result " + result);
@@ -274,6 +278,9 @@ public class AddUser extends AppCompatActivity {
 
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
+                showProgress(false);
+                mUsernameView.setError(getString(R.string.error_connexion));
+                mUsernameView.requestFocus();
             }
 
 
@@ -281,4 +288,36 @@ public class AddUser extends AppCompatActivity {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mFormview.setVisibility(show ? View.GONE : View.VISIBLE);
+            mFormview.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mFormview.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mFormview.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
 }

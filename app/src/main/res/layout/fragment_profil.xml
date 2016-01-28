@@ -90,7 +90,7 @@
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/ic_phone_black"/>
+                            android:src="@drawable/ic_group_work_black"/>
                         <TextView
                             android:id="@+id/permission"
                             android:layout_marginStart="10dp"
@@ -107,7 +107,7 @@
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/ic_phone_black"/>
+                            android:src="@drawable/ic_settings_ethernet_black"/>
                         <TextView
                             android:id="@+id/restaurant"
                             android:layout_marginStart="10dp"

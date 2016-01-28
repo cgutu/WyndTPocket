@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -65,9 +66,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         restaurantViewHolder.vName.setText(ri.name);
         restaurantViewHolder.vPhone.setText(ri.phone);
         restaurantViewHolder.vChannel.setText(ri.channel);
-        restaurantViewHolder.vId.setText(ri.id);
+       // restaurantViewHolder.vId.setText(ri.id);
 
-        restaurantViewHolder.vId.setVisibility(View.INVISIBLE);
+       // restaurantViewHolder.vId.setVisibility(View.INVISIBLE);
 
         restaurantViewHolder.vExpandable.setVisibility(View.GONE);
 
@@ -155,8 +156,19 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), Terminals.class);
                 intent.putExtra("restId",ri.id);
+                intent.putExtra("channel", ri.channel);
                 v.getContext().startActivity(intent);
 
+            }
+        });
+
+        restaurantViewHolder.vInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), InfoOfRestaurant.class);
+                intent.putExtra("restId",ri.id);
+                intent.putExtra("channel", ri.channel);
+                v.getContext().startActivity(intent);
             }
         });
 
@@ -180,12 +192,13 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected TextView vName;
         protected TextView vPhone;
         protected TextView vChannel;
-        protected TextView vId;
+        //protected TextView vId;
         protected Button vBtnUsers;
         protected Button vBtnTerminals;
         protected RelativeLayout vHeader;
         protected LinearLayout vExpandable;
         protected CardView vCardView;
+        protected ImageView vInfo;
 
         public RestaurantViewHolder(View v) {
             super(v);
@@ -193,13 +206,15 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             vName = (TextView) v.findViewById(R.id.txtName);
             vPhone = (TextView) v.findViewById(R.id.txtPhone);
             vChannel = (TextView) v.findViewById(R.id.txtChannel);
-            vId = (TextView) v.findViewById(R.id.txtID);
+           // vId = (TextView) v.findViewById(R.id.txtID);
             vBtnUsers = (Button) v.findViewById(R.id.btnUsers);
             vBtnTerminals = (Button) v.findViewById(R.id.btnTerminals);
 
             vExpandable = (LinearLayout) v.findViewById(R.id.expandable);
             vHeader = (RelativeLayout) v.findViewById(R.id.header);
             vCardView = (CardView) v.findViewById(R.id.card_view);
+
+            vInfo = (ImageView) v.findViewById(R.id.info);
 
          //   v.setOnClickListener(this);
 

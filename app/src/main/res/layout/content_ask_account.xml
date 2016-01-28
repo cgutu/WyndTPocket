@@ -131,7 +131,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Ajouter"
+                android:text="Envoyer"
                 android:background="@drawable/shape_button"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />

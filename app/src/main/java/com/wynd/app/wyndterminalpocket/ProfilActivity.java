@@ -142,6 +142,4 @@ public class ProfilActivity extends AppCompatActivity {
 
     }
 
-
-
 }

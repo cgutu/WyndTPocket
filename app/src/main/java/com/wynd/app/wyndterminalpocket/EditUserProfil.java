@@ -1,6 +1,7 @@
 package com.wynd.app.wyndterminalpocket;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -56,6 +57,8 @@ public class EditUserProfil extends AppCompatActivity {
     private EditText username, password, email, permission, phone, rest_channel;
     private Button submit;
     private String Username, Password, Email, Permission, Phone, Rest_channel, message;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,20 +73,13 @@ public class EditUserProfil extends AppCompatActivity {
         phone = (EditText) findViewById(R.id.phone);
         permission = (EditText) findViewById(R.id.permission);
         rest_channel = (EditText) findViewById(R.id.restchannel);
-        submit = (Button) findViewById(R.id.submit);
+        //submit = (Button) findViewById(R.id.submit);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
         System.out.println("userID " + userID);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -134,7 +130,7 @@ public class EditUserProfil extends AppCompatActivity {
         Volley.newRequestQueue(getApplicationContext()).add(userRequest);
 
         //on submit, the admin can update user's profil
-        submit.setOnClickListener(new View.OnClickListener() {
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Username = username.getText().toString();

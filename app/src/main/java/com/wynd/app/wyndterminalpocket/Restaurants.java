@@ -49,6 +49,7 @@ public class Restaurants extends Fragment{
     private String mParam2;
 
     private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
     private OnFragmentInteractionListener mListener;
     private String userID, parentID, permission, rest_channel;
     private JSONArray chains = new JSONArray();
@@ -233,6 +234,4 @@ public class Restaurants extends Fragment{
 
         return result;
     }
-
-
 }

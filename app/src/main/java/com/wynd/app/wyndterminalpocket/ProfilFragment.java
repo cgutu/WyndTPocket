@@ -44,6 +44,7 @@ public class ProfilFragment extends Fragment {
     private String username, email, phone, permission, restaurant, restaurantID;
     private JSONObject restaurantObject = new JSONObject();
     private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
 
     private OnFragmentInteractionListener mListener;
@@ -266,4 +267,5 @@ public class ProfilFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
 }

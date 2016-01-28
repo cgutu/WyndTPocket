@@ -63,7 +63,7 @@ public class MenuActivity extends AppCompatActivity
         }
 
         System.out.println("s1 "+s1);
-        if(!s1.isEmpty() && s1.equals("1")){
+        if(!s1.isEmpty() && s1.equals("inforestaurant")){
             editor = pref.edit();
             editor.putString("Check", "0");
             editor.apply();
@@ -76,6 +76,12 @@ public class MenuActivity extends AppCompatActivity
 
             displayView(R.id.nav_camera);
         }else if(!s1.isEmpty() && s1.equals("exitterminals")){
+            editor = pref.edit();
+            editor.putString("Check", "0");
+            editor.apply();
+
+            displayView(R.id.nav_slideshow);
+        }else if(!s1.isEmpty() && s1.equals("infouser")){
             editor = pref.edit();
             editor.putString("Check", "0");
             editor.apply();
@@ -153,47 +159,6 @@ public class MenuActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//        if (id == R.id.logout) {
-//
-//            AlertDialog.Builder builder1 = new AlertDialog.Builder(MenuActivity.this);
-//            builder1.setMessage("Etes-vous sûr de vouloir vous déconnecter ?");
-//            builder1.setCancelable(true);
-//
-//            builder1.setPositiveButton(
-//                    "Oui",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int id) {
-//                            dialog.dismiss();
-//                            //clear session& logout
-//                            SharedPreferences.Editor editor = pref.edit();
-//                            editor.remove("username");
-//                            editor.apply();
-//
-//                            Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
-//                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                            startActivity(intent);
-//
-//                        }
-//                    });
-//
-//            builder1.setNegativeButton(
-//                    "Non",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int id) {
-//                            dialog.dismiss();
-//                        }
-//                    });
-//
-//            AlertDialog alert11 = builder1.create();
-//            alert11.show();
-//
-//            return true;
-//        }
-
         Fragment fragment1 = null;
         switch (id) {
             case R.id.logout:
@@ -207,8 +172,8 @@ public class MenuActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.dismiss();
                                 //clear session& logout
-                                SharedPreferences.Editor editor = pref.edit();
-                                editor.remove("username");
+                                editor = pref.edit();
+                                editor.clear();
                                 editor.apply();
 
                                 Intent intent = new Intent(MenuActivity.this, LoginActivity.class);

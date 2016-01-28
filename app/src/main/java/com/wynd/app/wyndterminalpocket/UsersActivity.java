@@ -156,7 +156,7 @@ public class UsersActivity extends AppCompatActivity {
 
         Volley.newRequestQueue(getApplicationContext()).add(userRequest);
         editor = pref.edit();
-        editor.putString("Check", "1");
+        editor.putString("Check", "infouser");
         editor.apply();
     }
 

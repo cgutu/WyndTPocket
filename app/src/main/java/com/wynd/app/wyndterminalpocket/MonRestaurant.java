@@ -1,6 +1,7 @@
 package com.wynd.app.wyndterminalpocket;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -48,6 +50,7 @@ public class MonRestaurant extends Fragment {
     private String name, email, phone, channel;
     private TextView Name, Email, Phone, Channel;
     private View rootView;
+    private Button terminals;
 
     private OnFragmentInteractionListener mListener;
 
@@ -104,6 +107,7 @@ public class MonRestaurant extends Fragment {
                                 Phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
                                 Channel.setText(response.isNull("channel") ? "" : response.getString("channel"));
 
+                                channel = response.isNull("channel") ? "" : response.getString("channel");
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -144,6 +148,16 @@ public class MonRestaurant extends Fragment {
         Email = (TextView) rootView.findViewById(R.id.email);
         Phone = (TextView) rootView.findViewById(R.id.phone);
         Channel = (TextView) rootView.findViewById(R.id.channel);
+        terminals = (Button) rootView.findViewById(R.id.btnTerminals);
+
+        terminals.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), Terminals.class);
+                i.putExtra("channel",channel);
+                startActivity(i);
+            }
+        });
 
         return rootView;
     }
@@ -186,4 +200,5 @@ public class MonRestaurant extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
 }
