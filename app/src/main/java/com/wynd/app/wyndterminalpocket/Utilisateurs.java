@@ -98,7 +98,7 @@ public class Utilisateurs extends Fragment {
 
         System.out.println("params! userid :" + userID + " parentid: " + parentID + " roles: " + permission);
 
-        if(!role.isEmpty() && role.equals("CHAIN_ADMIN")) {
+        if(!role.isEmpty() && role.equals("ADMIN")) {
 
             //get all restaurants
             JsonObjectRequest restaurantRequest = new JsonObjectRequest
@@ -340,8 +340,6 @@ public class Utilisateurs extends Fragment {
                         ui.permission = "ADMIN";
                     }else if(!permission.isEmpty() && permission.equals("1")){
                         ui.permission = "USER";
-                    }else if(!permission.isEmpty() && permission.equals("3")){
-                        ui.permission = "CHAIN_ADMIN";
                     }else{
                         ui.permission = "SUPER_ADMIN";
                     }

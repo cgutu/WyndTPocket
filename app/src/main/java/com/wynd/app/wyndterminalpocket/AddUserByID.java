@@ -154,7 +154,7 @@ public class AddUserByID extends AppCompatActivity {
             channels = new JSONObject();
             channels.put("restid", ID);
 
-            if(!role.isEmpty() && role.equalsIgnoreCase("CHAIN_ADMIN")){
+            if(!role.isEmpty() && role.equalsIgnoreCase("ADMIN")){
                 //I can only create users
                 channels.put("permission", "1");
             }else if(!role.isEmpty() && role.equalsIgnoreCase("SUPER_ADMIN")){

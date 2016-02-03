@@ -111,9 +111,7 @@ public class EditMyProfil extends AppCompatActivity {
                                 Permission = "1";
                             }else if(Permission.equals("SUPER_ADMIN")){
                                 Permission = "5";
-                        }else if(Permission.equals("CHAIN_ADMIN")){
-                                Permission = "3";
-                            }
+                        }
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
                             phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
                             Rest_channel = response.isNull("rest_channel") ? "" : response.getString("rest_channel");

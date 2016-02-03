@@ -95,7 +95,7 @@ public class Restaurants extends Fragment{
         System.out.println("params! userid :" + userID + " parentid: " + EntityInfo + " roles: " + permission);
 
         //if user is ADMIN, user can see the all restaurants, add a restaurant and add a new user with USER ROLES
-        if(!permission.isEmpty() && permission.equals("CHAIN_ADMIN")){
+        if(!permission.isEmpty() && permission.equals("ADMIN")){
 
             //get all restaurants
             JsonObjectRequest restaurantRequest = new JsonObjectRequest

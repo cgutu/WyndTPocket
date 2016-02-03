@@ -79,9 +79,7 @@ public class MenuActivity extends AppCompatActivity
             System.out.println("permission "+permissions);
             for(int i=0; i<permissions.length(); i++){
                 System.out.println("role "+permissions.getString(i));
-                if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("3")){
-                   ROLE = "CHAIN_ADMIN";
-                }else if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("1")){
+                if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("1")){
                     ROLE = "USER";
                 }else if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("2")){
                     ROLE = "ADMIN";
@@ -310,7 +308,7 @@ public class MenuActivity extends AppCompatActivity
             case R.id.nav_slideshow:
 
                 System.out.println("user role permission "+ROLE);
-                if(!ROLE.isEmpty() && ROLE.equals("CHAIN_ADMIN")){
+                if(!ROLE.isEmpty() && ROLE.equals("ADMIN")){
                     fragment = new Restaurants();
                     title = "Restaurants";
                 }else if(!ROLE.isEmpty() && ROLE.equals("USER")){
@@ -323,7 +321,7 @@ public class MenuActivity extends AppCompatActivity
             case R.id.nav_manage:
 
                 System.out.println("user role permission "+ROLE);
-                if(!ROLE.isEmpty() && ROLE.equals("CHAIN_ADMIN")){
+                if(!ROLE.isEmpty() && ROLE.equals("ADMIN")){
                     fragment = new Utilisateurs();
                     title = "Utilisateurs";
                     viewIsAtHome = false;

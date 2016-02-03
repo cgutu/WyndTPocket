@@ -185,8 +185,6 @@ public class UsersActivity extends AppCompatActivity {
                         ui.permission = "ADMIN";
                     } else if (!permission.isEmpty() && permission.equals("1")) {
                         ui.permission = "USER";
-                    } else if (!permission.isEmpty() && permission.equals("3")) {
-                        ui.permission = "CHAIN_ADMIN";
                     } else {
                         ui.permission = "SUPER_ADMIN";
                     }

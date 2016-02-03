@@ -138,14 +138,12 @@ public class ProfilFragment extends Fragment {
 
                                         System.out.println("mon role " + permission + " pour ce restaurant " + restaurantID);
 
-                                        if(!permission.isEmpty() && permission.equalsIgnoreCase("3")){
-                                            permission = "CHAIN_ADMIN";
-                                        }else if(!permission.isEmpty() && permission.equalsIgnoreCase("1")){
+                                        if(!permission.isEmpty() && permission.equalsIgnoreCase("1")){
                                             permission = "USER";
                                         }else if(!permission.isEmpty() && permission.equalsIgnoreCase("2")){
                                             permission = "ADMIN";
                                         }else if(!permission.isEmpty() && permission.equalsIgnoreCase("5")){
-                                            permission = "USER_ADMIN";
+                                            permission = "SUPER_ADMIN";
                                         }
 
 
