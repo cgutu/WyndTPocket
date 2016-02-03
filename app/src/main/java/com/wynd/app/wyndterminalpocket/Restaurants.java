@@ -51,7 +51,7 @@ public class Restaurants extends Fragment{
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private OnFragmentInteractionListener mListener;
-    private String userID, parentID, permission, rest_channel;
+    private String userID, parentID, permission, rest_channel, EntityInfo;
     private JSONArray chains = new JSONArray();
     List<String> name, email, phone, channel;
     private RecyclerView recList;
@@ -60,6 +60,7 @@ public class Restaurants extends Fragment{
     private List<RestaurantInfo> resto;
     private LinearLayout vExpandable;
     private RelativeLayout vHeader;
+    private JSONArray infosArray = new JSONArray();
 
     public Restaurants() {
         // Required empty public constructor
@@ -87,11 +88,11 @@ public class Restaurants extends Fragment{
         pref = getContext().getSharedPreferences("Infos", 0);
 
         userID = pref.getString("userID", "");
-        parentID = pref.getString("parentID", "");
-        permission = pref.getString("roles", "");
-        rest_channel = pref.getString("rest_channel", "");
+        EntityInfo = pref.getString("EntityInfo", "");
+        permission = pref.getString("ROLE", "");
+        //rest_channel = pref.getString("rest_channel", "");
 
-        System.out.println("params! userid :" + userID + " parentid: " + parentID + " roles: " + permission);
+        System.out.println("params! userid :" + userID + " parentid: " + EntityInfo + " roles: " + permission);
 
         //if user is ADMIN, user can see the all restaurants, add a restaurant and add a new user with USER ROLES
         if(!permission.isEmpty() && permission.equals("CHAIN_ADMIN")){
@@ -109,7 +110,19 @@ public class Restaurants extends Fragment{
                                 for (int i = 0; i < values.length(); i++) {
 
                                     JSONObject restaurants = values.getJSONObject(i);
-                                    chains.put(restaurants);
+
+                                    //check if the restaurant id is the same on with i have permissions to see
+                                    //display only restaurants which I allow to see
+                                    infosArray = new JSONArray(EntityInfo);
+                                    JSONObject infoObject;
+
+                                    for (int j = 0; j < infosArray.length(); j++) {
+                                        infoObject = infosArray.getJSONObject(j);
+                                        String restID= infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                                        if(!restaurants.getString("id").isEmpty() && restaurants.getString("id").equalsIgnoreCase(restID)){
+                                            chains.put(restaurants);
+                                        }
+                                    }
 
                                 }
                                 System.out.println("rest " + chains);

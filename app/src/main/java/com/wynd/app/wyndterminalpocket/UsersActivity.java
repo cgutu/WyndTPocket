@@ -55,7 +55,7 @@ public class UsersActivity extends AppCompatActivity {
     private String savedRestId;
     private String ID;
     private List<UserInfo> user;
-    private String myuserID;
+    private String myuserID, entities;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +74,7 @@ public class UsersActivity extends AppCompatActivity {
         System.out.println("rest id test " + pref.getString("restId", ""));
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
+        entities =  pref.getString("entities", "");
 
         if(restId == null){
             ID = savedRestId;
@@ -88,7 +89,7 @@ public class UsersActivity extends AppCompatActivity {
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-                Intent i = new Intent(UsersActivity.this, AddUser.class);
+                Intent i = new Intent(UsersActivity.this, AddUserByID.class);
                 i.putExtra("restId",ID);
                 startActivity(i);
             }
@@ -170,26 +171,29 @@ public class UsersActivity extends AppCompatActivity {
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
                 String id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
-                if(!id.equals(myuserID)){
-                    ui.id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
-                    ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX +  json_data.getString("username"));
-                    ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX +  json_data.getString("email"));
-                    ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX +  json_data.getString("phone"));
-                    ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
+
+                if(!id.isEmpty() && !id.equalsIgnoreCase(myuserID)) {
+                    ui.id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX + json_data.getString("id"));
+                    ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX + json_data.getString("username"));
+                    ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX + json_data.getString("email"));
+                    ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX + json_data.getString("phone"));
+                    //   ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
 
                     String permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
 
-                    if(!permission.isEmpty() && permission.equals("2")){
-                        ui.permission = ROLE_ADMIN;
-                    }else if(!permission.isEmpty() && permission.equals("1")){
-                        ui.permission = ROLE_USER;
-                    }else{
-                        ui.permission = ROLE_SUPER_ADMIN;
+                    if (!permission.isEmpty() && permission.equals("2")) {
+                        ui.permission = "ADMIN";
+                    } else if (!permission.isEmpty() && permission.equals("1")) {
+                        ui.permission = "USER";
+                    } else if (!permission.isEmpty() && permission.equals("3")) {
+                        ui.permission = "CHAIN_ADMIN";
+                    } else {
+                        ui.permission = "SUPER_ADMIN";
                     }
 
 
                     editor = pref.edit();
-                    editor.putString("restId", json_data.getString("rest_channel"));
+                    editor.putString("restId", ID);
                     editor.putString("userID", json_data.getString("id"));
                     editor.apply();
                     result.add(ui);

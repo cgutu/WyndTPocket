@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +28,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ProfilActivity extends AppCompatActivity {
@@ -36,6 +40,8 @@ public class ProfilActivity extends AppCompatActivity {
     private TextView vUsername, vEmail, vPhone, vPermission, vRest_channel;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private ListView mListView;
+    private List<String> listItems = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +57,7 @@ public class ProfilActivity extends AppCompatActivity {
         vUsername = (TextView) findViewById(R.id.username);
         vEmail = (TextView) findViewById(R.id.email);
         vPhone = (TextView) findViewById(R.id.phone);
-        vPermission = (TextView) findViewById(R.id.permission);
-        vRest_channel = (TextView) findViewById(R.id.rest);
-
+        mListView = (ListView) findViewById(R.id.listView);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
@@ -97,20 +101,71 @@ public class ProfilActivity extends AppCompatActivity {
                             username = response.getString("username");
                             email = response.getString("email");
                             phone = response.getString("phone");
-                            hash = response.getString("hash");
-                            permission = response.getString("permission");
-                            rest_channel = response.getString("rest_channel");
+                            JSONArray userResto = response.getJSONArray("usersInResto");
+                            for(int i=0; i<userResto.length(); i++){
+                                JSONObject userRestInfo = userResto.getJSONObject(i);
+                                permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
+                                rest_channel = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
+
+                                //set listview
+
+                                if(!rest_channel.isEmpty()) {
+                                    final JsonObjectRequest restaurantRequest = new JsonObjectRequest
+                                            (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/id/" + rest_channel, null, new Response.Listener<JSONObject>() {
+                                                @Override
+                                                public void onResponse(JSONObject response) {
+
+                                                    try {
+                                                        response = response.getJSONObject("data");
+                                                        System.out.println("response " + response);
+
+
+                                                        String restaurantName = response.isNull("name") ? "" : response.getString("name");
+                                                        listItems.add(permission + " <----> " + restaurantName);
+                                                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
+                                                                android.R.layout.simple_list_item_1, listItems);
+                                                        mListView.setAdapter(adapter);
+
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                }
+                                            }, new Response.ErrorListener() {
+
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+
+                                                    error.printStackTrace();
+                                                }
+                                            }) {
+                                        @Override
+                                        public Map<String, String> getHeaders() throws AuthFailureError {
+                                            Map<String, String> params = new HashMap<String, String>();
+
+                                            System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
+                                            params.put("Api-User", Globales.API_USER);
+                                            params.put("Api-Hash", Globales.API_HASH);
+
+                                            return params;
+                                        }
+                                    };
+
+                                    Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
+                                }
+                            }
+                            System.out.println("userrestinfo " + permission + " " + rest_channel);
 
 
                             vUsername.setText(username);
                             vEmail.setText(email);
-                            vPermission.setText(permission);
                             vPhone.setText(phone);
-                            vRest_channel.setText(rest_channel);
 
                             editor = pref.edit();
                             editor.putString("userID", id);
                             editor.apply();
+
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();

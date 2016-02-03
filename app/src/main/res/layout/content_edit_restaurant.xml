@@ -4,59 +4,94 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:focusableInTouchMode="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.wynd.app.wyndterminalpocket.AskAccount"
-    tools:showIn="@layout/activity_ask_account">
+    tools:context="com.wynd.app.wyndterminalpocket.EditRestaurant"
+    tools:showIn="@layout/activity_edit_restaurant">
 
     <LinearLayout
-        android:id="@+id/header"
+        android:id="@+id/l1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:orientation="vertical"
+        >
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            >
+            <ImageView
+                android:id="@+id/itemImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:scaleType="centerInside"
+                android:gravity="right|center_vertical"
+                android:src="@drawable/exki"
+                />
+            <ImageView
+                android:id="@+id/currentLentItem"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_shape"
+                android:padding="10dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_mode_edit_white"
+                android:layout_alignParentTop="true"
+                android:layout_alignEnd="@+id/itemImage" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l2"
+        android:padding="5dp"
+        android:background="@color/white"
+        android:layout_below="@id/l1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <ImageView
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/aboutyou"/>
+            android:text="INFORMATIONS"/>
     </LinearLayout>
 
     <ScrollView
-        android:id="@+id/add_form"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:layout_below="@id/header"
+        android:id="@+id/edit_form"
+        android:layout_below="@id/l2"
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/add_user_form"
             android:layout_width="match_parent"
+            android:padding="10dp"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Give us some informations about you"/>
-
-
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                >
 
                 <EditText
-                    android:id="@+id/username"
+                    android:id="@+id/name"
+                    android:hint="Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Username"
-                    android:imeActionId="@+id/username"
+                    android:imeActionId="@+id/name"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
-                    android:inputType="textPersonName"
+                    android:inputType="text"
                     android:maxLines="1"
-                    android:singleLine="true"
-                    android:elegantTextHeight="false" />
+                    android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -66,9 +101,9 @@
 
                 <EditText
                     android:id="@+id/email"
+                    android:hint="Email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Email"
                     android:imeActionId="@+id/email"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -83,9 +118,9 @@
 
                 <EditText
                     android:id="@+id/phone"
+                    android:hint="Phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Phone"
                     android:imeActionId="@+id/phone"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -94,52 +129,23 @@
                     android:singleLine="true" />
 
             </android.support.design.widget.TextInputLayout>
-
             <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
                 <EditText
-                    android:id="@+id/rest"
+                    android:id="@+id/restchannel"
+                    android:hint="Channel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Restaurant"
-                    android:imeActionId="@+id/rest"
+                    android:imeActionId="@+id/restchannel"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
                     android:inputType="text"
                     android:maxLines="1"
                     android:singleLine="true" />
+
             </android.support.design.widget.TextInputLayout>
-
-
-            <!--<android.support.design.widget.TextInputLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content">-->
-
-            <!--<EditText-->
-            <!--android:id="@+id/permission"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:hint="permission"-->
-            <!--android:imeActionId="@+id/permission"-->
-            <!--android:imeActionLabel="@string/action_sign_in_short"-->
-            <!--android:imeOptions="actionUnspecified"-->
-            <!--android:inputType="text"-->
-            <!--android:maxLines="1"-->
-            <!--android:singleLine="true" />-->
-
-            <!--</android.support.design.widget.TextInputLayout>-->
-            <Button
-                android:id="@+id/submit"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Envoyer"
-                android:background="@drawable/shape_button"
-                android:textColor="@android:color/white"
-                android:textStyle="bold" />
-
 
         </LinearLayout>
     </ScrollView>

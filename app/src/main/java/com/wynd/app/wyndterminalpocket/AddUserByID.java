@@ -1,30 +1,28 @@
 package com.wynd.app.wyndterminalpocket;
 
+/**
+ * Created by cgutu on 03/02/16.
+ */
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -58,7 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AddUser extends AppCompatActivity{
+public class AddUserByID extends AppCompatActivity {
 
     private String restId;
     private String message;
@@ -87,7 +85,7 @@ public class AddUser extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_user);
+        setContentView(R.layout.activity_add_userbyid);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -109,11 +107,6 @@ public class AddUser extends AppCompatActivity{
         myuserID = pref.getString("myuserID", "");
         role = pref.getString("ROLE", "");
 
-        editor = pref.edit();
-        editor.putString("Check", "userlist");
-        editor.apply();
-
-
         if(restId == null){
             ID = savedRestId;
         }else{
@@ -128,7 +121,7 @@ public class AddUser extends AppCompatActivity{
         mPhoneView = (EditText) findViewById(R.id.phone);
 
 
-       // btnSubmit = (Button) findViewById(R.id.submit);
+        // btnSubmit = (Button) findViewById(R.id.submit);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,193 +131,8 @@ public class AddUser extends AppCompatActivity{
             }
         });
 
-
-        //get all restaurants
-        final JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/chains", null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        try {
-                            JSONArray values = response.getJSONArray("data");
-                            System.out.println("response "+response);
-
-                            for (int i = 0; i < values.length(); i++) {
-
-                                JSONObject restaurants = values.getJSONObject(i);
-                                chains.put(restaurants);
-                                names.put(values.getJSONObject(i).getString("name"));
-                            }
-                            for(int i = 0; i < names.length(); i++){
-                                list.add(names.get(i).toString());
-                            }
-                            restaurants = list.toArray(new CharSequence[list.size()]);
-                            System.out.println("names list" + restaurants);
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        error.printStackTrace();
-                    }
-                }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
-                params.put("Api-User", Globales.API_USER);
-                params.put("Api-Hash", Globales.API_HASH);
-
-                return params;
-            }
-        };
-
-        Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
-
-        //set all permissions
-//        System.out.println("permissions list" + permissions);
-
-//        selectPermissionBtn = (Button) findViewById(R.id.permissions);
-//
-        selectEntityButton = (Button) findViewById(R.id.addrest);
-        selectEntityButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showSelectEntityDialog();
-            }
-        });
-
-
-
     }
-    protected void showSelectPermissionDialog() {
 
-
-        boolean[] checkedEntities = new boolean[permissions.length];
-
-        int count = permissions.length;
-
-        for(int i = 0; i < count; i++)
-
-            checkedEntities[i] = selectedPermission.contains(permissions[i]);
-
-        DialogInterface.OnMultiChoiceClickListener entitiesDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
-
-            @Override
-
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-
-                if(isChecked)
-
-                    selectedPermission.add(permissions[which]);
-
-                else
-
-                    selectedPermission.remove(permissions[which]);
-
-                onChangeSelectedPermission();
-
-            }
-
-        };
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("Select permissions");
-
-        builder.setMultiChoiceItems(permissions, checkedEntities, entitiesDialogListener);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-
-    }
-    protected void showSelectEntityDialog() {
-
-
-        boolean[] checkedEntities = new boolean[restaurants.length];
-
-        int count = restaurants.length;
-
-        for(int i = 0; i < count; i++)
-
-            checkedEntities[i] = selectedEntity.contains(restaurants[i]);
-
-        DialogInterface.OnMultiChoiceClickListener entitiesDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
-
-            @Override
-
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-
-                if(isChecked)
-
-                    selectedEntity.add(restaurants[which]);
-
-                else
-
-                    selectedEntity.remove(restaurants[which]);
-
-                onChangeSelectedEntity();
-
-            }
-
-        };
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("Select restaurants");
-
-        builder.setMultiChoiceItems(restaurants, checkedEntities, entitiesDialogListener);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-
-    }
-    protected void onChangeSelectedPermission() {
-
-        selectedItemPermission = new ArrayList<String>();
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for(CharSequence entity : selectedPermission){
-            stringBuilder.append(entity + ",");
-        }
-
-        if(stringBuilder.toString().isEmpty()){
-            selectPermissionBtn.setText("Veuillez sélectionner une permission");
-            selectPermissionBtn.setTextColor(Color.RED);
-        }else{
-            selectPermissionBtn.setTextColor(Color.BLACK);
-            selectPermissionBtn.setText(stringBuilder.toString());
-        }
-
-    }
-    protected void onChangeSelectedEntity() {
-
-        selectedItem = new ArrayList<String>();
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for(CharSequence entity : selectedEntity){
-            stringBuilder.append(entity + ",");
-        }
-
-        if(stringBuilder.toString().isEmpty()){
-            selectEntityButton.setText("Veuillez sélectionner au moins un restaurant");
-            selectEntityButton.setTextColor(Color.RED);
-        }else{
-            selectEntityButton.setTextColor(Color.BLACK);
-            selectEntityButton.setText(stringBuilder.toString());
-        }
-
-    }
 
     private void checkForm(){
 
@@ -340,48 +148,26 @@ public class AddUser extends AppCompatActivity{
         email = mEmailView.getText().toString();
         phone = mPhoneView.getText().toString();
         password = mPasswordView.getText().toString();
-        String items = selectEntityButton.getText().toString();
-        selectedItem = Arrays.asList(items.split(","));
 
         try{
-
             itemsArray = new JSONArray();
-            for(int i=0; i<selectedItem.size(); i++){
-                String selectedName = selectedItem.get(i);
-                System.out.println("selected id "+selectedName);
+            channels = new JSONObject();
+            channels.put("restid", ID);
 
-                for(int j=0; j<chains.length(); j++){
-                    String name = chains.getJSONObject(j).getString("name");
-
-                    if(selectedName.equalsIgnoreCase(name)){
-
-                        channels = new JSONObject();
-                        channels.put("restid", chains.getJSONObject(i).getString("id"));
-                        if(!role.isEmpty() && role.equalsIgnoreCase("CHAIN_ADMIN")){
-                            //I can only create users
-                            channels.put("permission", "1");
-                        }else if(!role.isEmpty() && role.equalsIgnoreCase("SUPER_ADMIN")){
-                            //I can only create administators
-                            channels.put("permission", "2");
-                        }
-
-
-                        itemsArray.put(channels);
-
-
-                    }
-                }
-
+            if(!role.isEmpty() && role.equalsIgnoreCase("CHAIN_ADMIN")){
+                //I can only create users
+                channels.put("permission", "1");
+            }else if(!role.isEmpty() && role.equalsIgnoreCase("SUPER_ADMIN")){
+                //I can only create administators
+                channels.put("permission", "2");
             }
-
-
-
-
-
-            System.out.println("itemsArray" + itemsArray);
+            itemsArray.put(channels);
         }catch (JSONException e){
 
         }
+
+        System.out.println("itemsArray" + itemsArray);
+
 
         if (TextUtils.isEmpty(username) ) {
             mUsernameView.setError(getString(R.string.error_field_required));
@@ -508,7 +294,7 @@ public class AddUser extends AppCompatActivity{
                     System.out.println("entities "+entities);
 
                     for(i=0; i<entities.length(); i++){
-                         JSONObject entity = entities.getJSONObject(i);
+                        JSONObject entity = entities.getJSONObject(i);
                         System.out.println("entity "+entity);
                         EntityInfo.put(entity);
                     }
@@ -521,7 +307,7 @@ public class AddUser extends AppCompatActivity{
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
-                    Intent intent = new Intent(AddUser.this, MenuActivity.class);
+                    Intent intent = new Intent(AddUserByID.this, UsersActivity.class);
                     startActivity(intent);
                     finish();
                 }else{

@@ -88,35 +88,13 @@
             android:id="@+id/layout3"
             android:layout_below="@id/layout2"
             android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary"
             android:layout_height="wrap_content">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_group_work_black"/>
-            <TextView
-                android:id="@+id/permission"
-                android:layout_marginStart="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="10dp"
-                android:text="test"/>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/layout4"
-            android:layout_below="@id/layout3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_settings_ethernet_black"/>
-            <TextView
-                android:id="@+id/rest"
-                android:layout_marginStart="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingTop="10dp"
-                android:text="test"/>
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
         </LinearLayout>
 
     </RelativeLayout>

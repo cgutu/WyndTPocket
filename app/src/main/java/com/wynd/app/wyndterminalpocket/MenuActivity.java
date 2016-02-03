@@ -24,15 +24,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
+
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ProfilFragment.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, Restaurants.OnFragmentInteractionListener,
-        Users.OnFragmentInteractionListener, MonRestaurant.OnFragmentInteractionListener {
+        Users.OnFragmentInteractionListener, MonRestaurant.OnFragmentInteractionListener, Utilisateurs.OnFragmentInteractionListener {
 
     private SharedPreferences pref;
     private boolean viewIsAtHome;
-    private String userID, parentID, permission, rest_channel;
+    private String userID, parentID, permission, rest_channel, EntityInfo;
     private boolean mState = false;
     private SharedPreferences.Editor editor;
+    private JSONArray infosArray = new JSONArray();
+    private JSONArray permissions = new JSONArray();
+    public static String ROLE = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,17 +59,53 @@ public class MenuActivity extends AppCompatActivity
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         String username = pref.getString("username", "");
         userID = pref.getString("myuserID", "");
-        parentID = pref.getString("parentID", "");
-        permission = pref.getString("roles", "");
-        rest_channel = pref.getString("rest_channel", "");
+        EntityInfo = pref.getString("EntityInfo", "");
+       // permission = pref.getString("roles", "");
+       // rest_channel = pref.getString("rest_channel", "");
         String s1 = pref.getString("Check", "");
 
-        System.out.println("params! userid :" + userID + " parentid: " + parentID + " roles: " + permission);
 
-        if(!permission.isEmpty() && !permission.equals("ADMIN")){
-            mState = true;
-            System.out.println("state " + mState);
+        //cas où l'utilisateur est chain_admin ou admin sur tout les restaurant du parent id 1
+        try{
+            infosArray = new JSONArray(EntityInfo);
+           JSONObject infoObject = new JSONObject();
+
+            for (int i = 0; i < infosArray.length(); i++) {
+                infoObject = infosArray.getJSONObject(i);
+                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                permissions.put(permission);
+            }
+
+            System.out.println("permission "+permissions);
+            for(int i=0; i<permissions.length(); i++){
+                System.out.println("role "+permissions.getString(i));
+                if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("3")){
+                   ROLE = "CHAIN_ADMIN";
+                }else if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("1")){
+                    ROLE = "USER";
+                }else if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("2")){
+                    ROLE = "ADMIN";
+                }else if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("5")){
+                    ROLE = "USER_ADMIN";
+                }
+            }
+            System.out.println("role "+ROLE);
+        }catch (JSONException e){
+
         }
+        editor = pref.edit();
+        editor.putString("ROLE", ROLE);
+        editor.apply();
+
+
+        System.out.println("params! userid :" + userID + " parentid: " + EntityInfo );
+
+
+
+//        if(!permission.isEmpty() && !permission.equals("ADMIN")){
+//            mState = true;
+//            System.out.println("state " + mState);
+//        }
 
         System.out.println("s1 "+s1);
         if(!s1.isEmpty() && s1.equals("inforestaurant")){
@@ -87,6 +132,12 @@ public class MenuActivity extends AppCompatActivity
             editor.apply();
 
             displayView(R.id.nav_slideshow);
+        }else if(!s1.isEmpty() && s1.equals("userlist")){
+            editor = pref.edit();
+            editor.putString("Check", "0");
+            editor.apply();
+
+            displayView(R.id.nav_manage);
         }
 
 
@@ -151,6 +202,7 @@ public class MenuActivity extends AppCompatActivity
 
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -257,19 +309,30 @@ public class MenuActivity extends AppCompatActivity
                 break;
             case R.id.nav_slideshow:
 
-                pref = getApplicationContext().getSharedPreferences("Infos", 0);
-                permission = pref.getString("roles", "");
-
-                System.out.println("user permission "+permission);
-                if(!permission.isEmpty() && permission.equals("CHAIN_ADMIN")){
+                System.out.println("user role permission "+ROLE);
+                if(!ROLE.isEmpty() && ROLE.equals("CHAIN_ADMIN")){
                     fragment = new Restaurants();
                     title = "Restaurants";
-                }else if(!permission.isEmpty() && permission.equals("USER")){
+                }else if(!ROLE.isEmpty() && ROLE.equals("USER")){
                     fragment = new MonRestaurant();
                     title = "Mon Restaurant";
                 }
 
                 viewIsAtHome = false;
+                break;
+            case R.id.nav_manage:
+
+                System.out.println("user role permission "+ROLE);
+                if(!ROLE.isEmpty() && ROLE.equals("CHAIN_ADMIN")){
+                    fragment = new Utilisateurs();
+                    title = "Utilisateurs";
+                    viewIsAtHome = false;
+                }else if(!ROLE.isEmpty() && ROLE.equals("USER")){
+                    fragment = new HomeFragment();
+                    title = "Home";
+                    viewIsAtHome = true;
+                }
+
                 break;
             default:
                 fragment = new HomeFragment();

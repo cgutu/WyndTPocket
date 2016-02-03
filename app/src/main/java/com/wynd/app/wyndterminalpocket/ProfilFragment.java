@@ -10,6 +10,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +26,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -41,11 +45,12 @@ public class ProfilFragment extends Fragment {
     private View rootView;
 
     private TextView userName, Email, Phone, Permission, Restaurant;
-    private String username, email, phone, permission, restaurant, restaurantID;
+    private String username, email, phone, permission, restaurant, restaurantID, EntityInfo;
     private JSONObject restaurantObject = new JSONObject();
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-
+    private ListView mListView;
+    private List<String>  listItems = new ArrayList<String>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -81,9 +86,11 @@ public class ProfilFragment extends Fragment {
         pref = getContext().getSharedPreferences("Infos", 0);
 
         userID = pref.getString("myuserID", "");
-        parentID = pref.getString("parentID", "");
+        EntityInfo = pref.getString("EntityInfo", "");
 
-        System.out.println("params: userid -" + userID + " parentid - " + parentID);
+        listItems.add("Role" + " <--------------------> " + "Restaurant");
+
+        System.out.println("params: userid -" + userID + " parentid - " + EntityInfo);
 
         //for getting the all role for example
         /* ------------------------------------------- */
@@ -117,63 +124,88 @@ public class ProfilFragment extends Fragment {
                                     username = response.isNull("username") ? "" : response.getString("username");
                                     email = response.isNull("email") ? "" : response.getString("email");
                                     phone = response.isNull("phone") ? "" : response.getString("phone");
-                                    permission = response.isNull("permission") ? "" : response.getString("permission");
-                                    restaurantID = response.isNull("rest_channel") ? "" : response.getString("rest_channel");
-
 
                                     userName.setText(username);
                                     Email.setText(email);
                                     Phone.setText(phone);
-                                    Permission.setText(permission);
 
-                                    if(!restaurantID.isEmpty()){
-                                        final JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                                                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/by/id/"+restaurantID, null, new Response.Listener<JSONObject>() {
-                                                    @Override
-                                                    public void onResponse(JSONObject response) {
 
-                                                        try {
-                                                            response = response.getJSONObject("data");
-                                                            System.out.println("response " + response);
+                                    JSONArray userResto = response.getJSONArray("usersInResto");
+                                    for(int i=0; i<userResto.length(); i++){
+                                        JSONObject userRestInfo = userResto.getJSONObject(i);
+                                        permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
+                                        restaurantID = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
 
-                                                            restaurantObject.put("id", response.isNull("id") ? "" : response.getString("id"));
-                                                            restaurantObject.put("name", response.isNull("name") ? "" : response.getString("name"));
-                                                            restaurantObject.put("email", response.isNull("email") ? "" : response.getString("email"));
-                                                            restaurantObject.put("phone", response.isNull("phone") ? "" : response.getString("phone"));
-                                                            restaurantObject.put("channel", response.isNull("channel") ? "" : response.getString("channel"));
+                                        System.out.println("mon role " + permission + " pour ce restaurant " + restaurantID);
 
-                                                            System.out.println("restaurant object " + restaurantObject);
+                                        if(!permission.isEmpty() && permission.equalsIgnoreCase("3")){
+                                            permission = "CHAIN_ADMIN";
+                                        }else if(!permission.isEmpty() && permission.equalsIgnoreCase("1")){
+                                            permission = "USER";
+                                        }else if(!permission.isEmpty() && permission.equalsIgnoreCase("2")){
+                                            permission = "ADMIN";
+                                        }else if(!permission.isEmpty() && permission.equalsIgnoreCase("5")){
+                                            permission = "USER_ADMIN";
+                                        }
 
-                                                            restaurant = response.isNull("name") ? "" : response.getString("name");
-                                                            Restaurant.setText(restaurant);
 
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
+                                        //get restaurant info
+
+                                        restaurant ="";
+                                        if(!restaurantID.isEmpty()){
+                                            final JsonObjectRequest restaurantRequest = new JsonObjectRequest
+                                                    (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/by/id/"+restaurantID, null, new Response.Listener<JSONObject>() {
+                                                        @Override
+                                                        public void onResponse(JSONObject response) {
+
+                                                            try {
+                                                                response = response.getJSONObject("data");
+                                                                System.out.println("response " + response);
+
+                                                                restaurantObject.put("id", response.isNull("id") ? "" : response.getString("id"));
+                                                                restaurantObject.put("name", response.isNull("name") ? "" : response.getString("name"));
+                                                                restaurantObject.put("email", response.isNull("email") ? "" : response.getString("email"));
+                                                                restaurantObject.put("phone", response.isNull("phone") ? "" : response.getString("phone"));
+                                                                restaurantObject.put("channel", response.isNull("channel") ? "" : response.getString("channel"));
+
+                                                                System.out.println("restaurant object " + restaurantObject);
+
+                                                                restaurant = response.isNull("name") ? "" : response.getString("name");
+                                                                listItems.add(permission + " <----> " + restaurant);
+                                                                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                                                                        android.R.layout.simple_list_item_1, listItems);
+                                                                mListView.setAdapter(adapter);
+
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
+                                                            }
+
                                                         }
+                                                    }, new Response.ErrorListener() {
 
-                                                    }
-                                                }, new Response.ErrorListener() {
+                                                        @Override
+                                                        public void onErrorResponse(VolleyError error) {
 
-                                                    @Override
-                                                    public void onErrorResponse(VolleyError error) {
+                                                            error.printStackTrace();
+                                                        }
+                                                    }) {
+                                                @Override
+                                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                                    Map<String, String>  params = new HashMap<String, String>();
 
-                                                        error.printStackTrace();
-                                                    }
-                                                }) {
-                                            @Override
-                                            public Map<String, String> getHeaders() throws AuthFailureError {
-                                                Map<String, String>  params = new HashMap<String, String>();
+                                                    System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                                                    params.put("Api-User", Globales.API_USER);
+                                                    params.put("Api-Hash", Globales.API_HASH);
 
-                                                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
-                                                params.put("Api-User", Globales.API_USER);
-                                                params.put("Api-Hash", Globales.API_HASH);
+                                                    return params;
+                                                }
+                                            };
 
-                                                return params;
-                                            }
-                                        };
+                                            Volley.newRequestQueue(getContext()).add(restaurantRequest);
+                                        }
 
-                                        Volley.newRequestQueue(getContext()).add(restaurantRequest);
                                     }
+
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -214,15 +246,17 @@ public class ProfilFragment extends Fragment {
         userName = (TextView) rootView.findViewById(R.id.username);
         Email = (TextView) rootView.findViewById(R.id.email);
         Phone = (TextView) rootView.findViewById(R.id.phone);
-        Permission = (TextView) rootView.findViewById(R.id.permission);
-        Restaurant = (TextView) rootView.findViewById(R.id.restaurant);
+        //Permission = (TextView) rootView.findViewById(R.id.permission);
+       // Restaurant = (TextView) rootView.findViewById(R.id.restaurant);
+        mListView = (ListView) rootView.findViewById(R.id.listView);
 
-        Restaurant.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), " "+restaurantObject.toString(), Toast.LENGTH_LONG).show();
-            }
-        });
+
+//        Restaurant.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getContext(), " "+restaurantObject.toString(), Toast.LENGTH_LONG).show();
+//            }
+//        });
 
         FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

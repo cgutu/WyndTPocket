@@ -58,5 +58,10 @@
     <string name="title_activity_ask_account">Demander un compte</string>
     <string name="title_activity_terminals">Terminals</string>
     <string name="title_activity_info_of_restaurant">Informations</string>
+    <string name="title_activity_edit_restaurant">Modifier</string>
+    <string name="title_activity_add_terminal">AddTerminal</string>
+    <string name="title_activity_utilisateurs">Utilisateurs</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_terminal_position">Localisation</string>
 
 </resources>

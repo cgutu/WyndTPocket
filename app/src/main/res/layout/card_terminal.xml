@@ -32,12 +32,12 @@
                 android:contentDescription="@string/exki_logo" />
 
             <RelativeLayout
-
+                android:id="@+id/infos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="110dp"
-                android:layout_marginBottom="10dp"
-                android:layout_gravity="end">
+                android:layout_gravity="end"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/picture">
                 <TextView
                     android:id="@+id/uuid"
                     android:layout_width="wrap_content"
@@ -52,22 +52,223 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="restaurant"
-                    android:textSize="10sp"
                     android:layout_below="@id/uuid" />
                 <TextView
-                    android:id="@+id/txtChannel"
+                    android:id="@+id/txtInfos"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Channel"
-                    android:textSize="10sp"
+                    android:text="Entity Parent/ID/Label"
                     android:layout_below="@id/restaurant" />
+
+                <LinearLayout
+                    android:id="@+id/lChannel"
+                    android:layout_below="@id/txtInfos"
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_settings_ethernet_black"/>
+                    <TextView
+                        android:id="@+id/txtChannel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Channel"
+                        android:layout_gravity="center_vertical" />
+                </LinearLayout>
 
             </RelativeLayout>
 
+            <Button
+                android:id="@+id/on"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:visibility="gone"
+                android:background="@drawable/shape_on"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="40dp" />
+            <Button
+                android:id="@+id/off"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:visibility="visible"
+                android:background="@drawable/shape_off"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="40dp" />
 
+            <TextView
+                android:id="@+id/txtTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                android:text="Time"
+                android:textSize="10sp"
+                android:layout_alignParentTop="true"
+                android:layout_alignEnd="@+id/off" />
 
 
         </RelativeLayout>
+        <ImageView
+            android:id="@+id/info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:src="@drawable/ic_info_black"
+            android:contentDescription="@string/exki_logo"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+        <LinearLayout
+            android:id="@+id/expandable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/card_detailing"
+            android:orientation="vertical"
+            android:layout_below="@+id/header"
+            android:layout_gravity="bottom"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+            <LinearLayout
+                android:id="@+id/lUsername"
+                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.50">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_account_circle_black"/>
+                <TextView
+                    android:id="@+id/txtUser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="username"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/lEmail"
+                    android:layout_below="@id/lUsername"
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_mail_black"/>
+                    <TextView
+                        android:id="@+id/txtEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:autoLink="email"
+                        android:text="Email" />
+                </LinearLayout>
+                    </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="1">
+
+                    <LinearLayout
+                        android:id="@+id/lPhone"
+                        android:layout_below="@id/lEmail"
+                        android:layout_width="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.50">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_phone_black"/>
+                        <TextView
+                            android:id="@+id/txtPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Phone"
+                            android:autoLink="phone"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="center_vertical"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/lApk"
+                        android:layout_below="@id/lPhone"
+                        android:layout_width="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_android_black"/>
+                        <TextView
+                            android:id="@+id/txtApk"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="apkVersion"
+                            android:autoLink="phone"
+                            android:gravity="center_vertical"
+                            android:layout_gravity="center_vertical"/>
+                    </LinearLayout>
+                    </LinearLayout>
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:background="@color/white"
+                android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_room_black"/>
+                <Button android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/buttons_chape"
+                    android:textColor="@drawable/text_color"
+                    android:id="@+id/btnLocaliser"
+                    android:text="Localiser"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_history_black"/>
+                <Button android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/buttons_chape"
+                    android:textColor="@drawable/text_color"
+                    android:id="@+id/btnHistory"
+                    android:text="Historique"/>
+            </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

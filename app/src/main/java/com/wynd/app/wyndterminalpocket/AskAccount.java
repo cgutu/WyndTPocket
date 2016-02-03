@@ -40,15 +40,6 @@ public class AskAccount extends AppCompatActivity {
         //get all franchise
         //get all restaurants
 
-        final Spinner spinner = (Spinner) findViewById(R.id.rest_channel_id);
-        List<String> list = new ArrayList<String>();
-        list.add("Exki 1 ");
-        list.add("Exki 2");
-        list.add("Exki 3");
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(dataAdapter);
 
     }
     private void checkForm() {

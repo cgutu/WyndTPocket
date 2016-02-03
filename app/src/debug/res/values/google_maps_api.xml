@@ -1,0 +1,21 @@
+<resources>
+    <!--
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=9F:85:2D:67:B3:D4:A0:60:E6:00:59:B8:DB:10:68:CC:61:9A:06:56%3Bcom.wynd.app.wyndterminalpocket
+
+    You can also add your credentials to an existing key, using this line:
+    9F:85:2D:67:B3:D4:A0:60:E6:00:59:B8:DB:10:68:CC:61:9A:06:56;com.wynd.app.wyndterminalpocket
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+   <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
+        AIzaSyC7CLqSWYVVT-4yl7FTfInvm4rUEe8gZsc
+    </string>
+</resources>

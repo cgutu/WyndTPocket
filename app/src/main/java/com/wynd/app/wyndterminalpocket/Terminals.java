@@ -1,14 +1,20 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.view.View;
 
 import com.android.volley.AuthFailureError;
@@ -22,7 +28,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +40,13 @@ public class Terminals extends AppCompatActivity {
     private JSONArray terminals = new JSONArray();
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    private String userID, parentID, permission, rest_channel, ID;
+    private String userID, parentID, permission, rest_channel, ID, restId;
     private String clickedChannel;
     private RecyclerView recList;
     private TerminalAdapter ta;
     private List<TerminalInfo> terminal;
+    private String channelName, clickedChannelID;
+    private NotificationManager mNotificationManager= null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +56,6 @@ public class Terminals extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         recList = (RecyclerView) findViewById(R.id.cardList);
@@ -73,6 +76,7 @@ public class Terminals extends AppCompatActivity {
         parentID = pref.getString("parentID", "");
         permission = pref.getString("roles", "");
         rest_channel = pref.getString("rest_channel", "");
+        String savedChannel = pref.getString("clickedchannel", "");
 
         editor = pref.edit();
         editor.putString("Check", "exitterminals");
@@ -80,10 +84,29 @@ public class Terminals extends AppCompatActivity {
 
         Intent intent = getIntent();
         clickedChannel = intent.getStringExtra("channel");
+        clickedChannelID = intent.getStringExtra("restId");
 
+        System.out.println("restchannel before" + "clicked "+clickedChannel + "saved "+savedChannel+" last"+channelName);
+
+        if(clickedChannel == null){
+            channelName = savedChannel;
+        }else{
+            channelName = clickedChannel;
+        }
+
+        // Only super admin can add terminal
+        System.out.println("restchannel after " + channelName);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Terminals.this, AddTerminal.class);
+                i.putExtra("restId",clickedChannelID);
+                startActivity(i);
+            }
+        });
 
         //if permission if chain admin I can manage terminals (add or edit)
-        if(!permission.isEmpty() && permission.equalsIgnoreCase("CHAIN_ADMIN")){
+        if(!permission.isEmpty() && permission.equalsIgnoreCase("SUPER_ADMIN")){
             fab.setVisibility(View.VISIBLE);
         }else{
             fab.setVisibility(View.INVISIBLE);
@@ -104,7 +127,11 @@ public class Terminals extends AppCompatActivity {
 
                                     JSONObject terminalObject = values.getJSONObject(i);
                                     String channel = terminalObject.isNull("channel") ? "" : terminalObject.getString("channel");
-                                    if(!channel.isEmpty() && channel.equalsIgnoreCase(clickedChannel)){
+                                    System.out.println("channel "+channel);
+                                    if(!channel.isEmpty() && channel.equalsIgnoreCase(channelName)){
+                                        editor = pref.edit();
+                                        editor.putString("clickedchannel", channel);
+                                        editor.apply();
                                         terminals.put(terminalObject);
                                     }
                                 }
@@ -145,6 +172,8 @@ public class Terminals extends AppCompatActivity {
     private List<TerminalInfo> createList(JSONArray jsonArray) {
 
         List<TerminalInfo> result = new ArrayList<TerminalInfo>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentDateandTime = sdf.format(new Date());
 
         try{
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -156,8 +185,102 @@ public class Terminals extends AppCompatActivity {
                 ti.uuid = (json_data.isNull("uuid") ? "" :  json_data.getString("uuid"));
                 ti.channel = (json_data.isNull("channel") ? "" : json_data.getString("channel"));
                 ti.restaurant = (json_data.isNull("restaurant") ? "" : json_data.getString("restaurant"));
+                ti.location = (json_data.isNull("location") ? "" : json_data.getString("location"));
+                ti.locationUpdateTime = (json_data.isNull("locationUpdateTime") ? "" : json_data.getString("locationUpdateTime"));
+                ti.terminalStatus = (json_data.isNull("terminalStatus") ? "" : json_data.getString("terminalStatus"));
+                ti.terminalStatusUpdateTime = (json_data.isNull("terminalStatusUpdateTime") ? "" : json_data.getString("terminalStatusUpdateTime"));
 
-                result.add(ti);
+                if(!json_data.getString("terminalInfo").isEmpty() && json_data.getString("terminalInfo") != null){
+                    String terminalInfo = json_data.isNull("terminalInfo") ? "" : json_data.getString("terminalInfo");
+                    JSONObject infoObject = new JSONObject(terminalInfo);
+
+                    ti.terminalUser = (infoObject.isNull("username") ? "" : infoObject.getString("username"));
+                    ti.entity_parent = (infoObject.isNull("entity_parent") ? "" : infoObject.getString("entity_parent"));
+                    ti.entity_id = (infoObject.isNull("entity_id") ? "" : infoObject.getString("entity_id"));
+                    ti.entity_label = (infoObject.isNull("entity_label") ? "" : infoObject.getString("entity_label"));
+                    ti.email = (infoObject.isNull("email") ? "" : infoObject.getString("email"));
+                    ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
+                    ti.apk_version = (infoObject.isNull("apk_version") ? "" : infoObject.getString("apk_version"));
+                }else{
+                    ti.terminalUser = "";
+                    ti.entity_parent = "";
+                    ti.entity_id = "";
+                    ti.entity_label = "";
+                    ti.email = "";
+                    ti.phone = "";
+                    ti.apk_version = "";
+                }
+
+                //time configuration
+                try{
+
+                    Date date1 = sdf.parse(currentDateandTime);
+                    Date date2 = sdf.parse(ti.terminalStatusUpdateTime);
+                    System.out.println("today date " + currentDateandTime);
+                    System.out.println("terminal date " + ti.terminalStatusUpdateTime);
+
+                    long diffInMs = date1.getTime() - date2.getTime();
+
+                    System.out.println("date diff "+diffInMs);
+                    long secondsInMilli = 1000;
+                    long minutesInMilli = secondsInMilli * 60;
+                    long hoursInMilli = minutesInMilli * 60;
+                    long daysInMilli = hoursInMilli * 24;
+
+                    long elapsedDays = diffInMs / daysInMilli;
+                    diffInMs = diffInMs % daysInMilli;
+
+                    long elapsedHours = diffInMs / hoursInMilli;
+                    diffInMs = diffInMs % hoursInMilli;
+
+                    long elapsedMinutes = diffInMs / minutesInMilli;
+                    diffInMs = diffInMs % minutesInMilli;
+
+                    long elapsedSeconds = diffInMs / secondsInMilli;
+
+                    if(ti.terminalStatus.equalsIgnoreCase("OFF")) {
+                        NotificationCompat.Builder mBuilder =
+                                new NotificationCompat.Builder(this)
+                                        .setSmallIcon(R.drawable.ic_terminal)
+                                        .setContentTitle(ti.restaurant +" HS!")
+                                        .setContentText("" + ti.uuid + " OFF depuis " +elapsedDays+"j "+elapsedHours+"h "+ elapsedMinutes + "min" + elapsedSeconds + "s");
+                        Intent resultIntent = new Intent(this, Terminals.class);
+
+                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                        stackBuilder.addParentStack(Terminals.class);
+                        stackBuilder.addNextIntent(resultIntent);
+                        PendingIntent resultPendingIntent =
+                                stackBuilder.getPendingIntent(
+                                        0,
+                                        PendingIntent.FLAG_UPDATE_CURRENT
+                                );
+                        mBuilder.setContentIntent(resultPendingIntent);
+                        mNotificationManager =
+                                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        mNotificationManager.notify(i, mBuilder.build());
+                    }else{
+                        mNotificationManager.cancel(i);
+                    }
+                    if(elapsedDays>0) {
+                        ti.terminalStatusUpdateTime = elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min "+elapsedSeconds+"s";
+                    }else{
+                        if(elapsedHours>0) {
+                            ti.terminalStatusUpdateTime = elapsedHours + "h " + elapsedMinutes + "min " + elapsedSeconds + "s";
+                        }else {
+                            if(elapsedMinutes>0) {
+                                ti.terminalStatusUpdateTime = elapsedMinutes + "min "+elapsedSeconds+"s";
+                            }else {
+                                ti.terminalStatusUpdateTime = elapsedSeconds + "s";
+                            }
+                        }
+                    }
+
+
+                }catch (Exception e){
+                    System.out.println("Erreur  "+e);
+                }
+
+                    result.add(ti);
             }
 
         }catch (JSONException e){

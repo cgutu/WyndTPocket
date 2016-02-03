@@ -46,13 +46,7 @@ public class InfoOfRestaurant extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Modifier", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Name = (TextView) findViewById(R.id.name);
@@ -131,6 +125,15 @@ public class InfoOfRestaurant extends AppCompatActivity {
         editor = pref.edit();
         editor.putString("Check", "inforestaurant");
         editor.apply();
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(InfoOfRestaurant.this, EditRestaurant.class);
+                i.putExtra("restId", ID);
+                startActivity(i);
+            }
+        });
 
     }
 

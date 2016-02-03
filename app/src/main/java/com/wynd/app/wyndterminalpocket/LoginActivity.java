@@ -98,12 +98,13 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private String username, password, userID, parentID, permission, rest_channel;
+    private String username, password, userID, parentID, permission, rest_channel, restName, restID, channelName;
 
     private SharedPreferences.Editor editor;
     private SharedPreferences pref;
     private String message;
     private Button askaccount;
+    private JSONArray EntityInfo = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -296,16 +297,27 @@ public class LoginActivity extends AppCompatActivity {
                     int i = 0;
 
                     String result = finalResult.getString("result");
-                    System.out.println("result " + result);
 
                     if (!result.isEmpty() && result.equals("success")) {
                         JSONObject jsonObject = finalResult.getJSONObject("data");
-                        userID = jsonObject.getString("user_id");
-                        parentID = jsonObject.getString("parent_id");
+                        userID = jsonObject.isNull("user_id") ? "" : jsonObject.getString("user_id");
+                        JSONArray entity_info = jsonObject.getJSONArray("entity_info");
+
+                        for(i=0; i<entity_info.length(); i++){
+                            JSONObject entityInfo = entity_info.getJSONObject(i);
+
+                            parentID = entityInfo.isNull("res_parent_id") ? "" : entityInfo.getString("res_parent_id");
+                            restID = entityInfo.isNull("resturant_id") ? "" : entityInfo.getString("resturant_id");
+                            restName = entityInfo.isNull("resturant_name") ? "" : entityInfo.getString("resturant_name");
+                            channelName = entityInfo.isNull("channel_name") ? "" : entityInfo.getString("channel_name");
+
+                          //  parent_idInfo.put(parentInfo);
+                        }
+
+                        //parentID = jsonObject.getString("res_parent_id");
 
                         editor.putString("username", username);
                         editor.putString("myuserID", userID);
-                        editor.putString("parentID", parentID);
                         editor.apply();
 
 
@@ -318,13 +330,21 @@ public class LoginActivity extends AppCompatActivity {
                                         try {
                                             response = response.getJSONObject("data");
                                             System.out.println("response " + response);
-
-                                            permission = response.isNull("permission") ? "" : response.getString("permission");
-                                            rest_channel = response.isNull("rest_channel") ? "" : response.getString("rest_channel");
-                                            System.out.println("user permission " + permission + " rest_channel "+rest_channel);
-                                            editor.putString("roles", permission);
-                                            editor.putString("rest_channel", rest_channel);
+                                            JSONArray userResto = response.getJSONArray("usersInResto");
+                                            for(int i=0; i<userResto.length(); i++){
+                                                JSONObject userRestInfo = userResto.getJSONObject(i);
+                                                permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
+                                                rest_channel = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
+                                                EntityInfo.put(userRestInfo);
+                                            }
+                                            System.out.println("result " + EntityInfo);
+                                            editor.putString("EntityInfo", EntityInfo.toString());
                                             editor.apply();
+
+                                            Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                                            startActivity(intent);
+                                            showProgress(false);
+                                            finish();
 
 
                                         } catch (JSONException e) {
@@ -354,10 +374,6 @@ public class LoginActivity extends AppCompatActivity {
 
                         Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
 
-                        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                        startActivity(intent);
-                        showProgress(false);
-                        finish();
                     } else {
                         showProgress(false);
                         mPasswordView.setError(getString(R.string.error_invalid_user_pwd));

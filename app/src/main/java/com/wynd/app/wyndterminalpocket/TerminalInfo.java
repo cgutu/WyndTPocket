@@ -10,6 +10,16 @@ public class TerminalInfo {
     protected String restaurant;
     protected String registerTimestamp;
     protected String channel;
-
+    protected String location;
+    protected String locationUpdateTime;
+    protected String terminalStatus;
+    protected String terminalStatusUpdateTime;
+    protected String terminalUser;
+    protected String entity_parent;
+    protected String entity_id;
+    protected String entity_label;
+    protected String apk_version;
+    protected String phone;
+    protected String email;
 }
 
