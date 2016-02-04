@@ -54,7 +54,7 @@ public class Utilisateurs extends Fragment {
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
-    String userID, parentID, permission, rest_channel;
+    String userID, parentID, permission, rest_channel, restID, myuserID;
     private JSONArray chains = new JSONArray();
     private JSONArray users = null;
     private String selectedID, EntityInfo, role;
@@ -63,6 +63,7 @@ public class Utilisateurs extends Fragment {
     private UserAdapter ra;
     private List<UserInfo> user;
     private FloatingActionButton fab;
+    private JSONArray infosArray = new JSONArray();
 
     public Utilisateurs() {
         // Required empty public constructor
@@ -93,12 +94,26 @@ public class Utilisateurs extends Fragment {
         parentID = pref.getString("parentID", "");
         permission = pref.getString("roles", "");
         rest_channel = pref.getString("rest_channel", "");
+        myuserID =  pref.getString("myuserID", "");
 
-        role = pref.getString("ROLE", "");
+        EntityInfo = pref.getString("EntityInfo", "");
 
         System.out.println("params! userid :" + userID + " parentid: " + parentID + " roles: " + permission);
 
-        if(!role.isEmpty() && role.equals("ADMIN")) {
+        try{
+            infosArray = new JSONArray(EntityInfo);
+            for (int j = 0; j < infosArray.length(); j++) {
+                JSONObject infoObject = infosArray.getJSONObject(j);
+                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                System.out.println("rest et role "+permission  +" "+restID);
+
+            }
+
+        }catch(JSONException e){
+
+        }
+
 
             //get all restaurants
             JsonObjectRequest restaurantRequest = new JsonObjectRequest
@@ -146,8 +161,6 @@ public class Utilisateurs extends Fragment {
             };
 
             Volley.newRequestQueue(getContext()).add(restaurantRequest);
-
-        }
     }
 
     @Override
@@ -327,25 +340,18 @@ public class Utilisateurs extends Fragment {
                 UserInfo ui = new UserInfo();
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
-                String id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
-                    ui.id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
-                    ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX +  json_data.getString("username"));
-                    ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX +  json_data.getString("email"));
-                    ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX +  json_data.getString("phone"));
-                    ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
+                String id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX + json_data.getString("id"));
+                if (!id.isEmpty() && !id.equalsIgnoreCase(myuserID)) {
+                    ui.id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX + json_data.getString("id"));
+                    ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX + json_data.getString("username"));
+                    ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX + json_data.getString("email"));
+                    ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX + json_data.getString("phone"));
 
-                    String permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
-
-                    if(!permission.isEmpty() && permission.equals("2")){
-                        ui.permission = "ADMIN";
-                    }else if(!permission.isEmpty() && permission.equals("1")){
-                        ui.permission = "USER";
-                    }else{
-                        ui.permission = "SUPER_ADMIN";
-                    }
+                    ui.permission = "";
 
                     result.add(ui);
                 }
+            }
 
         }catch (JSONException e){
             System.out.println("Erreur json "+e);

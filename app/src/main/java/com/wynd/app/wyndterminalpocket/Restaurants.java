@@ -34,6 +34,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class Restaurants extends Fragment{
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private OnFragmentInteractionListener mListener;
-    private String userID, parentID, permission, rest_channel, EntityInfo;
+    private String userID, parentID, permission, rest_channel, EntityInfo, restID;
     private JSONArray chains = new JSONArray();
     List<String> name, email, phone, channel;
     private RecyclerView recList;
@@ -94,8 +95,7 @@ public class Restaurants extends Fragment{
 
         System.out.println("params! userid :" + userID + " parentid: " + EntityInfo + " roles: " + permission);
 
-        //if user is ADMIN, user can see the all restaurants, add a restaurant and add a new user with USER ROLES
-        if(!permission.isEmpty() && permission.equals("ADMIN")){
+        //user can see the only attached restaurants, and if is ADMIN or SUPER_ADMIN: add a restaurant and add a new user with USER ROLES etc...
 
             //get all restaurants
             JsonObjectRequest restaurantRequest = new JsonObjectRequest
@@ -158,7 +158,6 @@ public class Restaurants extends Fragment{
             };
 
             Volley.newRequestQueue(getContext()).add(restaurantRequest);
-        }
 
 
     }
@@ -182,6 +181,23 @@ public class Restaurants extends Fragment{
         recList.setLayoutManager(llm);
 
         FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        try{
+            infosArray = new JSONArray(EntityInfo);
+            for (int j = 0; j < infosArray.length(); j++) {
+                JSONObject infoObject = infosArray.getJSONObject(j);
+                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                System.out.println("rest et role "+permission  +" "+restID);
+
+                if(permission.equals("5")){
+                    fab.setVisibility(View.VISIBLE);
+                }
+            }
+
+        }catch(JSONException e){
+
+        }
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -236,6 +252,24 @@ public class Restaurants extends Fragment{
                 ri.email = (json_data.isNull("email") ? "" : RestaurantInfo.EMAIL_PREFIX +  json_data.getString("email"));
                 ri.phone = (json_data.isNull("phone") ? "" : RestaurantInfo.PHONE_PREFIX +  json_data.getString("phone"));
                 ri.channel = (json_data.isNull("channel") ? "" : RestaurantInfo.CHANNEL_PREFIX +  json_data.getString("channel"));
+
+                try{
+                    infosArray = new JSONArray(EntityInfo);
+                    for (int j = 0; j < infosArray.length(); j++) {
+                        JSONObject infoObject = infosArray.getJSONObject(j);
+                        permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                        restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                        System.out.println("rest et role "+permission  +" "+restID);
+
+                        if(!ri.id.isEmpty() && ri.id.equals(restID)){
+                            ri.userPermission = permission;
+                        }
+                    }
+
+                }catch(JSONException e){
+
+                }
+
 
 
                 result.add(ri);

@@ -11,6 +11,7 @@ public class RestaurantInfo {
     protected String email;
     protected String phone;
     protected String channel;
+    protected String userPermission;
 
     protected static final String ID_PREFIX = "";
     protected static final String NAME_PREFIX = "";

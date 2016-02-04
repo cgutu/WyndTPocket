@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +39,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     private String RestID;
     private Activity context;
     private boolean isViewExpanded = false;
+    private SharedPreferences pref;
+    private String permission;
 
     public RestaurantAdapter(List<RestaurantInfo> restaurantList) {
         this.restaurantList = restaurantList;
@@ -72,11 +75,20 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         restaurantViewHolder.vExpandable.setVisibility(View.GONE);
 
+        System.out.println("user permissions " + ri.userPermission);
+        permission = ri.userPermission;
+        if(permission.equalsIgnoreCase("2") || permission.equalsIgnoreCase("5")){
+            restaurantViewHolder.vBtnUsers.setVisibility(View.VISIBLE);
+        }else if(permission.equalsIgnoreCase("1")){
+            restaurantViewHolder.vBtnUsers.setVisibility(View.GONE);
+        }
+
         restaurantViewHolder.vCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 System.out.println("test " + i);
+
                 if (restaurantViewHolder.vExpandable.getVisibility() == View.GONE) {
                     restaurantViewHolder.vExpandable.setVisibility(View.VISIBLE);
 
@@ -98,7 +110,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                         }
                     });
                     animator.start();
-                } else {
+                }else {
                     int finalHeight = restaurantViewHolder.vExpandable.getHeight();
 
 

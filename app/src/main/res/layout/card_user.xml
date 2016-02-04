@@ -46,46 +46,14 @@
                 android:gravity="left"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"/>
-            <!--<TextView-->
-                <!--android:id="@+id/txtEmail"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="Email"-->
-                <!--android:textSize="10sp"-->
-                <!--android:layout_below="@id/txtName" />-->
-            <!--<TextView-->
-                <!--android:id="@+id/txtChannel"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="Channel"-->
-                <!--android:textSize="10sp"-->
-                <!--android:layout_below="@id/txtEmail" />-->
-
-            <!--<TextView-->
-                <!--android:id="@+id/txtPhone"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="Phone"-->
-                <!--android:textSize="10sp"-->
-                <!--android:gravity="center_vertical"-->
-                <!--android:layout_below="@id/txtChannel"/>-->
-            <!--<TextView-->
-            <!--android:id="@+id/txtPermission"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Role"-->
-            <!--android:textSize="10sp"-->
-            <!--android:gravity="center"-->
-            <!--android:layout_below="@id/txtPhone"/>-->
-            <!--<TextView-->
-                <!--android:id="@+id/txtID"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="ID"-->
-                <!--android:textSize="10sp"-->
-                <!--android:visibility="gone"-->
-                <!--android:gravity="center_vertical"-->
-                <!--android:layout_below="@id/txtPermission"/>-->
+            <TextView
+                android:id="@+id/txtPermission"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Permission"
+                android:textSize="10sp"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
 
 
         </RelativeLayout>

@@ -189,11 +189,6 @@ public class AddUser extends AppCompatActivity{
 
         Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
 
-        //set all permissions
-//        System.out.println("permissions list" + permissions);
-
-//        selectPermissionBtn = (Button) findViewById(R.id.permissions);
-//
         selectEntityButton = (Button) findViewById(R.id.addrest);
         selectEntityButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,47 +200,7 @@ public class AddUser extends AppCompatActivity{
 
 
     }
-    protected void showSelectPermissionDialog() {
 
-
-        boolean[] checkedEntities = new boolean[permissions.length];
-
-        int count = permissions.length;
-
-        for(int i = 0; i < count; i++)
-
-            checkedEntities[i] = selectedPermission.contains(permissions[i]);
-
-        DialogInterface.OnMultiChoiceClickListener entitiesDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
-
-            @Override
-
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-
-                if(isChecked)
-
-                    selectedPermission.add(permissions[which]);
-
-                else
-
-                    selectedPermission.remove(permissions[which]);
-
-                onChangeSelectedPermission();
-
-            }
-
-        };
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("Select permissions");
-
-        builder.setMultiChoiceItems(permissions, checkedEntities, entitiesDialogListener);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-
-    }
     protected void showSelectEntityDialog() {
 
 
@@ -285,25 +240,6 @@ public class AddUser extends AppCompatActivity{
         AlertDialog dialog = builder.create();
         dialog.show();
 
-
-    }
-    protected void onChangeSelectedPermission() {
-
-        selectedItemPermission = new ArrayList<String>();
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for(CharSequence entity : selectedPermission){
-            stringBuilder.append(entity + ",");
-        }
-
-        if(stringBuilder.toString().isEmpty()){
-            selectPermissionBtn.setText("Veuillez sélectionner une permission");
-            selectPermissionBtn.setTextColor(Color.RED);
-        }else{
-            selectPermissionBtn.setTextColor(Color.BLACK);
-            selectPermissionBtn.setText(stringBuilder.toString());
-        }
 
     }
     protected void onChangeSelectedEntity() {

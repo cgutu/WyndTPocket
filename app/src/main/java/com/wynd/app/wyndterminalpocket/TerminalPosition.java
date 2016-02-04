@@ -56,10 +56,12 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TerminalPosition extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class TerminalPosition extends AppCompatActivity implements OnMapReadyCallback{
 
     private GoogleMap mMap;
-    private String channel, uuid, id, LAT, LNG;
+    private String channel, uuid, id;
+    private String LAT = "";
+    private String LNG = "";
     private LocationManager locationManager;
     private static final long MIN_TIME = 400;
     private static final float MIN_DISTANCE = 1000;
@@ -74,7 +76,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
             handler.post(new Runnable() {
                 public void run() {
                     new ReadMarkers().execute();
-                    Toast.makeText(TerminalPosition.this, "location change", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(TerminalPosition.this, "GPS INFO "+LAT + " "+LNG, Toast.LENGTH_SHORT).show();
                 }
             });
             if(++counter == 6) {
@@ -104,18 +106,18 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+//        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
 
         Intent intent = getIntent();
         uuid = intent.getStringExtra("terminalUuid");
@@ -134,9 +136,9 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         mMap = googleMap;
 
         CameraUpdate center =
-                CameraUpdateFactory.newLatLng(new LatLng(48.00,
-                        2.00));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(8);
+                CameraUpdateFactory.newLatLng(new LatLng(48.856614,
+                        2.3522219000000177));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(5);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
@@ -156,10 +158,11 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         LatLng position = new LatLng(lat, lng);
         marker = mMap.addMarker(new MarkerOptions().position(position).title("TEST"));
 
+
+       // animateMarker(marker, position, false);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
         mMap.animateCamera(zoom);
-
 //        Float lat2 = Float.parseFloat(LAT);
 //        Float lng2 = Float.parseFloat(LNG);
 //        LatLng position2 = new LatLng(lat2, lng2);
@@ -167,38 +170,38 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-        mMap.animateCamera(cameraUpdate);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.removeUpdates(this);
-    }
+//    @Override
+//    public void onLocationChanged(Location location) {
+//        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+//        mMap.animateCamera(cameraUpdate);
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        locationManager.removeUpdates(this);
+//    }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
+//    @Override
+//    public void onStatusChanged(String provider, int status, Bundle extras) {
+//
+//    }
+//
+//    @Override
+//    public void onProviderEnabled(String provider) {
+//
+//    }
+//
+//    @Override
+//    public void onProviderDisabled(String provider) {
+//
+//    }
 
     public void animateMarker(final Marker marker, final LatLng toPosition,
                               final boolean hideMarker) {
@@ -255,7 +258,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                 HttpClient httpClient = new DefaultHttpClient();
 
                 //setting up the http post method
-                HttpPost httpPost = new HttpPost("http://5.196.44.136/wyndTapi/service/getLocation.php?t_id=12&channel=EXKi");
+                HttpPost httpPost = new HttpPost(Globales.baseUrl+"service/getLocation.php?t_id="+id+"&channel="+channel);
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                 //getting the response
@@ -307,7 +310,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                 LAT = objet.getString("lat");
                 LNG = objet.getString("lng");
                 System.out.println("array " + LAT + LNG);
-
+                Toast.makeText(TerminalPosition.this, "GPS INFO "+LAT + " "+LNG, Toast.LENGTH_SHORT).show();
                 getMarkers();
 
 

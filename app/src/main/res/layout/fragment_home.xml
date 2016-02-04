@@ -43,30 +43,31 @@
             android:textColor="@android:color/white"
             android:layout_marginLeft="20dp"
             android:gravity="right"
-            android:text="@string/desc_cat"/>
+            android:text="Restaurants"/>
     </LinearLayout>
-    <LinearLayout
-        android:id="@+id/layout2"
-        android:layout_below="@id/layout1"
-        android:layout_width="match_parent"
-        android:background="@drawable/category_shape"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/layout2"
+            android:layout_below="@id/layout1"
+            android:layout_width="match_parent"
+            android:background="@drawable/category_shape"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_height="wrap_content">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_place_white"
-            android:contentDescription="@string/desc_logo"/>
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_profil"
+                android:contentDescription="@string/desc_logo"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:layout_marginLeft="20dp"
-            android:gravity="right"
-            android:text="@string/desc_cat"/>
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:textColor="@android:color/white"
+                android:gravity="right"
+                android:text="Utilisateurs"/>
+        </LinearLayout>
     <LinearLayout
         android:id="@+id/layout3"
         android:layout_below="@id/layout2"
@@ -78,7 +79,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_access_time"
+            android:src="@drawable/ic_place_white"
             android:contentDescription="@string/desc_logo"/>
 
         <TextView
@@ -100,6 +101,28 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_access_time"
+            android:contentDescription="@string/desc_logo"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_marginLeft="20dp"
+            android:gravity="right"
+            android:text="@string/desc_cat"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout5"
+        android:layout_below="@id/layout4"
+        android:layout_width="match_parent"
+        android:background="@drawable/category_shape"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_library_books_white"
             android:contentDescription="@string/desc_logo"/>
 
@@ -111,5 +134,6 @@
             android:gravity="right"
             android:text="@string/desc_cat"/>
     </LinearLayout>
+
 </RelativeLayout>
 </FrameLayout>

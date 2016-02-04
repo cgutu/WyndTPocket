@@ -163,11 +163,11 @@ public class UsersActivity extends AppCompatActivity {
 
     private List<UserInfo> createList(JSONArray jsonArray) {
 
-        List<UserInfo> result = new ArrayList<UserInfo>();
+        final List<UserInfo> result = new ArrayList<UserInfo>();
 
         try{
             for (int i = 0; i < jsonArray.length(); i++) {
-                UserInfo ui = new UserInfo();
+                final UserInfo ui = new UserInfo();
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
                 String id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX +  json_data.getString("id"));
@@ -179,16 +179,28 @@ public class UsersActivity extends AppCompatActivity {
                     ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX + json_data.getString("phone"));
                     //   ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
 
-                    String permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
+                    ui.permission = "";
+                    //check user permission and display
+                    //if user is a super_admin, I not display it
 
-                    if (!permission.isEmpty() && permission.equals("2")) {
-                        ui.permission = "ADMIN";
-                    } else if (!permission.isEmpty() && permission.equals("1")) {
-                        ui.permission = "USER";
-                    } else {
-                        ui.permission = "SUPER_ADMIN";
-                    }
-
+//                    JSONArray userResto = json_data.getJSONArray("usersInResto");
+//                    for(int i=0; i<userResto.length(); i++){
+//                        JSONObject userRestInfo = userResto.getJSONObject(i);
+//
+//                        if(!userRestInfo.getString("resaturantChainID").isEmpty() && userRestInfo.getString("resaturantChainID").equals(ID)){
+//                            String role =  userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
+//
+//                            System.out.println("roleeee utilisateur " + role);
+//                            if (!role.isEmpty() && role.equals("2")) {
+//                                ui.permission = "ADMIN";
+//                            } else if (!role.isEmpty() && role.equals("1")) {
+//                                ui.permission = "USER";
+//                            } else if(!role.isEmpty() && role.equals("5")) {
+//                                ui.permission = "SUPER_ADMIN";
+//                            }
+//
+//                        }
+//                    }
 
                     editor = pref.edit();
                     editor.putString("restId", ID);

@@ -1,7 +1,10 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -53,12 +57,20 @@ import java.util.Map;
 
 public class EditUserProfil extends AppCompatActivity {
 
-    private String userID;
+    private String userID, permissionID, restID;
     private EditText username, password, email, permission, phone, rest_channel;
     private Button submit;
     private String Username, Password, Email, Permission, Phone, Rest_channel, message;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+
+    protected CharSequence[] restaurants;
+
+    protected ArrayList<CharSequence> selectedEntity = new ArrayList<CharSequence>();
+    List<String> list = new ArrayList<String>();
+    List<String> selectedItem;
+    private Button selectEntityButton;
+    private JSONArray names = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +83,8 @@ public class EditUserProfil extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
         phone = (EditText) findViewById(R.id.phone);
-        permission = (EditText) findViewById(R.id.permission);
-        rest_channel = (EditText) findViewById(R.id.restchannel);
+        //permission = (EditText) findViewById(R.id.permission);
+       // rest_channel = (EditText) findViewById(R.id.restchannel);
         //submit = (Button) findViewById(R.id.submit);
 
         Intent intent = getIntent();
@@ -95,10 +107,67 @@ public class EditUserProfil extends AppCompatActivity {
 
                             username.setText(response.isNull("username") ? "" : response.getString("username"));
                             password.setText(response.isNull("hash") ? "" : response.getString("hash"));
-                            permission.setText(response.isNull("permission") ? "" : response.getString("permission"));
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
                             phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
-                            rest_channel.setText(response.isNull("rest_channel") ? "" : response.getString("rest_channel"));
+
+
+                            JSONArray userResto = response.getJSONArray("usersInResto");
+                            for(int i=0; i<userResto.length(); i++){
+                                JSONObject userRestInfo = userResto.getJSONObject(i);
+                                permissionID = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
+                                restID = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
+
+
+                                //get info of clicked restaurant
+                                JsonObjectRequest getRestaurant = new JsonObjectRequest
+                                        (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/by/id/"+restID, null, new Response.Listener<JSONObject>() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
+
+                                                try {
+                                                    response = response.getJSONObject("data");
+                                                    System.out.println("response " + response);
+
+                                                    String name = response.isNull("name") ? "" : response.getString("name");
+                                                    names.put(name);
+                                                    System.out.println("name" + name);
+                                                    System.out.println("names list" + names);
+
+                                                    for(int i = 0; i < names.length(); i++){
+                                                        list.add(names.get(i).toString());
+                                                    }
+                                                    restaurants = list.toArray(new CharSequence[list.size()]);
+                                                    System.out.println("names list" + restaurants);
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        }, new Response.ErrorListener() {
+
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+
+                                                error.printStackTrace();
+                                            }
+                                        }) {
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String>  params = new HashMap<String, String>();
+
+                                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                                        params.put("Api-User", Globales.API_USER);
+                                        params.put("Api-Hash", Globales.API_HASH);
+
+                                        return params;
+                                    }
+                                };
+
+                                Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
+                            }
+
+
 
 
 
@@ -152,6 +221,15 @@ public class EditUserProfil extends AppCompatActivity {
 
             }
         });
+        selectEntityButton = (Button) findViewById(R.id.addrest);
+        selectEntityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSelectEntityDialog();
+            }
+        });
+
+
     }
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
         int i;
@@ -268,6 +346,67 @@ public class EditUserProfil extends AppCompatActivity {
 
 
         }
+    }
+
+    protected void showSelectEntityDialog() {
+
+
+        boolean[] checkedEntities = new boolean[restaurants.length];
+
+        int count = restaurants.length;
+
+        for(int i = 0; i < count; i++)
+
+            checkedEntities[i] = selectedEntity.contains(restaurants[i]);
+
+        DialogInterface.OnMultiChoiceClickListener entitiesDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
+
+            @Override
+
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+
+                if(isChecked)
+
+                    selectedEntity.add(restaurants[which]);
+
+                else
+
+                    selectedEntity.remove(restaurants[which]);
+
+                onChangeSelectedEntity();
+
+            }
+
+        };
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Select restaurants");
+
+        builder.setMultiChoiceItems(restaurants, checkedEntities, entitiesDialogListener);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+    }
+    protected void onChangeSelectedEntity() {
+
+        selectedItem = new ArrayList<String>();
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for(CharSequence entity : selectedEntity){
+            stringBuilder.append(entity + ",");
+        }
+
+        if(stringBuilder.toString().isEmpty()){
+            selectEntityButton.setText("Veuillez sélectionner au moins un restaurant");
+            selectEntityButton.setTextColor(Color.RED);
+        }else{
+            selectEntityButton.setTextColor(Color.BLACK);
+            selectEntityButton.setText(stringBuilder.toString());
+        }
+
     }
 
 }

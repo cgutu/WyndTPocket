@@ -5,10 +5,16 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -27,12 +33,13 @@ public class HomeFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private String mParam1;
-    private String mParam2;
+    private String mParam2, userID, EntityInfo, permission,restID;
     private View rootView;
     private TextView username;
+    private LinearLayout restaurants, utilisateurs;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-
+    private JSONArray infosArray = new JSONArray();
 
     private OnFragmentInteractionListener mListener;
 
@@ -74,10 +81,67 @@ public class HomeFragment extends Fragment {
         rootView =  inflater.inflate(R.layout.fragment_home, container, false);
         username = (TextView) rootView.findViewById(R.id.user);
 
+        restaurants = (LinearLayout) rootView.findViewById(R.id.layout1);
+        utilisateurs = (LinearLayout) rootView.findViewById(R.id.layout2);
+
         pref = getContext().getSharedPreferences("Infos", 0);
         String user = pref.getString("username", "");
+        userID = pref.getString("myuserID", "");
+        EntityInfo = pref.getString("EntityInfo", "");
+        JSONArray array = new JSONArray();
+        try{
+            infosArray = new JSONArray(EntityInfo);
+            for (int j = 0; j < infosArray.length(); j++) {
+                JSONObject infoObject = infosArray.getJSONObject(j);
+                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                System.out.println("rest et role " + permission + " " + restID);
+
+               array.put(permission);
+            }
+            int l = array.length();
+            for(int i=0; i<l; i++){
+                String value = array.getString(i);
+
+                if(value.contains("5")){
+                    System.out.println("array permissions "+value);
+                    utilisateurs.setVisibility(View.VISIBLE);
+                }
+
+            }
+
+        }catch(JSONException e){
+
+        }
+        System.out.println("array permissions "+array);
+
 
         username.setText("Bonjour "+user);
+
+        restaurants.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Restaurants fragment = new Restaurants();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle args = new Bundle();
+                args.putString("userID", userID);
+                fragment.setArguments(args);
+                ft.replace(R.id.content_frame, fragment);
+                ft.commit();
+            }
+        });
+        utilisateurs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utilisateurs fragment = new Utilisateurs();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle args = new Bundle();
+                args.putString("userID", userID);
+                fragment.setArguments(args);
+                ft.replace(R.id.content_frame, fragment);
+                ft.commit();
+            }
+        });
 
         return rootView;
     }

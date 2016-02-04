@@ -36,11 +36,12 @@ public class MenuActivity extends AppCompatActivity
 
     private SharedPreferences pref;
     private boolean viewIsAtHome;
-    private String userID, parentID, permission, rest_channel, EntityInfo;
+    private String userID, parentID, permission, rest_channel, EntityInfo, restID;
     private boolean mState = false;
     private SharedPreferences.Editor editor;
     private JSONArray infosArray = new JSONArray();
     private JSONArray permissions = new JSONArray();
+    private JSONArray restVSroles = new JSONArray();
     public static String ROLE = "";
 
     @Override
@@ -64,46 +65,6 @@ public class MenuActivity extends AppCompatActivity
        // rest_channel = pref.getString("rest_channel", "");
         String s1 = pref.getString("Check", "");
 
-
-        //cas où l'utilisateur est chain_admin ou admin sur tout les restaurant du parent id 1
-        try{
-            infosArray = new JSONArray(EntityInfo);
-           JSONObject infoObject = new JSONObject();
-
-            for (int i = 0; i < infosArray.length(); i++) {
-                infoObject = infosArray.getJSONObject(i);
-                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
-                permissions.put(permission);
-            }
-
-            System.out.println("permission "+permissions);
-            for(int i=0; i<permissions.length(); i++){
-                System.out.println("role "+permissions.getString(i));
-                if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("1")){
-                    ROLE = "USER";
-                }else if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("2")){
-                    ROLE = "ADMIN";
-                }else if(!permissions.getString(i).isEmpty() && permissions.getString(i).equalsIgnoreCase("5")){
-                    ROLE = "USER_ADMIN";
-                }
-            }
-            System.out.println("role "+ROLE);
-        }catch (JSONException e){
-
-        }
-        editor = pref.edit();
-        editor.putString("ROLE", ROLE);
-        editor.apply();
-
-
-        System.out.println("params! userid :" + userID + " parentid: " + EntityInfo );
-
-
-
-//        if(!permission.isEmpty() && !permission.equals("ADMIN")){
-//            mState = true;
-//            System.out.println("state " + mState);
-//        }
 
         System.out.println("s1 "+s1);
         if(!s1.isEmpty() && s1.equals("inforestaurant")){
@@ -130,27 +91,20 @@ public class MenuActivity extends AppCompatActivity
             editor.apply();
 
             displayView(R.id.nav_slideshow);
-        }else if(!s1.isEmpty() && s1.equals("userlist")){
-            editor = pref.edit();
-            editor.putString("Check", "0");
-            editor.apply();
-
-            displayView(R.id.nav_manage);
         }
+//        else if(!s1.isEmpty() && s1.equals("userlist")){
+//            editor = pref.edit();
+//            editor.putString("Check", "0");
+//            editor.apply();
+//
+//            displayView(R.id.nav_manage);
+//        }
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //toolbar.setTitle("Bonjour "+username);
         setSupportActionBar(toolbar);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -164,23 +118,6 @@ public class MenuActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-
-        //clear session& logout
-//        SharedPreferences.Editor editor = pref.edit();
-//        editor.remove("username");
-//        editor.apply();
-//
-//        Intent intent  = new Intent(this, LoginActivity.class);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        startActivity(intent);
-//        finish();
-
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            super.onBackPressed();
-//        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -307,31 +244,36 @@ public class MenuActivity extends AppCompatActivity
                 break;
             case R.id.nav_slideshow:
 
-                System.out.println("user role permission "+ROLE);
-                if(!ROLE.isEmpty() && ROLE.equals("ADMIN")){
-                    fragment = new Restaurants();
-                    title = "Restaurants";
-                }else if(!ROLE.isEmpty() && ROLE.equals("USER")){
-                    fragment = new MonRestaurant();
-                    title = "Mon Restaurant";
-                }
+                fragment = new Restaurants();
+                title = "Restaurants";
 
                 viewIsAtHome = false;
                 break;
-            case R.id.nav_manage:
-
-                System.out.println("user role permission "+ROLE);
-                if(!ROLE.isEmpty() && ROLE.equals("ADMIN")){
-                    fragment = new Utilisateurs();
-                    title = "Utilisateurs";
-                    viewIsAtHome = false;
-                }else if(!ROLE.isEmpty() && ROLE.equals("USER")){
-                    fragment = new HomeFragment();
-                    title = "Home";
-                    viewIsAtHome = true;
-                }
-
-                break;
+//            case R.id.nav_manage:
+//
+//                try{
+//                    infosArray = new JSONArray(EntityInfo);
+//                    for (int j = 0; j < infosArray.length(); j++) {
+//                        JSONObject infoObject = infosArray.getJSONObject(j);
+//                        permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+//                        restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+//                        System.out.println("rest et role "+permission  +" "+restID);
+//
+//                        if(permission.equals("5")){
+//                            fragment = new Utilisateurs();
+//                            title = "Utilisateurs";
+//                            viewIsAtHome = false;
+//                        }else{
+//                            fragment = new HomeFragment();
+//                            title = "Home";
+//                            viewIsAtHome = true;
+//                        }
+//                    }
+//
+//                }catch(JSONException e){
+//
+//                }
+//                break;
             default:
                 fragment = new HomeFragment();
                 title = "Home";

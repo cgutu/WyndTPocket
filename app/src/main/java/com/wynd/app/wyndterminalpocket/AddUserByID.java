@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -81,6 +82,9 @@ public class AddUserByID extends AppCompatActivity {
     JSONObject channels;
     JSONArray itemsArray;
     private JSONArray EntityInfo = new JSONArray();
+    private JSONArray infosArray = new JSONArray();
+    private String entityInfo, restID;
+    private TextView addText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +100,7 @@ public class AddUserByID extends AppCompatActivity {
 
         mFormview = findViewById(R.id.add_form);
         mProgressView = findViewById(R.id.login_progress);
+        addText = (TextView) findViewById(R.id.addtext);
 
         Intent intent = getIntent();
 
@@ -106,6 +111,7 @@ public class AddUserByID extends AppCompatActivity {
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
         role = pref.getString("ROLE", "");
+        entityInfo = pref.getString("EntityInfo", "");
 
         if(restId == null){
             ID = savedRestId;
@@ -130,6 +136,26 @@ public class AddUserByID extends AppCompatActivity {
 
             }
         });
+        try {
+            infosArray = new JSONArray(entityInfo);
+            for (int j = 0; j < infosArray.length(); j++) {
+                JSONObject infoObject = infosArray.getJSONObject(j);
+                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                System.out.println("rest et role " + permission + " " + restID);
+
+                if (permission.equals("5")) {
+                    //I can only create administators
+                    addText.setText("Créer un administrateur");
+                } else if (permission.equals("2")) {
+                    //I can only create users
+                    addText.setText("Créer un utilisateur");
+                }
+
+            }
+        }catch (JSONException e){
+
+        }
 
     }
 
@@ -154,14 +180,31 @@ public class AddUserByID extends AppCompatActivity {
             channels = new JSONObject();
             channels.put("restid", ID);
 
-            if(!role.isEmpty() && role.equalsIgnoreCase("ADMIN")){
-                //I can only create users
-                channels.put("permission", "1");
-            }else if(!role.isEmpty() && role.equalsIgnoreCase("SUPER_ADMIN")){
-                //I can only create administators
-                channels.put("permission", "2");
+            try{
+                infosArray = new JSONArray(entityInfo);
+                for (int j = 0; j < infosArray.length(); j++) {
+                    JSONObject infoObject = infosArray.getJSONObject(j);
+                    permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                    restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                    System.out.println("rest et role " + permission + " " + restID);
+
+                    if(permission.equals("5")){
+                        //I can only create administators
+                        addText.setText("Créer un administrateur");
+                        channels.put("permission", "2");
+                    }else if(permission.equals("2")){
+                        //I can only create users
+                        addText.setText("Créer un utilisateur");
+                        channels.put("permission", "1");
+                    }
+
+                }
+                itemsArray.put(channels);
+
+            }catch(JSONException e){
+
             }
-            itemsArray.put(channels);
+
         }catch (JSONException e){
 
         }

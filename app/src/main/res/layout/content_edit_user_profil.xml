@@ -147,51 +147,13 @@
                         android:singleLine="true" />
 
                 </android.support.design.widget.TextInputLayout>
-                <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
 
-                    <EditText
-                        android:id="@+id/permission"
-                        android:hint="Permission"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeActionId="@+id/permission"
-                        android:imeActionLabel="@string/action_sign_in_short"
-                        android:imeOptions="actionUnspecified"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:singleLine="true" />
-
-                </android.support.design.widget.TextInputLayout>
-                <android.support.design.widget.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <EditText
-                        android:id="@+id/restchannel"
-                        android:hint="RestChannel"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:imeActionId="@+id/restchannel"
-                        android:imeActionLabel="@string/action_sign_in_short"
-                        android:imeOptions="actionUnspecified"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:singleLine="true" />
-
-                </android.support.design.widget.TextInputLayout>
-
-                <!--<Button-->
-                    <!--android:id="@+id/submit"-->
-                    <!--style="?android:textAppearanceSmall"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_marginTop="16dp"-->
-                    <!--android:text="Modifier"-->
-                    <!--android:background="@drawable/shape_button"-->
-                    <!--android:textColor="@android:color/white"-->
-                    <!--android:textStyle="bold" />-->
+                <Button
+                    android:id="@+id/addrest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="left"
+                    android:text="Sélectionner un restaurant"/>
 
 
             </LinearLayout>

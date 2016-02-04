@@ -45,8 +45,9 @@ public class Terminals extends AppCompatActivity {
     private RecyclerView recList;
     private TerminalAdapter ta;
     private List<TerminalInfo> terminal;
-    private String channelName, clickedChannelID;
+    private String channelName, clickedChannelID, EntityInfo, restID;
     private NotificationManager mNotificationManager= null;
+    private JSONArray infosArray = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +96,7 @@ public class Terminals extends AppCompatActivity {
         }
 
         // Only super admin can add terminal
+
         System.out.println("restchannel after " + channelName);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,12 +107,35 @@ public class Terminals extends AppCompatActivity {
             }
         });
 
-        //if permission if chain admin I can manage terminals (add or edit)
-        if(!permission.isEmpty() && permission.equalsIgnoreCase("SUPER_ADMIN")){
-            fab.setVisibility(View.VISIBLE);
-        }else{
-            fab.setVisibility(View.INVISIBLE);
+        //if permission if SUPER ADMIN I can manage terminals (add or edit)
+        EntityInfo = pref.getString("EntityInfo", "");
+        JSONArray array = new JSONArray();
+        try{
+            infosArray = new JSONArray(EntityInfo);
+            for (int j = 0; j < infosArray.length(); j++) {
+                JSONObject infoObject = infosArray.getJSONObject(j);
+                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                System.out.println("rest et role " + permission + " " + restID);
+
+                array.put(permission);
+            }
+            int l = array.length();
+            for(int i=0; i<l; i++){
+                String value = array.getString(i);
+
+                if(value.contains("5")){
+                    System.out.println("array permissions "+value);
+                    fab.setVisibility(View.VISIBLE);
+                }
+
+            }
+
+        }catch(JSONException e){
+
         }
+
+
         //else I just can see them
 
             //get all restaurants
