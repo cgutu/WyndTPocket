@@ -164,7 +164,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
     private void getMarkers() {
 
-        //get all restaurants
+        //get all restaurant
         JsonObjectRequest positionRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/location/"+id, null, new Response.Listener<JSONObject>() {
                     @Override

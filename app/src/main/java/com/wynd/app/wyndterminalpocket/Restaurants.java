@@ -52,7 +52,7 @@ public class Restaurants extends Fragment{
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private OnFragmentInteractionListener mListener;
-    private String userID, parentID, permission, rest_channel, EntityInfo, restID;
+    private String userID, parentID, permission, rest_channel, EntityInfo, restID, myuserID;
     private JSONArray chains = new JSONArray();
     List<String> name, email, phone, channel;
     private RecyclerView recList;
@@ -92,74 +92,72 @@ public class Restaurants extends Fragment{
         EntityInfo = pref.getString("EntityInfo", "");
         permission = pref.getString("ROLE", "");
         //rest_channel = pref.getString("rest_channel", "");
+        myuserID = pref.getString("myuserID", "");
 
         System.out.println("params! userid :" + userID + " parentid: " + EntityInfo + " roles: " + permission);
 
         //user can see the only attached restaurants, and if is ADMIN or SUPER_ADMIN: add a restaurant and add a new user with USER ROLES etc...
 
-            //get all restaurants
-            JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                    (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/chains", null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+        try{
 
-                            try {
-                                JSONArray values = response.getJSONArray("data");
-                                System.out.println("response "+response);
+            //display only restaurants which I allow to see
+            infosArray = new JSONArray(EntityInfo);
+            JSONObject infoObject;
 
-                                for (int i = 0; i < values.length(); i++) {
+            for (int j = 0; j < infosArray.length(); j++) {
+                infoObject = infosArray.getJSONObject(j);
+                String restID= infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                //get all restaurants
+                JsonObjectRequest restaurantRequest = new JsonObjectRequest
+                        (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/by/id/"+restID, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
 
-                                    JSONObject restaurants = values.getJSONObject(i);
+                                try {
+                                    response = response.getJSONObject("data");
+                                    System.out.println("response "+response);
 
-                                    //check if the restaurant id is the same on with i have permissions to see
-                                    //display only restaurants which I allow to see
-                                    infosArray = new JSONArray(EntityInfo);
-                                    JSONObject infoObject;
+                                        //check if the restaurant id is the same on with i have permissions to see
+                                        //display only restaurants which I allow to see
+                                        chains.put(response);
 
-                                    for (int j = 0; j < infosArray.length(); j++) {
-                                        infoObject = infosArray.getJSONObject(j);
-                                        String restID= infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-                                        if(!restaurants.getString("id").isEmpty() && restaurants.getString("id").equalsIgnoreCase(restID)){
-                                            chains.put(restaurants);
-                                        }
-                                    }
+                                    System.out.println("rest " + chains);
 
+                                    ra = new RestaurantAdapter(createList(chains));
+                                    recList.setAdapter(ra);
+
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                                System.out.println("rest " + chains);
 
-                                ra = new RestaurantAdapter(createList(chains));
-                                recList.setAdapter(ra);
-
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
+                        }, new Response.ErrorListener() {
 
-                        }
-                    }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
 
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
+                                error.printStackTrace();
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String>  params = new HashMap<String, String>();
 
-                            error.printStackTrace();
-                        }
-                    }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String>  params = new HashMap<String, String>();
+                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                        params.put("Api-User", Globales.API_USER);
+                        params.put("Api-Hash", Globales.API_HASH);
 
-                    System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
-                    params.put("Api-User", Globales.API_USER);
-                    params.put("Api-Hash", Globales.API_HASH);
+                        return params;
+                    }
+                };
 
-                    return params;
-                }
-            };
+                Volley.newRequestQueue(getContext()).add(restaurantRequest);
+            }
+        }catch (JSONException e){
 
-            Volley.newRequestQueue(getContext()).add(restaurantRequest);
-
-
+        }
     }
 
     @Override
