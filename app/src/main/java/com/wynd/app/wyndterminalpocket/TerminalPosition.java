@@ -24,6 +24,12 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,6 +50,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -52,7 +59,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -75,7 +84,8 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         public void run() {
             handler.post(new Runnable() {
                 public void run() {
-                    new ReadMarkers().execute();
+                    getMarkers();
+                   // new ReadMarkers().execute();
                     //Toast.makeText(TerminalPosition.this, "GPS INFO "+LAT + " "+LNG, Toast.LENGTH_SHORT).show();
                 }
             });
@@ -126,7 +136,8 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
         System.out.println("terminal info " + uuid + " id " + id + " channel " + channel);
 
-        new ReadMarkers().execute();
+       // new ReadMarkers().execute();
+        getMarkers();
         timer.schedule(task, DELAY, DELAY);
 
     }
@@ -152,21 +163,72 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 //    }
 
     private void getMarkers() {
-        // Add a marker and move the camera
-        Float lat = Float.parseFloat(LAT);
-        Float lng = Float.parseFloat(LNG);
-        LatLng position = new LatLng(lat, lng);
-        marker = mMap.addMarker(new MarkerOptions().position(position).title("TEST"));
+
+        //get all restaurants
+        JsonObjectRequest positionRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/location/"+id, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray data = response.getJSONArray("data");
+                            System.out.println("response " + response);
+
+                            for(int i=0; i<data.length(); i++){
+                                JSONObject result = data.getJSONObject(i);
+                                String Position = result.getString("latlng");
+                                JSONObject objet = new JSONObject(Position);
+                                System.out.println("array " + objet);
+                                LAT = objet.getString("lat");
+                                LNG = objet.getString("lng");
+                                System.out.println("array " + LAT + LNG);
+                            }
+
+                            Toast.makeText(TerminalPosition.this, "GPS INFO "+LAT + " "+LNG, Toast.LENGTH_SHORT).show();
+
+                            // Add a marker and move the camera
+                            Float lat = Float.parseFloat(LAT);
+                            Float lng = Float.parseFloat(LNG);
+                            LatLng position = new LatLng(lat, lng);
+                            marker = mMap.addMarker(new MarkerOptions().position(position).title("TEST"));
 
 
-       // animateMarker(marker, position, false);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-        mMap.animateCamera(zoom);
+                            // animateMarker(marker, position, false);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+                            mMap.animateCamera(zoom);
 //        Float lat2 = Float.parseFloat(LAT);
 //        Float lng2 = Float.parseFloat(LNG);
 //        LatLng position2 = new LatLng(lat2, lng2);
 //        animateMarker(marker, position2, false);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+
+                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                params.put("Api-User", Globales.API_TERMINAL);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getApplicationContext()).add(positionRequest);
+
 
     }
 
