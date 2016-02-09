@@ -105,6 +105,7 @@ public class LoginActivity extends AppCompatActivity {
     private String message;
     private Button askaccount;
     private JSONArray EntityInfo = new JSONArray();
+    private JSONArray userInfo = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -301,20 +302,6 @@ public class LoginActivity extends AppCompatActivity {
                     if (!result.isEmpty() && result.equals("success")) {
                         JSONObject jsonObject = finalResult.getJSONObject("data");
                         userID = jsonObject.isNull("user_id") ? "" : jsonObject.getString("user_id");
-                        JSONArray entity_info = jsonObject.getJSONArray("entity_info");
-
-                        for(i=0; i<entity_info.length(); i++){
-                            JSONObject entityInfo = entity_info.getJSONObject(i);
-
-                            parentID = entityInfo.isNull("res_parent_id") ? "" : entityInfo.getString("res_parent_id");
-                            restID = entityInfo.isNull("resturant_id") ? "" : entityInfo.getString("resturant_id");
-                            restName = entityInfo.isNull("resturant_name") ? "" : entityInfo.getString("resturant_name");
-                            channelName = entityInfo.isNull("channel_name") ? "" : entityInfo.getString("channel_name");
-
-                          //  parent_idInfo.put(parentInfo);
-                        }
-
-                        //parentID = jsonObject.getString("res_parent_id");
 
                         editor.putString("username", username);
                         editor.putString("myuserID", userID);
@@ -333,6 +320,7 @@ public class LoginActivity extends AppCompatActivity {
                                             JSONArray userResto = response.getJSONArray("usersInResto");
                                             for(int i=0; i<userResto.length(); i++){
                                                 JSONObject userRestInfo = userResto.getJSONObject(i);
+                                                parentID = userRestInfo.isNull("res_parent_id") ? "" : userRestInfo.getString("res_parent_id");
                                                 permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
                                                 rest_channel = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
                                                 EntityInfo.put(userRestInfo);

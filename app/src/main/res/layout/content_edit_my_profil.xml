@@ -142,7 +142,7 @@
                     android:imeActionId="@+id/phone"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
-                    android:inputType="textPhonetic"
+                    android:inputType="phone"
                     android:maxLines="1"
                     android:singleLine="true" />
 

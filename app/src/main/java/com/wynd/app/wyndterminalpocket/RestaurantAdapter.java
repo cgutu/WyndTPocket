@@ -17,6 +17,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -41,6 +44,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     private boolean isViewExpanded = false;
     private SharedPreferences pref;
     private String permission;
+    private LinearLayout mLinearLayout;
+
 
     public RestaurantAdapter(List<RestaurantInfo> restaurantList) {
         this.restaurantList = restaurantList;
@@ -73,7 +78,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
        // restaurantViewHolder.vId.setVisibility(View.INVISIBLE);
 
-        restaurantViewHolder.vExpandable.setVisibility(View.GONE);
+        //restaurantViewHolder.vExpandable.setVisibility(View.GONE);
 
         System.out.println("user permissions " + ri.userPermission);
         permission = ri.userPermission;
@@ -83,6 +88,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             restaurantViewHolder.vBtnUsers.setVisibility(View.GONE);
         }
 
+
+/*
         restaurantViewHolder.vCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,7 +159,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 }
             }
         });
-
+*/
         restaurantViewHolder.vBtnUsers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -195,11 +202,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         final RestaurantViewHolder restaurantViewHolder = new RestaurantViewHolder(itemView);
 
-
         return restaurantViewHolder;
     }
 
-    public static class RestaurantViewHolder extends RecyclerView.ViewHolder {
+    public static class RestaurantViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener{
         protected TextView vEmail;
         protected TextView vName;
         protected TextView vPhone;
@@ -211,6 +217,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected LinearLayout vExpandable;
         protected CardView vCardView;
         protected ImageView vInfo;
+
+        private int originalHeight = 0;
+        private boolean isViewExpanded = false;
 
         public RestaurantViewHolder(View v) {
             super(v);
@@ -228,23 +237,96 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
             vInfo = (ImageView) v.findViewById(R.id.info);
 
-         //   v.setOnClickListener(this);
+            vExpandable.setVisibility(View.GONE);
 
+
+            v.setOnClickListener(this);
 
         }
 
-//        @Override
-//        public void onClick(View v) {
-//
-////            Intent intent = new Intent(v.getContext(), UsersActivity.class);
-////            intent.putExtra("restId",vId.getText());
-////            v.getContext().startActivity(intent);
-//        }
+        private void expand() {
+            //set Visible
+            vExpandable.setVisibility(View.VISIBLE);
+
+            final int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            final int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+            vExpandable.measure(widthSpec, heightSpec);
+
+            ValueAnimator mAnimator = slideAnimator(0, vExpandable.getMeasuredHeight());
+            mAnimator.start();
+        }
+
+        private void collapse() {
+            int finalHeight = vExpandable.getHeight();
+
+            ValueAnimator mAnimator = slideAnimator(finalHeight, 0);
+
+            mAnimator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator) {
+                    //Height=0, but it set visibility to GONE
+                    vExpandable.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+
+            });
+            mAnimator.start();
+        }
+
+        private ValueAnimator slideAnimator(int start, int end) {
+
+            ValueAnimator animator = ValueAnimator.ofInt(start, end);
+
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    //Update Height
+                    int value = (Integer) valueAnimator.getAnimatedValue();
+                    ViewGroup.LayoutParams layoutParams = vExpandable.getLayoutParams();
+                    layoutParams.height = value;
+                    vExpandable.setLayoutParams(layoutParams);
+                }
+            });
+            return animator;
+        }
+
+        @Override
+        public void onClick(View v) {
+            System.out.println("isViewExpanded "+isViewExpanded);
+            if (vExpandable.getVisibility()==View.GONE){
+                isViewExpanded = true;
+                expand();
+            }else{
+                isViewExpanded = false;
+                collapse();
+            }
+
+        }
+
+
     }
 
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
+    }
 
-
-
-
-
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
 }

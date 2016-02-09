@@ -34,9 +34,10 @@ public class InfoOfRestaurant extends AppCompatActivity {
 
     private TextView Name, Email, Phone, Channel;
     private Button managers;
-    private String restId, ID, savedRestId;
+    private String restId, ID, savedRestId, EntityInfo;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private JSONArray infosArray = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +55,11 @@ public class InfoOfRestaurant extends AppCompatActivity {
         Phone = (TextView) findViewById(R.id.phone);
         Channel = (TextView) findViewById(R.id.channel);
 
-      //  managers = (Button) findViewById(R.id.managers);
-
         Intent intent = getIntent();
         restId = intent.getStringExtra("restId");
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         savedRestId = pref.getString("restId", "");
+        EntityInfo = pref.getString("EntityInfo", "");
 
         if(restId == null){
             ID = savedRestId;
@@ -113,19 +113,28 @@ public class InfoOfRestaurant extends AppCompatActivity {
 
         Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
 
-//        managers.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(v.getContext(), UsersActivity.class);
-//                intent.putExtra("restId", restId);
-//                startActivity(intent);
-//            }
-//        });
 
         editor = pref.edit();
         editor.putString("Check", "inforestaurant");
         editor.apply();
 
+
+        try{
+            infosArray = new JSONArray(EntityInfo);
+            for (int j = 0; j < infosArray.length(); j++) {
+                JSONObject infoObject = infosArray.getJSONObject(j);
+                String permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+                String restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                System.out.println("rest et role "+permission  +" "+restID);
+
+                if(permission.equals("5")){
+                    fab.setVisibility(View.VISIBLE);
+                }
+            }
+
+        }catch(JSONException e){
+
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

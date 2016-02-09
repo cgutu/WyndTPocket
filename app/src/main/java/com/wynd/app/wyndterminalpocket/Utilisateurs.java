@@ -117,7 +117,7 @@ public class Utilisateurs extends Fragment {
 
             //get all restaurants
             JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                    (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/all/chains", null, new Response.Listener<JSONObject>() {
+                    (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/all/chains/"+myuserID, null, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
 
@@ -347,7 +347,7 @@ public class Utilisateurs extends Fragment {
                     ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX + json_data.getString("email"));
                     ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX + json_data.getString("phone"));
 
-                    ui.permission = "";
+                    ui.permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
 
                     result.add(ui);
                 }

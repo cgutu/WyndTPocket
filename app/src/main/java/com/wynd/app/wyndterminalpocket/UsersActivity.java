@@ -52,7 +52,7 @@ public class UsersActivity extends AppCompatActivity {
     private static String ROLE_SUPER_ADMIN = "SUPER ADMIN";
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    private String savedRestId;
+    private String savedRestId, EntityInfo;
     private String ID;
     private List<UserInfo> user;
     private String myuserID, entities;
@@ -75,6 +75,7 @@ public class UsersActivity extends AppCompatActivity {
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
         entities =  pref.getString("entities", "");
+        EntityInfo = pref.getString("EntityInfo", "");
 
         if(restId == null){
             ID = savedRestId;
@@ -177,36 +178,45 @@ public class UsersActivity extends AppCompatActivity {
                     ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX + json_data.getString("username"));
                     ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX + json_data.getString("email"));
                     ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX + json_data.getString("phone"));
-                    //   ui.rest_channel = (json_data.isNull("rest_channel") ? "" : UserInfo.RESTCHANNEL_PREFIX +  json_data.getString("rest_channel"));
+                    ui.permission =  (json_data.isNull("permission") ? "" : UserInfo.PHONE_PREFIX + json_data.getString("permission"));
 
-                    ui.permission = "";
+                    String userPermission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
+
+
                     //check user permission and display
                     //if user is a super_admin, I not display it
 
-//                    JSONArray userResto = json_data.getJSONArray("usersInResto");
-//                    for(int i=0; i<userResto.length(); i++){
-//                        JSONObject userRestInfo = userResto.getJSONObject(i);
+                    System.out.println("permission user "+userPermission);
+                    if(!userPermission.isEmpty() && !userPermission.equalsIgnoreCase("SUPER_ADMIN")){
+                        editor = pref.edit();
+                        editor.putString("restId", ID);
+                        editor.putString("userID", json_data.getString("id"));
+                        editor.apply();
+                        result.add(ui);
+                    }
+
+//                    try{
+//                        JSONArray infosArray = new JSONArray(EntityInfo);
+//                        for (int j = 0; j < infosArray.length(); j++) {
+//                            JSONObject infoObject = infosArray.getJSONObject(j);
 //
-//                        if(!userRestInfo.getString("resaturantChainID").isEmpty() && userRestInfo.getString("resaturantChainID").equals(ID)){
-//                            String role =  userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
+//                            if(!infoObject.getString("resaturantChainID").isEmpty() && infoObject.getString("resaturantChainID").equals(ID)){
+//                                String role =  infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
 //
-//                            System.out.println("roleeee utilisateur " + role);
-//                            if (!role.isEmpty() && role.equals("2")) {
-//                                ui.permission = "ADMIN";
-//                            } else if (!role.isEmpty() && role.equals("1")) {
-//                                ui.permission = "USER";
-//                            } else if(!role.isEmpty() && role.equals("5")) {
-//                                ui.permission = "SUPER_ADMIN";
+//                                System.out.println("role utilisateur "+role);
+//                                if (!role.isEmpty() && !role.equals("5")){
+//
+//                                }
+//
 //                            }
 //
 //                        }
+//
+//                    }catch(JSONException e){
+//
 //                    }
 
-                    editor = pref.edit();
-                    editor.putString("restId", ID);
-                    editor.putString("userID", json_data.getString("id"));
-                    editor.apply();
-                    result.add(ui);
+
                 }
             }
 

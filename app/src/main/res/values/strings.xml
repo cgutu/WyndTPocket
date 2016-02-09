@@ -39,6 +39,7 @@
     <string name="title_activity_test">TestActivity</string>
     <string name="title_activity_add_user">Ajouter</string>
     <string name="rest_prompt">Choose a restaurant</string>
+    <string name="parent_prompt">Choose a franchise</string>
     <string name="exki_logo">exki_logo</string>
 
     <string-array name="restchannels">
@@ -63,5 +64,6 @@
     <string name="title_activity_utilisateurs">Utilisateurs</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_terminal_position">Localisation</string>
+    <string name="title_activity_add_entity">Ajouter une entité</string>
 
 </resources>

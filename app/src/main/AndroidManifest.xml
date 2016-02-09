@@ -163,6 +163,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.Terminals" />
         </activity>
+        <activity
+            android:name=".AddEntity"
+            android:label="@string/title_activity_add_entity"
+            android:parentActivityName=".MenuActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
+        </activity>
     </application>
 
 </manifest>
