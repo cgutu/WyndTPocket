@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -70,6 +71,7 @@ public class Restaurants extends Fragment{
     private LinearLayout spinnerLayout;
     private JSONArray parents = new JSONArray();
     private FloatingActionButton fab;
+    private TextView empty;
 
     public Restaurants() {
         // Required empty public constructor
@@ -171,6 +173,7 @@ public class Restaurants extends Fragment{
         recList.setHasFixedSize(true);
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         spinnerLayout = (LinearLayout) rootView.findViewById(R.id.bodyspinner);
+        empty = (TextView) rootView.findViewById(R.id.empty);
 
         resto = new ArrayList<>();
         ra = new RestaurantAdapter(resto);
@@ -190,7 +193,7 @@ public class Restaurants extends Fragment{
                 restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
 
                 //ssi permission SUPER ADMIN et plusieurs parents
-                if(permission.equals("5")){
+                if(permission.equals("3")){
 
                     System.out.println("parentID " + parentID);
 
@@ -295,6 +298,7 @@ public class Restaurants extends Fragment{
 
         List<String> list = new ArrayList<String>();
 
+        list.add(0, "Select franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("resturant_name");
@@ -323,7 +327,12 @@ public class Restaurants extends Fragment{
                 // TODO Auto-generated method stub
 
                 Object item = arg0.getItemAtPosition(arg2);
-                System.out.println("item "+item);
+                System.out.println("item "+item + " position "+arg2);
+                if(arg2 == 0){
+                    recList.setVisibility(View.GONE);
+                }else{
+                    recList.setVisibility(View.VISIBLE);
+                }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
@@ -344,7 +353,6 @@ public class Restaurants extends Fragment{
                                                     for (int i = 0; i < values.length(); i++) {
                                                         JSONObject restaurants = values.getJSONObject(i);
                                                         entities.put(restaurants);
-
                                                     }
                                                     System.out.println("entities " + entities);
                                                     ra = new RestaurantAdapter(createList(entities));
@@ -417,8 +425,7 @@ public class Restaurants extends Fragment{
                 ri.channel = (json_data.isNull("channel") ? "" : RestaurantInfo.CHANNEL_PREFIX +  json_data.getString("channel"));
 
                 String restId = (json_data.isNull("id") ? "" : RestaurantInfo.ID_PREFIX +  json_data.getString("id"));
-                System.out.println("restId "+restId);
-                ri.userPermission = "1";
+                ri.userPermission = "2";
                 try{
                     infosArray = new JSONArray(EntityInfo);
                     for (int j = 0; j < infosArray.length(); j++) {
@@ -440,7 +447,7 @@ public class Restaurants extends Fragment{
 
                 }
 
-
+                //result.add(ri);
 
 
             }

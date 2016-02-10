@@ -107,6 +107,13 @@ public class ProfilActivity extends AppCompatActivity {
                                 permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
                                 rest_channel = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
 
+                                if(!permission.isEmpty() && permission.equalsIgnoreCase("1")){
+                                    permission = "USER";
+                                }else if(!permission.isEmpty() && permission.equalsIgnoreCase("2")){
+                                    permission = "ADMIN";
+                                }else if(!permission.isEmpty() && permission.equalsIgnoreCase("3")){
+                                    permission = "SUPER_ADMIN";
+                                }
                                 //set listview
 
                                 if(!rest_channel.isEmpty()) {
@@ -122,9 +129,7 @@ public class ProfilActivity extends AppCompatActivity {
 
                                                         String restaurantName = response.isNull("name") ? "" : response.getString("name");
                                                         listItems.add(permission + " <----> " + restaurantName);
-                                                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
-                                                                android.R.layout.simple_list_item_1, listItems);
-                                                        mListView.setAdapter(adapter);
+                                                        addItem(listItems);
 
                                                     } catch (JSONException e) {
                                                         e.printStackTrace();
@@ -195,6 +200,10 @@ public class ProfilActivity extends AppCompatActivity {
         Volley.newRequestQueue(getApplicationContext()).add(userProfil);
 
 
+    }
+    private void addItem(List<String> listItems){
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+        mListView.setAdapter(adapter);
     }
 
 }

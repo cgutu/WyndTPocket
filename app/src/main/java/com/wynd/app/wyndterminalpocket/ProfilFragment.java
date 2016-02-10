@@ -142,7 +142,7 @@ public class ProfilFragment extends Fragment {
                                             permission = "USER";
                                         }else if(!permission.isEmpty() && permission.equalsIgnoreCase("2")){
                                             permission = "ADMIN";
-                                        }else if(!permission.isEmpty() && permission.equalsIgnoreCase("5")){
+                                        }else if(!permission.isEmpty() && permission.equalsIgnoreCase("3")){
                                             permission = "SUPER_ADMIN";
                                         }
 

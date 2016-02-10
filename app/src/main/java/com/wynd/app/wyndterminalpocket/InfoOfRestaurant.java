@@ -127,7 +127,7 @@ public class InfoOfRestaurant extends AppCompatActivity {
                 String restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
                 System.out.println("rest et role "+permission  +" "+restID);
 
-                if(permission.equals("5")){
+                if(permission.equals("3")){
                     fab.setVisibility(View.VISIBLE);
                 }
             }

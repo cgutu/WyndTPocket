@@ -82,7 +82,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         System.out.println("user permissions " + ri.userPermission);
         permission = ri.userPermission;
-        if(permission.equalsIgnoreCase("2") || permission.equalsIgnoreCase("5")){
+        if(permission.equalsIgnoreCase("2") || permission.equalsIgnoreCase("3")){
             restaurantViewHolder.vBtnUsers.setVisibility(View.VISIBLE);
         }else if(permission.equalsIgnoreCase("1")){
             restaurantViewHolder.vBtnUsers.setVisibility(View.GONE);

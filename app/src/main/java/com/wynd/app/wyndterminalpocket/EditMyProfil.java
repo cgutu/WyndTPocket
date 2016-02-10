@@ -110,7 +110,7 @@ public class EditMyProfil extends AppCompatActivity {
                             }else if(Permission.equals("USER")){
                                 Permission = "1";
                             }else if(Permission.equals("SUPER_ADMIN")){
-                                Permission = "5";
+                                Permission = "3";
                         }
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
                             phone.setText(response.isNull("phone") ? "" : response.getString("phone"));

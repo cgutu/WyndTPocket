@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -49,7 +50,7 @@ public class Utilisateurs extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private Spinner restSpinner, userSpinner;
+    private Spinner restSpinner, parentSpinner;
     private View rootView;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -64,6 +65,8 @@ public class Utilisateurs extends Fragment {
     private List<UserInfo> user;
     private FloatingActionButton fab;
     private JSONArray infosArray = new JSONArray();
+    private JSONArray parents = new JSONArray();
+    private TextView empty;
 
     public Utilisateurs() {
         // Required empty public constructor
@@ -102,65 +105,60 @@ public class Utilisateurs extends Fragment {
 
         try{
             infosArray = new JSONArray(EntityInfo);
+            JSONObject infoObject;
+
             for (int j = 0; j < infosArray.length(); j++) {
-                JSONObject infoObject = infosArray.getJSONObject(j);
-                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
-                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-                System.out.println("rest et role "+permission  +" "+restID);
+                infoObject = infosArray.getJSONObject(j);
+                final String parentID= infoObject.isNull("res_parent_id") ? "" : infoObject.getString("res_parent_id");
 
+                System.out.println("parentID "+parentID);
+
+                //show parents which I am allow to see
+                JsonObjectRequest parentRequest = new JsonObjectRequest
+                        (Request.Method.GET, Globales.baseUrl+"api/user/get/parent/info/"+parentID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                                try {
+                                    JSONArray values = response.getJSONArray("data");
+
+                                    for(int i=0; i<values.length(); i++){
+                                        parents.put(values.getJSONObject(i));
+                                    }
+
+                                    System.out.println("parents " + parents);
+                                    addParent(parents);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                                error.printStackTrace();
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String>  params = new HashMap<String, String>();
+
+                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                        params.put("Api-User", Globales.API_USER);
+                        params.put("Api-Hash", Globales.API_HASH);
+
+                        return params;
+                    }
+                };
+
+                Volley.newRequestQueue(getContext()).add(parentRequest);
             }
-
-        }catch(JSONException e){
+        }catch (JSONException e){
 
         }
 
-
-            //get all restaurants
-            JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                    (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/all/chains/"+myuserID, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-                            try {
-                                JSONArray values = response.getJSONArray("data");
-                                System.out.println("response " + response);
-
-                                for (int i = 0; i < values.length(); i++) {
-
-                                    JSONObject restaurants = values.getJSONObject(i);
-                                    chains.put(restaurants);
-
-                                }
-                                System.out.println("rest " + chains);
-                                addList(chains);
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                            error.printStackTrace();
-                        }
-                    }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-
-                    System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
-                    params.put("Api-User", Globales.API_USER);
-                    params.put("Api-Hash", Globales.API_HASH);
-
-                    return params;
-                }
-            };
-
-            Volley.newRequestQueue(getContext()).add(restaurantRequest);
     }
 
     @Override
@@ -171,8 +169,9 @@ public class Utilisateurs extends Fragment {
 
         //add them to spinner
         restSpinner = (Spinner) rootView.findViewById(R.id.rest_channel_id);
-
+        parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         recList = (RecyclerView) rootView.findViewById(R.id.cardList);
+        empty = (TextView) rootView.findViewById(R.id.empty);
         recList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -186,8 +185,6 @@ public class Utilisateurs extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
                 Intent i = new Intent(getActivity(), AddUser.class);
                 startActivity(i);
             }
@@ -224,14 +221,14 @@ public class Utilisateurs extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-    private void addList(JSONArray jsonArray){
+    private void addList(final JSONArray jsonArray){
 
         List<String> list = new ArrayList<String>();
 
-        list.add("Select a restaurant");
-        for (int i = 0; i < chains.length(); i++) {
+        list.add(0, "Select a restaurant");
+        for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = chains.getJSONObject(i).getString("name");
+                String name = jsonArray.getJSONObject(i).getString("name");
                 list.add("" + name);
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
@@ -254,15 +251,18 @@ public class Utilisateurs extends Fragment {
                                        int arg2, long arg3) {
                 // TODO Auto-generated method stub
                 Object item = arg0.getItemAtPosition(arg2);
+                if(arg2 == 0){
+                    recList.setVisibility(View.GONE);
+                }else{
+                    recList.setVisibility(View.VISIBLE);
+                }
                 if (item != null) {
-//                    Toast.makeText(getActivity(), item.toString(),
-//                            Toast.LENGTH_SHORT).show();
-                    for (int i = 0; i < chains.length(); i++) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
                         try {
-                            String name = chains.getJSONObject(i).getString("name");
+                            String name = jsonArray.getJSONObject(i).getString("name");
                             if(item.equals(name)){
                                 System.out.println("name ok "+item);
-                                selectedID = chains.getJSONObject(i).getString("id");
+                                selectedID = jsonArray.getJSONObject(i).getString("id");
                                 System.out.println("item id "+selectedID);
 
                                 users = new JSONArray();
@@ -359,5 +359,120 @@ public class Utilisateurs extends Fragment {
 
         return result;
     }
+    private void addParent(final JSONArray jsonArray){
+
+        List<String> list = new ArrayList<String>();
+
+        list.add(0, "Select franchise");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                if(!list.contains(name)){
+                    list.add("" + name);
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("list " + "listist.size() : " + list.size());
+
+        dataAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        parentSpinner.setAdapter(dataAdapter);
+
+
+        parentSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                       int arg2, long arg3) {
+                // TODO Auto-generated method stub
+
+                Object item = arg0.getItemAtPosition(arg2);
+                System.out.println("item "+item + " position "+arg2);
+                if(arg2 == 0){
+                    recList.setVisibility(View.GONE);
+                    restSpinner.setVisibility(View.GONE);
+                }else{
+                    recList.setVisibility(View.VISIBLE);
+                    restSpinner.setVisibility(View.VISIBLE);
+                }
+                if (item != null) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        try {
+                            String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                            if(item.equals(name)){
+                                final String selectedID = jsonArray.getJSONObject(i).getString("id");
+                                //autocompleter la liste des restaurants après avoir sélctionner le parent
+
+                                //get entity of selected parent
+                                final JSONArray entities = new JSONArray();
+                                JsonObjectRequest entityRequest = new JsonObjectRequest
+                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/"+selectedID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
+
+                                                try {
+                                                    JSONArray values = response.getJSONArray("data");
+                                                    for (int i = 0; i < values.length(); i++) {
+                                                        JSONObject restaurants = values.getJSONObject(i);
+                                                        entities.put(restaurants);
+
+                                                    }
+                                                    System.out.println("entities " + entities);
+                                                    addList(entities);
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        }, new Response.ErrorListener() {
+
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+
+                                                error.printStackTrace();
+                                            }
+                                        }) {
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> params = new HashMap<String, String>();
+
+                                        System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
+                                        params.put("Api-User", Globales.API_USER);
+                                        params.put("Api-Hash", Globales.API_HASH);
+
+                                        return params;
+                                    }
+                                };
+
+                                Volley.newRequestQueue(getContext()).add(entityRequest);
+
+
+                            }
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // TODO Auto-generated method stub
+
+
+            }
+        });
+
+
+    }
+
 
 }

@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -71,19 +72,21 @@ public class AddUser extends AppCompatActivity{
     private JSONArray chains = new JSONArray();
 
     protected CharSequence[] colours = { "Red", "Green", "Blue", "Yellow", "Orange", "Purple" };
-    protected CharSequence[] restaurants;
-    protected CharSequence[] permissions = { "ADMIN", "USER" };
+    protected CharSequence[] restaurants, entities;
 
     protected ArrayList<CharSequence> selectedEntity = new ArrayList<CharSequence>();
     protected ArrayList<CharSequence> selectedPermission = new ArrayList<CharSequence>();
     private Button selectEntityButton, selectPermissionBtn;
     private JSONArray names = new JSONArray();
-    List<String> list = new ArrayList<String>();
+    List<String> listItems = new ArrayList<String>();
     List<String> selectedItem, selectedItemPermission;
     JSONObject channels;
     JSONArray itemsArray;
-    private JSONArray EntityInfo = new JSONArray();
-
+    private String EntityInfo;
+    private JSONArray infosArray = new JSONArray();
+    private JSONArray parents = new JSONArray();
+    private Spinner parentSpinner;
+    private ArrayAdapter<String> dataAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,29 +101,19 @@ public class AddUser extends AppCompatActivity{
 
         mFormview = findViewById(R.id.add_form);
         mProgressView = findViewById(R.id.login_progress);
+        parentSpinner = (Spinner) findViewById(R.id.parent);
 
-        Intent intent = getIntent();
-
-        restId = intent.getStringExtra("restId");
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         System.out.println("rest id test " + pref.getString("restId", ""));
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
-        role = pref.getString("ROLE", "");
+        EntityInfo = pref.getString("EntityInfo", "");
 
         editor = pref.edit();
         editor.putString("Check", "userlist");
         editor.apply();
 
-
-        if(restId == null){
-            ID = savedRestId;
-        }else{
-            ID = restId;
-        }
-
-        System.out.println("adduser for " + restId+ " or "+ID);
 
         mUsernameView = (EditText) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -128,7 +121,6 @@ public class AddUser extends AppCompatActivity{
         mPhoneView = (EditText) findViewById(R.id.phone);
 
 
-       // btnSubmit = (Button) findViewById(R.id.submit);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,55 +131,59 @@ public class AddUser extends AppCompatActivity{
         });
 
 
-        //get all restaurants
-        final JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/chains", null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
+        try{
+            infosArray = new JSONArray(EntityInfo);
+            JSONObject infoObject;
 
-                        try {
-                            JSONArray values = response.getJSONArray("data");
-                            System.out.println("response "+response);
+            for (int j = 0; j < infosArray.length(); j++) {
+                infoObject = infosArray.getJSONObject(j);
+                final String parentID= infoObject.isNull("res_parent_id") ? "" : infoObject.getString("res_parent_id");
 
-                            for (int i = 0; i < values.length(); i++) {
+                System.out.println("parentID "+parentID);
 
-                                JSONObject restaurants = values.getJSONObject(i);
-                                chains.put(restaurants);
-                                names.put(values.getJSONObject(i).getString("name"));
+                //show parents which I am allow to see
+                JsonObjectRequest parentRequest = new JsonObjectRequest
+                        (Request.Method.GET, Globales.baseUrl+"api/user/get/parent/info/"+parentID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                                try {
+                                    JSONArray values = response.getJSONArray("data");
+
+                                    for(int i=0; i<values.length(); i++){
+                                        parents.put(values.getJSONObject(i));
+                                    }
+                                    addParent(parents);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
                             }
-                            for(int i = 0; i < names.length(); i++){
-                                list.add(names.get(i).toString());
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                                error.printStackTrace();
                             }
-                            restaurants = list.toArray(new CharSequence[list.size()]);
-                            System.out.println("names list" + restaurants);
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-
+                        }) {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String>  params = new HashMap<String, String>();
 
-                        error.printStackTrace();
+                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                        params.put("Api-User", Globales.API_USER);
+                        params.put("Api-Hash", Globales.API_HASH);
+
+                        return params;
                     }
-                }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
+                };
 
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
-                params.put("Api-User", Globales.API_USER);
-                params.put("Api-Hash", Globales.API_HASH);
-
-                return params;
+                Volley.newRequestQueue(getApplicationContext()).add(parentRequest);
             }
-        };
+        }catch (JSONException e){
 
-        Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
+        }
 
         selectEntityButton = (Button) findViewById(R.id.addrest);
         selectEntityButton.setOnClickListener(new View.OnClickListener() {
@@ -203,6 +199,8 @@ public class AddUser extends AppCompatActivity{
 
     protected void showSelectEntityDialog() {
 
+
+        restaurants = listItems.toArray(new CharSequence[listItems.size()]);
 
         boolean[] checkedEntities = new boolean[restaurants.length];
 
@@ -255,9 +253,11 @@ public class AddUser extends AppCompatActivity{
         if(stringBuilder.toString().isEmpty()){
             selectEntityButton.setText("Veuillez sélectionner au moins un restaurant");
             selectEntityButton.setTextColor(Color.RED);
+            parentSpinner.setEnabled(true);
         }else{
             selectEntityButton.setTextColor(Color.BLACK);
             selectEntityButton.setText(stringBuilder.toString());
+            parentSpinner.setEnabled(false);
         }
 
     }
@@ -292,26 +292,13 @@ public class AddUser extends AppCompatActivity{
                     if(selectedName.equalsIgnoreCase(name)){
 
                         channels = new JSONObject();
-                        channels.put("restid", chains.getJSONObject(i).getString("id"));
-                        if(!role.isEmpty() && role.equalsIgnoreCase("ADMIN")){
-                            //I can only create users
-                            channels.put("permission", "1");
-                        }else if(!role.isEmpty() && role.equalsIgnoreCase("SUPER_ADMIN")){
-                            //I can only create administators
-                            channels.put("permission", "2");
-                        }
-
-
-                        itemsArray.put(channels);
-
-
+                        channels.put("restid", chains.getJSONObject(j).getString("id"));
+                        channels.put("permission", "2");
                     }
                 }
+                itemsArray.put(channels);
 
             }
-
-
-
 
 
             System.out.println("itemsArray" + itemsArray);
@@ -438,22 +425,6 @@ public class AddUser extends AppCompatActivity{
                     JSONObject jsonObject = finalResult.getJSONObject("data");
                     System.out.println("data " + jsonObject);
 
-                    String restpermission = jsonObject.getString("new_restovspermission");
-
-                    JSONArray entities = new JSONArray(restpermission);
-                    System.out.println("entities "+entities);
-
-                    for(i=0; i<entities.length(); i++){
-                         JSONObject entity = entities.getJSONObject(i);
-                        System.out.println("entity "+entity);
-                        EntityInfo.put(entity);
-                    }
-
-                    editor = pref.edit();
-                    editor.putString("entities", EntityInfo.toString());
-                    editor.apply();
-
-                    System.out.println("Utilisateur ajouté pour "+EntityInfo.toString());
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
@@ -512,6 +483,119 @@ public class AddUser extends AppCompatActivity{
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mFormview.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+    private void addParent(final JSONArray jsonArray){
+
+        List<String> list = new ArrayList<String>();
+
+        list.add(0, "Select franchise");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                if(!list.contains(name)){
+                    list.add("" + name);
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("list " + "listist.size() : " + list.size());
+
+        dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        parentSpinner.setAdapter(dataAdapter);
+
+        listItems = new ArrayList<String>();
+
+        parentSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                       int arg2, long arg3) {
+                // TODO Auto-generated method stub
+
+                Object item = arg0.getItemAtPosition(arg2);
+                System.out.println("item " + item + " position " + arg2);
+                if(arg2 == 0){
+                    selectEntityButton.setVisibility(View.GONE);
+                }else{
+                    selectEntityButton.setVisibility(View.VISIBLE);
+                }
+                if (item != null) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        try {
+                            String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                            if(item.equals(name)){
+                                final String selectedID = jsonArray.getJSONObject(i).getString("id");
+
+                                //autocompleter la liste des restaurants après avoir sélectionner le parent
+                                JsonObjectRequest entityRequest = new JsonObjectRequest
+                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/"+selectedID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
+
+                                                try {
+                                                    listItems = new ArrayList<String>();
+                                                    JSONArray values = response.getJSONArray("data");
+                                                    for (int i = 0; i < values.length(); i++) {
+                                                        //names.put(values.getJSONObject(i).getString("name"));
+                                                        listItems.add(values.getJSONObject(i).getString("name"));
+                                                        chains.put(values.getJSONObject(i));
+                                                    }
+//                                                    for(int i = 0; i < names.length(); i++){
+//                                                        listItems.add(names.get(i).toString());
+//                                                    }
+                                                    System.out.println("names list" + restaurants);
+
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                            }
+                                        }, new Response.ErrorListener() {
+
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+
+                                                error.printStackTrace();
+                                            }
+                                        }) {
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> params = new HashMap<String, String>();
+
+                                        System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
+                                        params.put("Api-User", Globales.API_USER);
+                                        params.put("Api-Hash", Globales.API_HASH);
+
+                                        return params;
+                                    }
+                                };
+
+                                Volley.newRequestQueue(getApplicationContext()).add(entityRequest);
+
+                            }
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // TODO Auto-generated method stub
+
+
+            }
+        });
+
+
     }
 
 }

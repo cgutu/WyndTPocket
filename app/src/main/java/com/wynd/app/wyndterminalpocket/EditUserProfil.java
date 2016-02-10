@@ -70,7 +70,8 @@ public class EditUserProfil extends AppCompatActivity {
     List<String> list = new ArrayList<String>();
     List<String> selectedItem;
     private Button selectEntityButton;
-    private JSONArray names = new JSONArray();
+    private JSONObject channels = new JSONObject();
+    private JSONArray restovspermission = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +84,6 @@ public class EditUserProfil extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
         phone = (EditText) findViewById(R.id.phone);
-        //permission = (EditText) findViewById(R.id.permission);
-       // rest_channel = (EditText) findViewById(R.id.restchannel);
-        //submit = (Button) findViewById(R.id.submit);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
@@ -105,70 +103,26 @@ public class EditUserProfil extends AppCompatActivity {
                             response = response.getJSONObject("data");
                             System.out.println("response " + response);
 
+                            restovspermission = new JSONArray();
                             username.setText(response.isNull("username") ? "" : response.getString("username"));
                             password.setText(response.isNull("hash") ? "" : response.getString("hash"));
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
                             phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
 
+                            JSONArray usersInResto = response.getJSONArray("usersInResto");
+                            for(int i=0; i<usersInResto.length(); i++){
+                                JSONObject infos = usersInResto.getJSONObject(i);
+                                String permissionID = infos.isNull("permissionID") ? "" :  infos.getString("permissionID");
+                                String restID = infos.isNull("resaturantChainID") ? "" :  infos.getString("resaturantChainID");
 
-                            JSONArray userResto = response.getJSONArray("usersInResto");
-                            for(int i=0; i<userResto.length(); i++){
-                                JSONObject userRestInfo = userResto.getJSONObject(i);
-                                permissionID = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
-                                restID = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
-
-
-                                //get info of clicked restaurant
-                                JsonObjectRequest getRestaurant = new JsonObjectRequest
-                                        (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/by/id/"+restID, null, new Response.Listener<JSONObject>() {
-                                            @Override
-                                            public void onResponse(JSONObject response) {
-
-                                                try {
-                                                    response = response.getJSONObject("data");
-                                                    System.out.println("response " + response);
-
-                                                    String name = response.isNull("name") ? "" : response.getString("name");
-                                                    names.put(name);
-                                                    System.out.println("name" + name);
-                                                    System.out.println("names list" + names);
-
-                                                    for(int i = 0; i < names.length(); i++){
-                                                        list.add(names.get(i).toString());
-                                                    }
-                                                    restaurants = list.toArray(new CharSequence[list.size()]);
-                                                    System.out.println("names list" + restaurants);
-
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                            }
-                                        }, new Response.ErrorListener() {
-
-                                            @Override
-                                            public void onErrorResponse(VolleyError error) {
-
-                                                error.printStackTrace();
-                                            }
-                                        }) {
-                                    @Override
-                                    public Map<String, String> getHeaders() throws AuthFailureError {
-                                        Map<String, String>  params = new HashMap<String, String>();
-
-                                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
-                                        params.put("Api-User", Globales.API_USER);
-                                        params.put("Api-Hash", Globales.API_HASH);
-
-                                        return params;
-                                    }
-                                };
-
-                                Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
+                                channels = new JSONObject();
+                                channels.put("restid", restID);
+                                channels.put("permission", permissionID);
+                                restovspermission.put(channels);
+                                System.out.println("channels " + channels.toString());
                             }
 
-
-
+                            System.out.println("restovspermission "+restovspermission.toString());
 
 
                         } catch (JSONException e) {
@@ -206,9 +160,6 @@ public class EditUserProfil extends AppCompatActivity {
                 Email = email.getText().toString();
                 Password = password.getText().toString();
                 Phone = phone.getText().toString();
-                Permission = permission.getText().toString();
-                Rest_channel = rest_channel.getText().toString();
-
 
                 try {
                     Password = AeSimpleSHA1.SHA1(Password);
@@ -221,15 +172,6 @@ public class EditUserProfil extends AppCompatActivity {
 
             }
         });
-        selectEntityButton = (Button) findViewById(R.id.addrest);
-        selectEntityButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showSelectEntityDialog();
-            }
-        });
-
-
     }
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
         int i;
@@ -244,18 +186,9 @@ public class EditUserProfil extends AppCompatActivity {
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
             System.out.println("do in background edit task " + Password);
-            JSONObject jsonObject = new JSONObject();
             String json = "";
 
             try {
-                jsonObject.put("username", Username);
-                jsonObject.put("secret", Password);
-                jsonObject.put("email", Email);
-                jsonObject.put("phone", Phone);
-                jsonObject.put("permission",Permission);
-                jsonObject.put("rest_channel_id",Rest_channel);
-
-                json = jsonObject.toString();
 
                 System.out.println("submit "+Username+Email+Password+Phone+Permission+Rest_channel);
                 //Setting up the default http client
@@ -263,19 +196,14 @@ public class EditUserProfil extends AppCompatActivity {
 
                 //setting up the http put method
                 HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/user/edit/"+userID);
-                nameValuePairs.add(new BasicNameValuePair("username", Username));
-                nameValuePairs.add(new BasicNameValuePair("secret", Password));
-                nameValuePairs.add(new BasicNameValuePair("email", Email));
-                nameValuePairs.add(new BasicNameValuePair("phone", Phone));
+                nameValuePairs.add(new BasicNameValuePair("new_username", Username));
+                nameValuePairs.add(new BasicNameValuePair("new_secret", Password));
+                nameValuePairs.add(new BasicNameValuePair("new_email", Email));
+                nameValuePairs.add(new BasicNameValuePair("new_phone", Phone));
                 nameValuePairs.add(new BasicNameValuePair("permission", Permission));
-                nameValuePairs.add(new BasicNameValuePair("rest_channel_id", Rest_channel));
+                nameValuePairs.add(new BasicNameValuePair("new_restovspermission", restovspermission.toString()));
 
 
-                 //StringEntity se = new StringEntity(json);
-                //se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-
-//                httpPut.addHeader("content-type", "application/x-www-form-urlencoded");
-//                httpPut.setHeader("Accept", "application/json");
 
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
@@ -321,15 +249,11 @@ public class EditUserProfil extends AppCompatActivity {
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
-                int i = 0;
-                System.out.println("result: " + finalResult);
                 String result = finalResult.getString("result");
                 String msg = finalResult.getString("message");
                 System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    JSONObject jsonObject = finalResult.getJSONObject("data");
-                    System.out.println("result " + jsonObject);
 
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditUserProfil.this, UsersActivity.class);
@@ -348,65 +272,6 @@ public class EditUserProfil extends AppCompatActivity {
         }
     }
 
-    protected void showSelectEntityDialog() {
 
-
-        boolean[] checkedEntities = new boolean[restaurants.length];
-
-        int count = restaurants.length;
-
-        for(int i = 0; i < count; i++)
-
-            checkedEntities[i] = selectedEntity.contains(restaurants[i]);
-
-        DialogInterface.OnMultiChoiceClickListener entitiesDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
-
-            @Override
-
-            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-
-                if(isChecked)
-
-                    selectedEntity.add(restaurants[which]);
-
-                else
-
-                    selectedEntity.remove(restaurants[which]);
-
-                onChangeSelectedEntity();
-
-            }
-
-        };
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("Select restaurants");
-
-        builder.setMultiChoiceItems(restaurants, checkedEntities, entitiesDialogListener);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-
-    }
-    protected void onChangeSelectedEntity() {
-
-        selectedItem = new ArrayList<String>();
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for(CharSequence entity : selectedEntity){
-            stringBuilder.append(entity + ",");
-        }
-
-        if(stringBuilder.toString().isEmpty()){
-            selectEntityButton.setText("Veuillez sélectionner au moins un restaurant");
-            selectEntityButton.setTextColor(Color.RED);
-        }else{
-            selectEntityButton.setTextColor(Color.BLACK);
-            selectEntityButton.setText(stringBuilder.toString());
-        }
-
-    }
 
 }

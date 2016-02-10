@@ -114,13 +114,13 @@ public class AddEntity extends AppCompatActivity {
             vEmail.setError(getString(R.string.error_field_required));
             focusView = vEmail;
             cancel = true;
-        }else if (TextUtils.isEmpty(phone) ) {
-            vPhone.setError(getString(R.string.error_field_required));
-            focusView = vPhone;
-            cancel = true;
         }else if (TextUtils.isEmpty(address) ) {
             vAddress.setError(getString(R.string.error_field_required));
             focusView = vAddress;
+            cancel = true;
+        }else if (TextUtils.isEmpty(phone) ) {
+            vPhone.setError(getString(R.string.error_field_required));
+            focusView = vPhone;
             cancel = true;
         }else if (TextUtils.isEmpty(channel) ) {
             vChannel.setError(getString(R.string.error_field_required));
@@ -226,12 +226,15 @@ public class AddEntity extends AppCompatActivity {
                 System.out.println("result " + result);
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    JSONObject jsonObject = finalResult.getJSONObject("data");
-                    System.out.println("data " + jsonObject);
 
-                    Toast.makeText(getApplicationContext(), "Entité ajouté", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Entité ajoutée", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
+                    editor = pref.edit();
+                    editor.putString("Check", "addentity");
+                    editor.apply();
+
+
                     Intent intent = new Intent(AddEntity.this, MenuActivity.class);
                     startActivity(intent);
                     finish();

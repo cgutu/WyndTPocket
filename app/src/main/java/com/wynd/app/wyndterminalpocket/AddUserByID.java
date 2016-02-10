@@ -144,7 +144,7 @@ public class AddUserByID extends AppCompatActivity {
                 restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
                 System.out.println("rest et role " + permission + " " + restID);
 
-                if (permission.equals("5")) {
+                if (permission.equals("3")) {
                     //I can only create administators
                     addText.setText("Créer un administrateur");
                 } else if (permission.equals("2")) {
@@ -188,7 +188,7 @@ public class AddUserByID extends AppCompatActivity {
                     restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
                     System.out.println("rest et role " + permission + " " + restID);
 
-                    if(permission.equals("5")){
+                    if(permission.equals("3")){
                         //I can only create administators
                         addText.setText("Créer un administrateur");
                         channels.put("permission", "2");
@@ -331,25 +331,11 @@ public class AddUserByID extends AppCompatActivity {
                     JSONObject jsonObject = finalResult.getJSONObject("data");
                     System.out.println("data " + jsonObject);
 
-                    String restpermission = jsonObject.getString("new_restovspermission");
-
-                    JSONArray entities = new JSONArray(restpermission);
-                    System.out.println("entities "+entities);
-
-                    for(i=0; i<entities.length(); i++){
-                        JSONObject entity = entities.getJSONObject(i);
-                        System.out.println("entity "+entity);
-                        EntityInfo.put(entity);
-                    }
-
-                    editor = pref.edit();
-                    editor.putString("entities", EntityInfo.toString());
-                    editor.apply();
-
-                    System.out.println("Utilisateur ajouté pour "+EntityInfo.toString());
+                    System.out.println("Utilisateur ajouté ");
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
+
                     Intent intent = new Intent(AddUserByID.this, UsersActivity.class);
                     startActivity(intent);
                     finish();

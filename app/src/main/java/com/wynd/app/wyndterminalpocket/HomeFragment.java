@@ -103,7 +103,7 @@ public class HomeFragment extends Fragment {
             for(int i=0; i<l; i++){
                 String value = array.getString(i);
 
-                if(value.contains("5")){
+                if(value.contains("3")){
                     System.out.println("array permissions "+value);
                     utilisateurs.setVisibility(View.VISIBLE);
                 }

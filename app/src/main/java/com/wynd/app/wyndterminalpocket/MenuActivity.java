@@ -91,6 +91,12 @@ public class MenuActivity extends AppCompatActivity
             editor.apply();
 
             displayView(R.id.nav_slideshow);
+        }else if(!s1.isEmpty() && s1.equals("addentity")){
+            editor = pref.edit();
+            editor.putString("Check", "0");
+            editor.apply();
+
+            displayView(R.id.nav_slideshow);
         }
 //        else if(!s1.isEmpty() && s1.equals("userlist")){
 //            editor = pref.edit();
@@ -249,31 +255,6 @@ public class MenuActivity extends AppCompatActivity
 
                 viewIsAtHome = false;
                 break;
-//            case R.id.nav_manage:
-//
-//                try{
-//                    infosArray = new JSONArray(EntityInfo);
-//                    for (int j = 0; j < infosArray.length(); j++) {
-//                        JSONObject infoObject = infosArray.getJSONObject(j);
-//                        permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
-//                        restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-//                        System.out.println("rest et role "+permission  +" "+restID);
-//
-//                        if(permission.equals("5")){
-//                            fragment = new Utilisateurs();
-//                            title = "Utilisateurs";
-//                            viewIsAtHome = false;
-//                        }else{
-//                            fragment = new HomeFragment();
-//                            title = "Home";
-//                            viewIsAtHome = true;
-//                        }
-//                    }
-//
-//                }catch(JSONException e){
-//
-//                }
-//                break;
             default:
                 fragment = new HomeFragment();
                 title = "Home";

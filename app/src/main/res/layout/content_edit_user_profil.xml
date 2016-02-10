@@ -148,14 +148,6 @@
 
                 </android.support.design.widget.TextInputLayout>
 
-                <Button
-                    android:id="@+id/addrest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="left"
-                    android:text="Sélectionner un restaurant"/>
-
-
             </LinearLayout>
         </ScrollView>
 

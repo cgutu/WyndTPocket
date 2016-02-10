@@ -187,34 +187,16 @@ public class UsersActivity extends AppCompatActivity {
                     //if user is a super_admin, I not display it
 
                     System.out.println("permission user "+userPermission);
+
+                    editor = pref.edit();
+                    editor.putString("restId", ID);
+                    editor.putString("userID", json_data.getString("id"));
+                    editor.apply();
+
                     if(!userPermission.isEmpty() && !userPermission.equalsIgnoreCase("SUPER_ADMIN")){
-                        editor = pref.edit();
-                        editor.putString("restId", ID);
-                        editor.putString("userID", json_data.getString("id"));
-                        editor.apply();
+
                         result.add(ui);
                     }
-
-//                    try{
-//                        JSONArray infosArray = new JSONArray(EntityInfo);
-//                        for (int j = 0; j < infosArray.length(); j++) {
-//                            JSONObject infoObject = infosArray.getJSONObject(j);
-//
-//                            if(!infoObject.getString("resaturantChainID").isEmpty() && infoObject.getString("resaturantChainID").equals(ID)){
-//                                String role =  infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
-//
-//                                System.out.println("role utilisateur "+role);
-//                                if (!role.isEmpty() && !role.equals("5")){
-//
-//                                }
-//
-//                            }
-//
-//                        }
-//
-//                    }catch(JSONException e){
-//
-//                    }
 
 
                 }
