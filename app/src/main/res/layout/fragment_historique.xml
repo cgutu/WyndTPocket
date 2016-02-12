@@ -1,0 +1,175 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wynd.app.wyndterminalpocket.HistoriqueFragment">
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/form"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <LinearLayout
+                android:id="@+id/desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+                <TextView
+
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Veuillez choisir une période"/>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/desc"
+                android:layout_marginTop="50dp"
+                android:id="@+id/period">
+                <LinearLayout
+                    android:id="@+id/period1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Date"
+                        android:background="@drawable/shape_button"
+                        android:textColor="@color/white"
+                        android:padding="10dp"
+                        android:textStyle="bold"
+                        android:id="@+id/date1"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time"
+                        android:background="@drawable/circle_shape"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:padding="10dp"
+                        android:layout_marginStart="20sp"
+                        android:id="@+id/time1"
+                        />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_below="@id/period1"
+                    android:id="@+id/between"
+                    android:layout_marginTop="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="↕"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/period2"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="20dp"
+                    android:layout_below="@id/between"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Date"
+                        android:padding="10dp"
+                        android:background="@drawable/shape_button"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:id="@+id/date2"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time"
+                        android:background="@drawable/circle_shape"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:padding="10dp"
+                        android:layout_marginStart="20sp"
+                        android:id="@+id/time2"
+                        />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/period"
+                android:orientation="vertical"
+                >
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:id="@+id/spinner1"
+                    android:layout_marginTop="20dp"
+                    android:padding="10dp"
+                    android:layout_height="wrap_content">
+                    <Spinner
+                        android:id="@+id/parent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:prompt="@string/rest_prompt" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/spinner2"
+                    android:layout_below="@id/spinner1"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
+                    android:padding="10dp"
+                    android:layout_height="wrap_content">
+                    <Spinner
+                        android:id="@+id/rest_channel_id"
+                        android:layout_width="match_parent"
+                        android:visibility="gone"
+                        android:layout_height="wrap_content"
+                        android:prompt="@string/rest_prompt" />
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
+                    android:id="@+id/spinner3"
+                    android:layout_below="@id/spinner2"
+                    android:padding="10dp"
+                    android:layout_height="wrap_content">
+                    <Spinner
+                        android:id="@+id/device"
+                        android:layout_width="match_parent"
+                        android:visibility="gone"
+                        android:layout_height="wrap_content"
+                        android:prompt="@string/rest_prompt" />
+                </android.support.design.widget.TextInputLayout>
+            </LinearLayout>
+
+
+        </RelativeLayout>
+    </ScrollView>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_action_add" />
+
+</FrameLayout>

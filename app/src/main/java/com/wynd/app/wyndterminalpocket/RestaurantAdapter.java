@@ -89,77 +89,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         }
 
 
-/*
-        restaurantViewHolder.vCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                System.out.println("test " + i);
-
-                if (restaurantViewHolder.vExpandable.getVisibility() == View.GONE) {
-                    restaurantViewHolder.vExpandable.setVisibility(View.VISIBLE);
-
-                    final int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                    final int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                    restaurantViewHolder.vExpandable.measure(widthSpec, heightSpec);
-
-
-                    ValueAnimator animator = ValueAnimator.ofInt(0, restaurantViewHolder.vExpandable.getMeasuredHeight());
-
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            //Update Height
-                            int value = (Integer) valueAnimator.getAnimatedValue();
-                            ViewGroup.LayoutParams layoutParams = restaurantViewHolder.vExpandable.getLayoutParams();
-                            layoutParams.height = value;
-                            restaurantViewHolder.vExpandable.setLayoutParams(layoutParams);
-                        }
-                    });
-                    animator.start();
-                }else {
-                    int finalHeight = restaurantViewHolder.vExpandable.getHeight();
-
-
-                    ValueAnimator animator = ValueAnimator.ofInt(finalHeight, 0);
-
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            //Update Height
-                            int value = (Integer) valueAnimator.getAnimatedValue();
-                            ViewGroup.LayoutParams layoutParams = restaurantViewHolder.vExpandable.getLayoutParams();
-                            layoutParams.height = value;
-                            restaurantViewHolder.vExpandable.setLayoutParams(layoutParams);
-                        }
-                    });
-
-                    animator.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            //Height=0, but it set visibility to GONE
-                            restaurantViewHolder.vExpandable.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-
-                        }
-                    });
-                    animator.start();
-                }
-            }
-        });
-*/
         restaurantViewHolder.vBtnUsers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

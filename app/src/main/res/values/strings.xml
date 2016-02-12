@@ -42,15 +42,15 @@
     <string name="parent_prompt">Choose a franchise</string>
     <string name="exki_logo">exki_logo</string>
 
-    <string-array name="restchannels">
+    <string-array name="tests">
         <item>Exki</item>
         <item>Quick</item>
         <item>Indonesia</item>
-        <item>France</item>
-        <item>Italy</item>
-        <item>Singapore</item>
-        <item>New Zealand</item>
-        <item>India</item>
+        <item>Ciliciam vero, quae Cydno amni exultat, Tarsus nobilitat, urbs perspicabilis </item>
+        <item>Ciliciam vero, quae Cydno amni exultat, Tarsus nobilitat, urbs perspicabilis Ciliciam vero, quae Cydno amni exultat, Tarsus nobilitat, urbs perspicabilis </item>
+        <item>Ciliciam vero, quae Cydno amni exultat, Tarsus nobilitat, urbs perspicabilis </item>
+        <item>Ciliciam vero, quae Cydno amni exultat, Tarsus nobilitat, urbs perspicabilis </item>
+        <item>Ciliciam vero, quae Cydno amni exultat, Tarsus nobilitat, urbs perspicabilis </item>
     </string-array>
     <string name="title_activity_profil">Profil</string>
     <string name="title_activity_edit_user_profil">Modifier</string>
@@ -65,5 +65,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_terminal_position">Localisation</string>
     <string name="title_activity_add_entity">Ajouter une entité</string>
+    <string name="title_activity_mdp_oublie">Mot de passe oublié</string>
+    <string name="title_activity_historique">Historique</string>
 
 </resources>

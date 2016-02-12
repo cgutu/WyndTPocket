@@ -5,10 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
-import android.widget.Button;
 
+/** 
+ * Dashboard
+ * @author Cornelia Gutu
+ * @version 1.0
+ */
 public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences pref;
@@ -19,22 +21,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /**
+         * @user clear stored data if exists
+         */
         pref = getApplicationContext().getSharedPreferences("Infos", 0); // 0 - for private mode
         editor = pref.edit();
         editor.clear();
         editor.apply();
 
-//        Button btn = (Button) findViewById(R.id.btn);
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                Intent i =new Intent (MainActivity.this, LoginActivity.class);
-//                startActivity(i);
-//
-//
-//            }
-//        });
+        /**
+         * @main go to login after 5s
+         */
         new Handler().postDelayed(new Runnable() {
 
             @Override

@@ -61,11 +61,11 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         terminalViewHolder.vApk.setText(ti.apk_version);
         terminalViewHolder.vInfos.setText(ti.entity_parent + " / " + ti.entity_label + " / " + ti.entity_id);
 
-        if(!ti.terminalStatus.isEmpty() && ti.terminalStatus.equalsIgnoreCase("ON")){
+        if(!ti.terminalStatus.isEmpty() && ti.terminalStatus.equalsIgnoreCase("1")){
             terminalViewHolder.vOn.setVisibility(View.VISIBLE);
             terminalViewHolder.vOff.setVisibility(View.GONE);
             terminalViewHolder.vTime.setVisibility(View.GONE);
-        }else if(!ti.terminalStatus.isEmpty() && ti.terminalStatus.equalsIgnoreCase("OFF")){
+        }else if(!ti.terminalStatus.isEmpty() && ti.terminalStatus.equalsIgnoreCase("0")){
             terminalViewHolder.vOn.setVisibility(View.GONE);
             terminalViewHolder.vOff.setVisibility(View.VISIBLE);
 
@@ -75,13 +75,25 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             }
         }
 
+        terminalViewHolder.vHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), Historique.class);
+                intent.putExtra("terminalID", ti.id);
+                intent.putExtra("terminalUuid", ti.uuid);
+                intent.putExtra("channelID", ti.channel_id);
+                v.getContext().startActivity(intent);
+            }
+        });
+
         terminalViewHolder.vLocalise.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), TerminalPosition.class);
                 intent.putExtra("terminalID", ti.id);
-                intent.putExtra("terminalChannel", ti.channel);
                 intent.putExtra("terminalUuid", ti.uuid);
+                intent.putExtra("channelID", ti.channel_id);
+                intent.putExtra("phone", ti.phone);
                 v.getContext().startActivity(intent);
             }
         });
@@ -204,6 +216,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         protected LinearLayout vExpandable;
         protected CardView vCardView;
         protected LinearLayout lApk, lEmail, lPhone, lUser;
+        protected Button vHistory;
 
         public TerminalViewHolder(View v) {
             super(v);
@@ -225,6 +238,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             lEmail = (LinearLayout) v.findViewById(R.id.lEmail);
             lPhone = (LinearLayout) v.findViewById(R.id.lPhone);
             lUser = (LinearLayout) v.findViewById(R.id.lUsername);
+            vHistory = (Button) v.findViewById(R.id.btnHistory);
         }
 
     }

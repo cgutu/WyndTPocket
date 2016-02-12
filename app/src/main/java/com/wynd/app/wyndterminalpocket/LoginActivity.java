@@ -3,60 +3,30 @@ package com.wynd.app.wyndterminalpocket;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.Cache;
-import com.android.volley.Network;
-import com.android.volley.NetworkError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.NoConnectionError;
-import com.android.volley.ParseError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -64,9 +34,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,42 +52,48 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
-import static android.Manifest.permission.READ_CONTACTS;
-
+/** 
+ * LoginActivity - the login form
+ * @author Cornelia Gutu
+ * @version 1.0
+ */
 public class LoginActivity extends AppCompatActivity {
 
-
-    private static final int REQUEST_READ_CONTACTS = 0;
-
-    // UI references.
     private AutoCompleteTextView mUserView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private String username, password, userID, parentID, permission, rest_channel, restName, restID, channelName;
+    private TextView mdp;
+    private String username, password, userID, parentID, permission, rest_channel;
 
     private SharedPreferences.Editor editor;
     private SharedPreferences pref;
     private String message;
     private Button askaccount;
     private JSONArray EntityInfo = new JSONArray();
-    private JSONArray userInfo = new JSONArray();
 
+    /**
+     * set up the login form
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        /**
+         * get stored user infos
+         */
         pref = getApplicationContext().getSharedPreferences("Infos", 0); // 0 - for private mode
         editor = pref.edit();
 
-        // Set up the login form.
+        /**
+         * Set up the login form.
+         */
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
         mUserView = (AutoCompleteTextView) findViewById(R.id.username);
-
+        mdp = (TextView) findViewById(R.id.mdp);
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -130,6 +106,21 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
+        /**
+         * lost password
+         */
+        mdp.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), MdpOublie.class);
+                startActivity(i);
+            }
+        });
+
+        /**
+         * check fields
+         */
         Button mUserSignInButton = (Button) findViewById(R.id.user_sign_in_button);
         mUserSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -138,10 +129,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
 
-
+        /**
+         * Set the API HASH
+         */
         try {
 
             Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
@@ -151,6 +142,7 @@ public class LoginActivity extends AppCompatActivity {
             System.out.println("Error sha1 " + e);
         }
 
+        //if no account, go to another form
         askaccount = (Button) findViewById(R.id.askaccount);
         askaccount.setOnClickListener(new OnClickListener() {
             @Override
@@ -180,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
+        // Check for a valid password
         if (TextUtils.isEmpty(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
@@ -204,6 +196,9 @@ public class LoginActivity extends AppCompatActivity {
 
             showProgress(true);
 
+            /**
+             * convert password to Sha1
+             */
             try {
                 password = AeSimpleSHA1.SHA1(password);
                 System.out.println("SHA1 password " + password);
@@ -221,6 +216,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
     }
+    /**
+     * @POST - background task for login
+     * @parameters username & secret
+     */
     private class LoginTask extends AsyncTask<Void, Void, InputStream> {
         int i;
         String result = null;
@@ -295,20 +294,25 @@ public class LoginActivity extends AppCompatActivity {
                     JSONTokener tokener = new JSONTokener(json);
                     JSONObject finalResult = new JSONObject(tokener);
 
-                    int i = 0;
-
                     String result = finalResult.getString("result");
 
                     if (!result.isEmpty() && result.equals("success")) {
                         JSONObject jsonObject = finalResult.getJSONObject("data");
                         userID = jsonObject.isNull("user_id") ? "" : jsonObject.getString("user_id");
 
+                        //store username and user_id of connected user
                         editor.putString("username", username);
                         editor.putString("myuserID", userID);
                         editor.apply();
 
 
-                        //check if user is ADMIN
+                        /**
+                         * @GET - get user info
+                         * @return res_parent_id
+                         * @return permissionID
+                         * @return resaturantChainID
+                         */
+
                         JsonObjectRequest rolesRequest = new JsonObjectRequest
                                 (Request.Method.GET, Globales.baseUrl+"api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
                                     @Override
@@ -323,6 +327,8 @@ public class LoginActivity extends AppCompatActivity {
                                                 parentID = userRestInfo.isNull("res_parent_id") ? "" : userRestInfo.getString("res_parent_id");
                                                 permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
                                                 rest_channel = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
+
+                                                //store the return in a Entity Info
                                                 EntityInfo.put(userRestInfo);
                                             }
                                             System.out.println("result " + EntityInfo);

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
@@ -48,11 +49,16 @@ public class Terminals extends AppCompatActivity {
     private String channelName, clickedChannelID, EntityInfo, restID;
     private NotificationManager mNotificationManager= null;
     private JSONArray infosArray = new JSONArray();
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_terminals);
+
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                Terminals.class));
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -136,64 +142,79 @@ public class Terminals extends AppCompatActivity {
         }
 
 
-        //else I just can see them
-
-            //get all restaurants
-            JsonObjectRequest terminalRequest = new JsonObjectRequest
-                    (Request.Method.GET, Globales.baseUrl+"api/terminal/get/all", null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-                            try {
-                                JSONArray values = response.getJSONArray("data");
-                                System.out.println("response "+response);
-
-                                for (int i = 0; i < values.length(); i++) {
-
-                                    JSONObject terminalObject = values.getJSONObject(i);
-                                    String channel = terminalObject.isNull("channel") ? "" : terminalObject.getString("channel");
-                                    System.out.println("channel "+channel);
-                                    if(!channel.isEmpty() && channel.equalsIgnoreCase(channelName)){
-                                        editor = pref.edit();
-                                        editor.putString("clickedchannel", channel);
-                                        editor.apply();
-                                        terminals.put(terminalObject);
-                                    }
-                                }
-                                System.out.println("terminals " + terminals);
-                                ta = new TerminalAdapter(createList(terminals));
-                                recList.setAdapter(ta);
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                            error.printStackTrace();
-                        }
-                    }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String>  params = new HashMap<String, String>();
-
-                    System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
-                    params.put("Api-User", Globales.API_TERMINAL);
-                    params.put("Api-Hash", Globales.API_HASH);
-
-                    return params;
-                }
-            };
-
-            Volley.newRequestQueue(getApplicationContext()).add(terminalRequest);
+        getList.run();
 
 
     }
+    Runnable getList = new Runnable() {
+        @Override
+        public void run() {
+            getTerminalTask();
+            handler = new Handler();
+            handler.postDelayed(getList, 60000);
+        }
+    };
+    private void getTerminalTask(){
+
+        terminals = new JSONArray();
+
+        //get all restaurants
+        JsonObjectRequest terminalRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/all", null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray values = response.getJSONArray("data");
+                            System.out.println("response "+response);
+
+                            for (int i = 0; i < values.length(); i++) {
+
+                                JSONObject terminalObject = values.getJSONObject(i);
+                                String channelID = terminalObject.isNull("channelID") ? "" : terminalObject.getString("channelID");
+                                String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
+                                System.out.println("channel "+channelID);
+                                if(!channel.isEmpty() && channel.equalsIgnoreCase(channelName)){
+                                        editor = pref.edit();
+                                        editor.putString("clickedchannel", channel);
+                                        editor.apply();
+                                    terminals.put(terminalObject);
+                                }
+                            }
+                            System.out.println("terminals " + terminals);
+                            ta = new TerminalAdapter(createList(terminals));
+                            recList.setAdapter(ta);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+
+                System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
+                params.put("Api-User", Globales.API_TERMINAL);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getApplicationContext()).add(terminalRequest);
+    }
+
+
     private List<TerminalInfo> createList(JSONArray jsonArray) {
 
         List<TerminalInfo> result = new ArrayList<TerminalInfo>();
@@ -205,15 +226,14 @@ public class Terminals extends AppCompatActivity {
                 TerminalInfo ti = new TerminalInfo();
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
-                ti.id = (json_data.isNull("id") ? "" : json_data.getString("id"));
+                ti.id = (json_data.isNull("terminalID") ? "" : json_data.getString("terminalID"));
                 ti.registerTimestamp = (json_data.isNull("registerTimestamp") ? "" : json_data.getString("registerTimestamp"));
-                ti.uuid = (json_data.isNull("uuid") ? "" :  json_data.getString("uuid"));
-                ti.channel = (json_data.isNull("channel") ? "" : json_data.getString("channel"));
-                ti.restaurant = (json_data.isNull("restaurant") ? "" : json_data.getString("restaurant"));
-                ti.location = (json_data.isNull("location") ? "" : json_data.getString("location"));
-                ti.locationUpdateTime = (json_data.isNull("locationUpdateTime") ? "" : json_data.getString("locationUpdateTime"));
+                ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
+//                ti.channel = (json_data.isNull("channel") ? "" : json_data.getString("channel"));
+                ti.restaurant = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
                 ti.terminalStatus = (json_data.isNull("terminalStatus") ? "" : json_data.getString("terminalStatus"));
-                ti.terminalStatusUpdateTime = (json_data.isNull("terminalStatusUpdateTime") ? "" : json_data.getString("terminalStatusUpdateTime"));
+                ti.terminalStatusUpdateTime = (json_data.isNull("terminalLastUpdated") ? "" : json_data.getString("terminalLastUpdated"));
+                ti.channel_id = (json_data.isNull("channelID") ? "" : json_data.getString("channelID"));
 
                 if(!json_data.getString("terminalInfo").isEmpty() && json_data.getString("terminalInfo") != null){
                     String terminalInfo = json_data.isNull("terminalInfo") ? "" : json_data.getString("terminalInfo");
@@ -263,12 +283,14 @@ public class Terminals extends AppCompatActivity {
 
                     long elapsedSeconds = diffInMs / secondsInMilli;
 
-                    if(ti.terminalStatus.equalsIgnoreCase("OFF")) {
+                    mNotificationManager =
+                            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    if(ti.terminalStatus.equalsIgnoreCase("0")) {
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(this)
                                         .setSmallIcon(R.drawable.ic_terminal)
-                                        .setContentTitle(ti.restaurant +" HS!")
-                                        .setContentText("" + ti.uuid + " OFF depuis " +elapsedDays+"j "+elapsedHours+"h "+ elapsedMinutes + "min" + elapsedSeconds + "s");
+                                        .setContentTitle(ti.restaurant +" HS! "+ti.uuid)
+                                        .setContentText("OFF depuis " +elapsedDays+"j "+elapsedHours+"h "+ elapsedMinutes + "min" + elapsedSeconds + "s");
                         Intent resultIntent = new Intent(this, Terminals.class);
 
                         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -280,8 +302,7 @@ public class Terminals extends AppCompatActivity {
                                         PendingIntent.FLAG_UPDATE_CURRENT
                                 );
                         mBuilder.setContentIntent(resultPendingIntent);
-                        mNotificationManager =
-                                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
                         mNotificationManager.notify(i, mBuilder.build());
                     }else{
                         mNotificationManager.cancel(i);

@@ -172,6 +172,24 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
         </activity>
+        <activity
+            android:name=".MdpOublie"
+            android:label="@string/title_activity_mdp_oublie"
+            android:parentActivityName=".LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.LoginActivity" />
+        </activity>
+        <activity
+            android:name=".Historique"
+            android:label="@string/title_activity_historique"
+            android:parentActivityName=".Terminals"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.Terminals" />
+        </activity>
     </application>
 
 </manifest>

@@ -21,5 +21,6 @@ public class TerminalInfo {
     protected String apk_version;
     protected String phone;
     protected String email;
+    protected String channel_id;
 }
 

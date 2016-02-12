@@ -95,7 +95,8 @@ public class Restaurants extends Fragment{
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getActivity(),
+                Restaurants.class));
         pref = getContext().getSharedPreferences("Infos", 0);
 
         userID = pref.getString("userID", "");

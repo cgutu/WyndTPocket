@@ -54,6 +54,8 @@ public class AddTerminal extends AppCompatActivity {
         setContentView(R.layout.activity_add_terminal);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                AddTerminal.class));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         mFormview = findViewById(R.id.add_form);
@@ -131,7 +133,7 @@ public class AddTerminal extends AppCompatActivity {
 
                 nameValuePairs.add(new BasicNameValuePair("name", imei));
                 nameValuePairs.add(new BasicNameValuePair("channelid", restId));
-                nameValuePairs.add(new BasicNameValuePair("userid", myuserID));
+                nameValuePairs.add(new BasicNameValuePair("user_id", myuserID));
 
 
                 httpPost.setHeader("Api-User", Globales.API_TERMINAL);

@@ -36,7 +36,7 @@ public class HomeFragment extends Fragment {
     private String mParam2, userID, EntityInfo, permission,restID;
     private View rootView;
     private TextView username;
-    private LinearLayout restaurants, utilisateurs;
+    private LinearLayout restaurants, utilisateurs, historique, terminals;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private JSONArray infosArray = new JSONArray();
@@ -83,6 +83,8 @@ public class HomeFragment extends Fragment {
 
         restaurants = (LinearLayout) rootView.findViewById(R.id.layout1);
         utilisateurs = (LinearLayout) rootView.findViewById(R.id.layout2);
+        terminals = (LinearLayout) rootView.findViewById(R.id.layout3);
+        historique = (LinearLayout) rootView.findViewById(R.id.layout4);
 
         pref = getContext().getSharedPreferences("Infos", 0);
         String user = pref.getString("username", "");
@@ -106,6 +108,8 @@ public class HomeFragment extends Fragment {
                 if(value.contains("3")){
                     System.out.println("array permissions "+value);
                     utilisateurs.setVisibility(View.VISIBLE);
+                    terminals.setVisibility(View.VISIBLE);
+                    historique.setVisibility(View.VISIBLE);
                 }
 
             }
@@ -116,7 +120,7 @@ public class HomeFragment extends Fragment {
         System.out.println("array permissions "+array);
 
 
-        username.setText("Bonjour "+user);
+        username.setText("Bonjour " + user);
 
         restaurants.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +138,30 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Utilisateurs fragment = new Utilisateurs();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle args = new Bundle();
+                args.putString("userID", userID);
+                fragment.setArguments(args);
+                ft.replace(R.id.content_frame, fragment);
+                ft.commit();
+            }
+        });
+        terminals.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                TerminalsFragment fragment = new TerminalsFragment();
+//                FragmentTransaction ft = getFragmentManager().beginTransaction();
+//                Bundle args = new Bundle();
+//                args.putString("userID", userID);
+//                fragment.setArguments(args);
+//                ft.replace(R.id.content_frame, fragment);
+//                ft.commit();
+            }
+        });
+        historique.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                HistoriqueFragment fragment = new HistoriqueFragment();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 Bundle args = new Bundle();
                 args.putString("userID", userID);

@@ -58,6 +58,8 @@ public class AddEntity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                AddEntity.class));
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         mFormview = findViewById(R.id.add_form);

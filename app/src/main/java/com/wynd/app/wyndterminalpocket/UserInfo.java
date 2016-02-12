@@ -1,7 +1,10 @@
 package com.wynd.app.wyndterminalpocket;
 
-/**
- * Created by cgutu on 21/01/16.
+/** 
+ * UserInfo - get all user informations
+ * @author Cornelia Gutu
+ * @version 1.0
+ * @see UserInfo
  */
 
 public class UserInfo {
@@ -17,8 +20,6 @@ public class UserInfo {
     protected static final String USERNAME_PREFIX = "";
     protected static final String EMAIL_PREFIX = "";
     protected static final String PHONE_PREFIX = "";
-    protected static final String PERMISSION_PREFIX = "Permission: ";
-    protected static final String RESTCHANNEL_PREFIX = "RestChannel: ";
 
     public String getId() {
         return id;
