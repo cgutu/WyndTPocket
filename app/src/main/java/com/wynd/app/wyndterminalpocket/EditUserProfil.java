@@ -32,6 +32,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -57,7 +58,7 @@ import java.util.Map;
 
 public class EditUserProfil extends AppCompatActivity {
 
-    private String userID, permissionID, restID;
+    private String userID, permissionID, restID, myuserID;
     private EditText username, password, email, permission, phone, rest_channel;
     private Button submit;
     private String Username, Password, Email, Permission, Phone, Rest_channel, message;
@@ -72,6 +73,7 @@ public class EditUserProfil extends AppCompatActivity {
     private Button selectEntityButton;
     private JSONObject channels = new JSONObject();
     private JSONArray restovspermission = new JSONArray();
+    private Button deleteBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,10 +86,13 @@ public class EditUserProfil extends AppCompatActivity {
         password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
         phone = (EditText) findViewById(R.id.phone);
+        deleteBtn = (Button) findViewById(R.id.delete);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
         System.out.println("userID " + userID);
+        pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        myuserID = pref.getString("myuserID", "");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -172,7 +177,39 @@ public class EditUserProfil extends AppCompatActivity {
 
             }
         });
+
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(EditUserProfil.this);
+                builder1.setMessage("Etes-vous sûr de vouloir supprimer cet utilisateur ?");
+                builder1.setCancelable(true);
+
+                builder1.setPositiveButton(
+                        "Oui",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                                new DeleteTask().execute();
+
+                            }
+                        });
+
+                builder1.setNegativeButton(
+                        "Non",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
+            }
+        });
     }
+
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
         int i;
         String result = null;
@@ -256,7 +293,108 @@ public class EditUserProfil extends AppCompatActivity {
                 if (!result.isEmpty() && result.equals("success")) {
 
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(EditUserProfil.this, UsersActivity.class);
+                    Intent intent = new Intent(EditUserProfil.this, MenuActivity.class);
+                    startActivity(intent);
+                    finish();
+
+                }
+
+
+            } catch (Exception e) {
+                Log.i("tagconvertstr", "" + e.toString());
+            }
+
+
+
+        }
+    }
+    class MyDelete extends HttpPost{
+        public MyDelete(String url){
+            super(url);
+        }
+        @Override
+        public String getMethod() {
+            return "DELETE";
+        }
+
+    }
+    private class DeleteTask extends AsyncTask<Void, Void, InputStream> {
+        int i;
+        String result = null;
+        InputStream is = null;
+        List<NameValuePair> nameValuePairs;
+        JSONArray jsonArray = new JSONArray();
+
+
+        protected InputStream doInBackground(Void... params) {
+
+            //setting nameValuePairs
+            nameValuePairs = new ArrayList<NameValuePair>(1);
+            System.out.println("do in background edit task ");
+            String json = "";
+
+            try {
+
+                //Setting up the default http client
+                HttpClient httpClient = new DefaultHttpClient();
+
+                //setting up the http put method
+                MyDelete httpDelete = new MyDelete(Globales.baseUrl+"api/user/delete");
+                nameValuePairs.add(new BasicNameValuePair("to_delete_user_id", userID));
+                nameValuePairs.add(new BasicNameValuePair("delete_requester_id", myuserID));
+
+                httpDelete.setHeader("Api-User", Globales.API_USER);
+                httpDelete.setHeader("Api-Hash", Globales.API_HASH);
+
+                httpDelete.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                //getting the response
+                HttpResponse response = httpClient.execute(httpDelete);
+
+                //setting up the entity
+                HttpEntity entity = response.getEntity();
+
+                //setting up the content inside the input stream reader
+                is = entity.getContent();
+                System.out.println("is "+is);
+
+            } catch (Exception e) {
+                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
+                Log.i("Error http put", "" + e.toString());
+            }
+
+            return is;
+        }
+
+
+        protected void onPreExecute() {
+
+        }
+
+        protected void onPostExecute(InputStream is) {
+
+
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                StringBuilder total = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    total.append(line + "\n");
+                }
+                is.close();
+                String json = total.toString();
+                System.out.println("total: " + json);
+                JSONTokener tokener = new JSONTokener(json);
+                JSONObject finalResult = new JSONObject(tokener);
+
+                String result = finalResult.getString("result");
+                String msg = finalResult.getString("message");
+                System.out.println("result: " + result + " message: "+msg);
+
+                if (!result.isEmpty() && result.equals("success")) {
+
+                    Toast.makeText(getApplicationContext(), "L'utilisateur a bien été supprimé", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(EditUserProfil.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
 

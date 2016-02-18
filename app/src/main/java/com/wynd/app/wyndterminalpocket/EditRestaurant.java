@@ -43,10 +43,10 @@ import java.util.Map;
 
 public class EditRestaurant extends AppCompatActivity {
 
-    private String name, email, phone, channel, myuserID, restId;
+    private String name, email, phone, channel, myuserID, restId, parent_id, address;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    private TextView vName, vEmail, vPhone, vChannel;
+    private TextView vName, vEmail, vPhone, vChannel, vAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,7 @@ public class EditRestaurant extends AppCompatActivity {
         vName = (TextView) findViewById(R.id.name);
         vEmail = (TextView) findViewById(R.id.email);
         vPhone = (TextView) findViewById(R.id.phone);
+        vAddress = (TextView) findViewById(R.id.address);
         vChannel = (TextView) findViewById(R.id.restchannel);
 
         Intent intent = getIntent();
@@ -84,6 +85,8 @@ public class EditRestaurant extends AppCompatActivity {
                             vEmail.setText(response.isNull("email") ? "" : response.getString("email"));
                             vPhone.setText(response.isNull("phone") ? "" : response.getString("phone"));
                             vChannel.setText(response.isNull("channel") ? "" : response.getString("channel"));
+                            vAddress.setText(response.isNull("address") ? "" : response.getString("address"));
+                            parent_id = response.isNull("ChannelParentID") ? "" : response.getString("ChannelParentID");
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -120,11 +123,9 @@ public class EditRestaurant extends AppCompatActivity {
                 email = vEmail.getText().toString();
                 phone = vPhone.getText().toString();
                 channel = vChannel.getText().toString();
+                address = vAddress.getText().toString();
 
-                Toast.makeText(getApplicationContext(), "Fonctionnalité à finir", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(EditRestaurant.this, InfoOfRestaurant.class);
-                startActivity(intent);
-                finish();
+                new EditTask().execute();
             }
         });
     }
@@ -150,18 +151,14 @@ public class EditRestaurant extends AppCompatActivity {
                 HttpClient httpClient = new DefaultHttpClient();
 
                 //setting up the http put method
-                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/restaurant/edit/"+restId);
-                nameValuePairs.add(new BasicNameValuePair("name", name));
-                nameValuePairs.add(new BasicNameValuePair("email", email));
-                nameValuePairs.add(new BasicNameValuePair("phone", phone));
-                nameValuePairs.add(new BasicNameValuePair("channel", channel));
-
-
-                //StringEntity se = new StringEntity(json);
-                //se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-
-//                httpPut.addHeader("content-type", "application/x-www-form-urlencoded");
-//                httpPut.setHeader("Accept", "application/json");
+                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/restaurant/edit/"+myuserID);
+                nameValuePairs.add(new BasicNameValuePair("res_id", restId));
+                nameValuePairs.add(new BasicNameValuePair("new_res_name", name));
+                nameValuePairs.add(new BasicNameValuePair("new_res_phone", phone));
+                nameValuePairs.add(new BasicNameValuePair("new_res_address", address));
+                nameValuePairs.add(new BasicNameValuePair("new_res_email", email));
+                nameValuePairs.add(new BasicNameValuePair("new_res_parent_id", parent_id));
+                nameValuePairs.add(new BasicNameValuePair("new_channel_name", channel));
 
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
@@ -214,8 +211,6 @@ public class EditRestaurant extends AppCompatActivity {
                 System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    JSONObject jsonObject = finalResult.getJSONObject("data");
-                    System.out.println("result " + jsonObject);
 
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditRestaurant.this, InfoOfRestaurant.class);

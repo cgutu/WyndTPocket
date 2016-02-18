@@ -55,17 +55,20 @@
     <string name="title_activity_profil">Profil</string>
     <string name="title_activity_edit_user_profil">Modifier</string>
     <string name="title_activity_edit_my_profil">Modifier mon profil</string>
-    <string name="title_activity_mon_restaurant">MonRestaurant</string>
+    <string name="title_activity_mon_restaurant">Mon Restaurant</string>
     <string name="title_activity_ask_account">Demander un compte</string>
     <string name="title_activity_terminals">Terminals</string>
     <string name="title_activity_info_of_restaurant">Informations</string>
     <string name="title_activity_edit_restaurant">Modifier</string>
-    <string name="title_activity_add_terminal">AddTerminal</string>
+    <string name="title_activity_add_terminal">Ajouter terminal</string>
     <string name="title_activity_utilisateurs">Utilisateurs</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_terminal_position">Localisation</string>
     <string name="title_activity_add_entity">Ajouter une entité</string>
     <string name="title_activity_mdp_oublie">Mot de passe oublié</string>
     <string name="title_activity_historique">Historique</string>
+    <string name="title_activity_info_of_terminal">Détails</string>
+    <string name="title_activity_edit_terminal">Modifier</string>
+    <string name="title_activity_add_parent">AddParent</string>
 
 </resources>

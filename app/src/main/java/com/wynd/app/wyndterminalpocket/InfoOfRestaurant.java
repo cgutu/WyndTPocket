@@ -32,9 +32,9 @@ import java.util.Map;
 
 public class InfoOfRestaurant extends AppCompatActivity {
 
-    private TextView Name, Email, Phone, Channel;
+    private TextView Name, Email, Phone, Channel, vAddress;
     private Button managers;
-    private String restId, ID, savedRestId, EntityInfo;
+    private String restId, ID, savedRestId, EntityInfo, address;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private JSONArray infosArray = new JSONArray();
@@ -54,6 +54,7 @@ public class InfoOfRestaurant extends AppCompatActivity {
         Email = (TextView) findViewById(R.id.email);
         Phone = (TextView) findViewById(R.id.phone);
         Channel = (TextView) findViewById(R.id.channel);
+        vAddress = (TextView) findViewById(R.id.address);
 
         Intent intent = getIntent();
         restId = intent.getStringExtra("restId");
@@ -81,6 +82,7 @@ public class InfoOfRestaurant extends AppCompatActivity {
                             Email.setText(response.isNull("email") ? "" : response.getString("email"));
                             Phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
                             Channel.setText(response.isNull("channel") ? "" : response.getString("channel"));
+                            vAddress.setText(response.isNull("address") ? "" : response.getString("address"));
 
                             editor = pref.edit();
                             editor.putString("restId", response.getString("id"));

@@ -130,20 +130,9 @@ public class AddUser extends AppCompatActivity{
             }
         });
 
-
-        try{
-            infosArray = new JSONArray(EntityInfo);
-            JSONObject infoObject;
-
-            for (int j = 0; j < infosArray.length(); j++) {
-                infoObject = infosArray.getJSONObject(j);
-                final String parentID= infoObject.isNull("res_parent_id") ? "" : infoObject.getString("res_parent_id");
-
-                System.out.println("parentID "+parentID);
-
                 //show parents which I am allow to see
                 JsonObjectRequest parentRequest = new JsonObjectRequest
-                        (Request.Method.GET, Globales.baseUrl+"api/user/get/parent/info/"+parentID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                        (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/parents/user/"+myuserID, null, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
 
@@ -180,10 +169,6 @@ public class AddUser extends AppCompatActivity{
                 };
 
                 Volley.newRequestQueue(getApplicationContext()).add(parentRequest);
-            }
-        }catch (JSONException e){
-
-        }
 
         selectEntityButton = (Button) findViewById(R.id.addrest);
         selectEntityButton.setOnClickListener(new View.OnClickListener() {
@@ -491,7 +476,7 @@ public class AddUser extends AppCompatActivity{
         list.add(0, "Select franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                String name = jsonArray.getJSONObject(i).getString("parent_name");
                 if(!list.contains(name)){
                     list.add("" + name);
                 }
@@ -527,7 +512,7 @@ public class AddUser extends AppCompatActivity{
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
-                            String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                            String name = jsonArray.getJSONObject(i).getString("parent_name");
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
 

@@ -67,7 +67,8 @@
             android:layout_below="@id/l2"
             android:background="@color/white"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
 
             <LinearLayout
                 android:id="@+id/add_user_form"
@@ -147,8 +148,16 @@
                         android:singleLine="true" />
 
                 </android.support.design.widget.TextInputLayout>
-
+                <Button
+                    android:id="@+id/delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/delete_button"
+                    android:textColor="@color/white"
+                    android:text="Supprimer"/>
             </LinearLayout>
         </ScrollView>
+
+
 
 </RelativeLayout>

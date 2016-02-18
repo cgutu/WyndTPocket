@@ -106,60 +106,69 @@ public class Restaurants extends Fragment{
         System.out.println("params! userid :" + userID + " parentid: " + EntityInfo + " roles: " + permission);
 
 
+        boolean authorized = false;
         try{
             infosArray = new JSONArray(EntityInfo);
-            JSONObject infoObject;
 
             for (int j = 0; j < infosArray.length(); j++) {
-                infoObject = infosArray.getJSONObject(j);
-                final String parentID= infoObject.isNull("res_parent_id") ? "" : infoObject.getString("res_parent_id");
+                JSONObject info = infosArray.getJSONObject(j);
+                final String parentID= info.isNull("res_parent_id") ? "" : info.getString("res_parent_id");
 
-                System.out.println("parentID "+parentID);
+                System.out.println("parentID " + parentID);
 
-                //show parents which I am allow to see
-                JsonObjectRequest parentRequest = new JsonObjectRequest
-                        (Request.Method.GET, Globales.baseUrl+"api/user/get/parent/info/"+parentID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
+                if(info.getString("permissionID").equals("3")){
+                    //show parents which I am allow to see
+                    //If I am not allowed, permission denied
+                    authorized = true;
+                }
 
-                                try {
-                                    JSONArray values = response.getJSONArray("data");
 
-                                    for(int i=0; i<values.length(); i++){
-                                            parents.put(values.getJSONObject(i));
-                                    }
-
-                                    System.out.println("parents " + parents);
-                                    addList(parents);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        }, new Response.ErrorListener() {
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                                error.printStackTrace();
-                            }
-                        }) {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String>  params = new HashMap<String, String>();
-
-                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
-                        params.put("Api-User", Globales.API_USER);
-                        params.put("Api-Hash", Globales.API_HASH);
-
-                        return params;
-                    }
-                };
-
-                Volley.newRequestQueue(getContext()).add(parentRequest);
             }
         }catch (JSONException e){
 
+        }
+
+        if(authorized){
+            JsonObjectRequest parentRequest = new JsonObjectRequest
+                    (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/parents/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            try {
+                                JSONArray values = response.getJSONArray("data");
+
+                                for(int i=0; i<values.length(); i++){
+                                    parents.put(values.getJSONObject(i));
+                                }
+
+                                System.out.println("parents " + parents);
+                                addList(parents);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                            error.printStackTrace();
+                        }
+                    }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String>  params = new HashMap<String, String>();
+
+                    System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                    params.put("Api-User", Globales.API_USER);
+                    params.put("Api-Hash", Globales.API_HASH);
+
+                    return params;
+                }
+            };
+
+            Volley.newRequestQueue(getContext()).add(parentRequest);
         }
     }
 
@@ -188,10 +197,10 @@ public class Restaurants extends Fragment{
         try{
             infosArray = new JSONArray(EntityInfo);
             for (int j = 0; j < infosArray.length(); j++) {
-                JSONObject infoObject = infosArray.getJSONObject(j);
-                parentID = infoObject.isNull("res_parent_id") ? "" : infoObject.getString("res_parent_id");
-                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
-                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+                JSONObject object = infosArray.getJSONObject(j);
+                parentID = object.isNull("res_parent_id") ? "" : object.getString("res_parent_id");
+                permission = object.isNull("permissionID") ? "" : object.getString("permissionID");
+                restID = object.isNull("resaturantChainID") ? "" : object.getString("resaturantChainID");
 
                 //ssi permission SUPER ADMIN et plusieurs parents
                 if(permission.equals("3")){
@@ -302,7 +311,7 @@ public class Restaurants extends Fragment{
         list.add(0, "Select franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                String name = jsonArray.getJSONObject(i).getString("parent_name");
                 if(!list.contains(name)){
                     list.add("" + name);
                 }
@@ -337,7 +346,7 @@ public class Restaurants extends Fragment{
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
-                            String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                            String name = jsonArray.getJSONObject(i).getString("parent_name");
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
                                 choosedParentID = selectedID;
@@ -427,6 +436,7 @@ public class Restaurants extends Fragment{
 
                 String restId = (json_data.isNull("id") ? "" : RestaurantInfo.ID_PREFIX +  json_data.getString("id"));
                 ri.userPermission = "2";
+
                 try{
                     infosArray = new JSONArray(EntityInfo);
                     for (int j = 0; j < infosArray.length(); j++) {
@@ -447,9 +457,6 @@ public class Restaurants extends Fragment{
                 }catch(JSONException e){
 
                 }
-
-                //result.add(ri);
-
 
             }
 

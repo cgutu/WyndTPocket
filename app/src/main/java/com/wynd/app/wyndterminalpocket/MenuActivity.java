@@ -32,7 +32,7 @@ import java.util.Arrays;
 
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ProfilFragment.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, Restaurants.OnFragmentInteractionListener,
-        Users.OnFragmentInteractionListener, MonRestaurant.OnFragmentInteractionListener, Utilisateurs.OnFragmentInteractionListener, HistoriqueFragment.OnFragmentInteractionListener {
+        Users.OnFragmentInteractionListener, MonRestaurant.OnFragmentInteractionListener, Utilisateurs.OnFragmentInteractionListener, HistoriqueFragment.OnFragmentInteractionListener, Parents.OnFragmentInteractionListener{
 
     private SharedPreferences pref;
     private boolean viewIsAtHome;

@@ -11,13 +11,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -26,94 +28,75 @@ import com.android.volley.toolbox.Volley;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EditMyProfil extends AppCompatActivity {
+public class EditTerminal extends AppCompatActivity {
 
-    private String myuserID;
-    private EditText username, password, email, permission, phone, rest_channel;
-    private Button submit;
-    private String Username, Password, Email, Permission, Phone, Rest_channel, message;
-
+    private String channel, uuid, id, channel_id, phone, myuserID, EntityInfo, restName, channelParent, selectedID;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    private JSONArray restovspermission = new JSONArray();
+    private TextView vChannel;
+    private Spinner parentSpinner, entitySpinner;
+    private JSONArray entities = new JSONArray();
+    private ArrayAdapter<String> dataAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_my_profil);
+        setContentView(R.layout.activity_edit_terminal);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        username = (EditText) findViewById(R.id.username);
-       // password = (EditText) findViewById(R.id.password);
-        email = (EditText) findViewById(R.id.email);
-        phone = (EditText) findViewById(R.id.phone);
-//        permission = (EditText) findViewById(R.id.permission);
-//        rest_channel = (EditText) findViewById(R.id.restchannel);
-       // submit = (Button) findViewById(R.id.submit);
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-
-        Intent intent = getIntent();
-        myuserID = intent.getStringExtra("userID");
-        System.out.println("myuserID " + myuserID);
-
-        pref = getApplicationContext().getSharedPreferences("Infos", 0);
-        editor = pref.edit();
-        editor.putString("Check", "editmonprofil");
-        editor.apply();
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //get user informations
-        JsonObjectRequest userRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl+"api/user/get/info/"+myuserID, null, new Response.Listener<JSONObject>() {
+
+        Intent intent = getIntent();
+        id = intent.getStringExtra("terminalID");
+        uuid = intent.getStringExtra("terminalUuid");
+        channel_id = intent.getStringExtra("channelID");
+
+        pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        myuserID = pref.getString("myuserID", "");
+        EntityInfo = pref.getString("EntityInfo", "");
+
+        entitySpinner = (Spinner) findViewById(R.id.entity);
+        TextView vUUID = (TextView) findViewById(R.id.uuid);
+        vUUID.setText(uuid);
+
+        //get restaurant by channelid
+        JsonObjectRequest getRestaurant = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/chains/"+myuserID, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
 
                         try {
-                            response = response.getJSONObject("data");
+                            JSONArray values = response.getJSONArray("data");
                             System.out.println("response " + response);
 
-                            username.setText(response.isNull("username") ? "" : response.getString("username"));
-                            Password = (response.isNull("hash") ? "" : response.getString("hash"));
-                            email.setText(response.isNull("email") ? "" : response.getString("email"));
-                            phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
-
-                            JSONArray usersInResto = response.getJSONArray("usersInResto");
-                            for(int i=0; i<usersInResto.length(); i++){
-                                JSONObject info =new JSONObject();
-                                info.put("restid", usersInResto.getJSONObject(i).getString("resaturantChainID"));
-                                info.put("permission", usersInResto.getJSONObject(i).getString("permissionID"));
-                                restovspermission.put(info);
+                            for(int i=0; i<values.length(); i++){
+                                JSONObject entity = values.getJSONObject(i);
+                                entities.put(entity);
                             }
-
+                            addList(entities);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -140,52 +123,104 @@ public class EditMyProfil extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
 
-        //on submit, the admin can update user's profil
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
 
                 checkForm();
 
             }
         });
     }
-    private void checkForm(){
 
-        username.setError(null);
-        email.setError(null);
-        phone.setError(null);
+    private void checkForm()
+    {
+        channel_id = selectedID;
 
-        boolean cancel = false;
-        View focusView = null;
 
-        Username = username.getText().toString();
-        Email = email.getText().toString();
-        Phone = phone.getText().toString();
-
-        if (TextUtils.isEmpty(Username) ) {
-            username.setError(getString(R.string.error_field_required));
-            focusView = username;
-            cancel = true;
-        }else if (TextUtils.isEmpty(Email) ) {
-            email.setError(getString(R.string.error_field_required));
-            focusView = email;
-            cancel = true;
-        }else if (TextUtils.isEmpty(Phone) ) {
-            phone.setError(getString(R.string.error_field_required));
-            focusView = phone;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
+        if (channel_id.equals("") ) {
+           Toast.makeText(getApplicationContext(), "Veuillez séléctionner une restaurant ", Toast.LENGTH_LONG).show();
+        }else{
             new EditTask().execute();
         }
+
+
+    }
+
+    private void addList(final JSONArray jsonArray){
+
+        List<String> list = new ArrayList<String>();
+
+        list.add(0, "Select a restaurant");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                String name = jsonArray.getJSONObject(i).getString("name");
+                list.add(name);
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("list " + "listist.size() : " + list.size());
+
+        dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        entitySpinner.setAdapter(dataAdapter);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                String name = jsonArray.getJSONObject(i).getString("name");
+                if(jsonArray.getJSONObject(i).getString("id").equals(channel_id)){
+                    entitySpinner.setSelection(list.indexOf(name));
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+
+        entitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                       int arg2, long arg3) {
+                // TODO Auto-generated method stub
+                Object item = arg0.getItemAtPosition(arg2);
+                if(arg2 == 0){
+                    selectedID = "";
+                }else{
+                    if (item != null) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            try {
+                                String name = jsonArray.getJSONObject(i).getString("name");
+                                if(item.equals(name)){
+
+                                    //get selected channel
+                                    selectedID = jsonArray.getJSONObject(i).getString("id");
+
+                                }
+                            } catch (JSONException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
     }
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
         int i;
@@ -199,24 +234,30 @@ public class EditMyProfil extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task " + Password + "restovspermission "+restovspermission.toString());
+            System.out.println("do in background edit task ");
+            JSONObject jsonObject = new JSONObject();
+            String json = "";
 
             try {
-
-                System.out.println("submit "+Username+Email+Password+Phone+Permission+Rest_channel);
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
 
                 //setting up the http put method
-                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/user/edit/"+myuserID);
-                nameValuePairs.add(new BasicNameValuePair("new_username", Username));
-                nameValuePairs.add(new BasicNameValuePair("new_secret", Password));
-                nameValuePairs.add(new BasicNameValuePair("new_email", Email));
-                nameValuePairs.add(new BasicNameValuePair("new_phone", Phone));
-                nameValuePairs.add(new BasicNameValuePair("new_restovspermission", restovspermission.toString()));
+                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/terminal/edit");
+                nameValuePairs.add(new BasicNameValuePair("t_id", id));
+                nameValuePairs.add(new BasicNameValuePair("new_channelid", channel_id));
+                nameValuePairs.add(new BasicNameValuePair("user_id", myuserID));
+
+
+                //StringEntity se = new StringEntity(json);
+                //se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+
+//                httpPut.addHeader("content-type", "application/x-www-form-urlencoded");
+//                httpPut.setHeader("Accept", "application/json");
 
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
+                // httpPut.setEntity(se);
                 httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                 //getting the response
@@ -265,8 +306,9 @@ public class EditMyProfil extends AppCompatActivity {
                 System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(EditMyProfil.this, MenuActivity.class);
+
+                    Toast.makeText(getApplicationContext(), "Modification effectuée", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(EditTerminal.this, Terminals.class);
                     startActivity(intent);
                     finish();
 
@@ -281,5 +323,5 @@ public class EditMyProfil extends AppCompatActivity {
 
         }
     }
-}
 
+}

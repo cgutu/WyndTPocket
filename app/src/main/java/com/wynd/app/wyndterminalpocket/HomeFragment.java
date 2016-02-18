@@ -36,7 +36,7 @@ public class HomeFragment extends Fragment {
     private String mParam2, userID, EntityInfo, permission,restID;
     private View rootView;
     private TextView username;
-    private LinearLayout restaurants, utilisateurs, historique, terminals;
+    private LinearLayout restaurants, utilisateurs, historique, terminals, parents;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private JSONArray infosArray = new JSONArray();
@@ -85,6 +85,7 @@ public class HomeFragment extends Fragment {
         utilisateurs = (LinearLayout) rootView.findViewById(R.id.layout2);
         terminals = (LinearLayout) rootView.findViewById(R.id.layout3);
         historique = (LinearLayout) rootView.findViewById(R.id.layout4);
+        parents = (LinearLayout) rootView.findViewById(R.id.layout5);
 
         pref = getContext().getSharedPreferences("Infos", 0);
         String user = pref.getString("username", "");
@@ -110,6 +111,7 @@ public class HomeFragment extends Fragment {
                     utilisateurs.setVisibility(View.VISIBLE);
                     terminals.setVisibility(View.VISIBLE);
                     historique.setVisibility(View.VISIBLE);
+                    parents.setVisibility(View.VISIBLE);
                 }
 
             }
@@ -162,6 +164,18 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 HistoriqueFragment fragment = new HistoriqueFragment();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle args = new Bundle();
+                args.putString("userID", userID);
+                fragment.setArguments(args);
+                ft.replace(R.id.content_frame, fragment);
+                ft.commit();
+            }
+        });
+        parents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Parents fragment = new Parents();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 Bundle args = new Bundle();
                 args.putString("userID", userID);

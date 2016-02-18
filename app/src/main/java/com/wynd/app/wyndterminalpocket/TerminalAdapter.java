@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -94,6 +95,16 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
                 intent.putExtra("terminalUuid", ti.uuid);
                 intent.putExtra("channelID", ti.channel_id);
                 intent.putExtra("phone", ti.phone);
+                v.getContext().startActivity(intent);
+            }
+        });
+        terminalViewHolder.getInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), InfoOfTerminal.class);
+                intent.putExtra("terminalID", ti.id);
+                intent.putExtra("terminalUuid", ti.uuid);
+                intent.putExtra("channelID", ti.channel_id);
                 v.getContext().startActivity(intent);
             }
         });
@@ -217,6 +228,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         protected CardView vCardView;
         protected LinearLayout lApk, lEmail, lPhone, lUser;
         protected Button vHistory;
+        protected ImageView getInfo;
 
         public TerminalViewHolder(View v) {
             super(v);
@@ -239,6 +251,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             lPhone = (LinearLayout) v.findViewById(R.id.lPhone);
             lUser = (LinearLayout) v.findViewById(R.id.lUsername);
             vHistory = (Button) v.findViewById(R.id.btnHistory);
+            getInfo = (ImageView) v.findViewById(R.id.info);
         }
 
     }

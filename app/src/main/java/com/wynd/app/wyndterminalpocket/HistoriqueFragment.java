@@ -27,6 +27,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.mikephil.charting.charts.LineChart;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -195,6 +196,8 @@ public class HistoriqueFragment extends Fragment {
                //set map visible
             }
         });
+
+        LineChart chart = (LineChart) rootView.findViewById(R.id.chart);
 
         return rootView;
     }
