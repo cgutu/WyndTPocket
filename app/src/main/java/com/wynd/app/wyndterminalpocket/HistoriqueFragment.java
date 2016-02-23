@@ -283,7 +283,7 @@ public class HistoriqueFragment extends Fragment {
 
                             chart.setData(data);
                             chart.setDescription("Device status");
-                            chart.setMinimumWidth(1400);
+                            chart.setMinimumWidth(1200);
                             chart.setMinimumHeight(1000);
 
                             if(chart.getParent()!=null)
