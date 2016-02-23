@@ -198,7 +198,7 @@ public class Parents extends Fragment {
 
                 ri.id = (json_data.isNull("id") ? "" :  json_data.getString("id"));
                 ri.name = (json_data.isNull("parent_name") ? "" : json_data.getString("parent_name"));
-                ri.address = (json_data.isNull("parent_email") ? "" :json_data.getString("parent_email"));
+                ri.address = (json_data.isNull("parent_address") ? "" :json_data.getString("parent_address"));
                 ri.phone = (json_data.isNull("parent_phone") ? "" :  json_data.getString("parent_phone"));
                 ri.email = (json_data.isNull("parent_email") ? "" : json_data.getString("parent_email"));
 

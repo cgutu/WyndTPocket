@@ -69,6 +69,7 @@
     <string name="title_activity_historique">Historique</string>
     <string name="title_activity_info_of_terminal">Détails</string>
     <string name="title_activity_edit_terminal">Modifier</string>
-    <string name="title_activity_add_parent">AddParent</string>
+    <string name="title_activity_add_parent">Ajouter</string>
+    <string name="title_activity_edit_parent">Modifier</string>
 
 </resources>

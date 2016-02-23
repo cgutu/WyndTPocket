@@ -10,14 +10,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +21,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.apache.http.HttpEntity;
@@ -46,62 +42,66 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EditTerminal extends AppCompatActivity {
+public class EditParent extends AppCompatActivity {
 
-    private String channel, uuid, id, channel_id, phone, myuserID, EntityInfo, restName, channelParent, selectedID, status;
+    private String myuserID, name, address, email, phone, parentID;
     private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
-    private TextView vChannel;
-    private Spinner parentSpinner, entitySpinner;
     private JSONArray entities = new JSONArray();
-    private ArrayAdapter<String> dataAdapter;
+    private TextView vName, vAddress, vEmail, vPhone;
     private Button deleteBtn;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_terminal);
+        setContentView(R.layout.activity_edit_parent);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkForm();
+            }
+        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        Intent intent = getIntent();
-        id = intent.getStringExtra("terminalID");
-        uuid = intent.getStringExtra("terminalUuid");
-        channel_id = intent.getStringExtra("channelID");
-        status = intent.getStringExtra("status");
-
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getApplicationContext(),
+                Parents.class));
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
+
         myuserID = pref.getString("myuserID", "");
-        EntityInfo = pref.getString("EntityInfo", "");
+        Intent i = getIntent();
+        parentID = i.getStringExtra("parentID");
 
-        entitySpinner = (Spinner) findViewById(R.id.entity);
-        TextView vUUID = (TextView) findViewById(R.id.uuid);
+        vName = (TextView) findViewById(R.id.name);
+        vEmail = (TextView) findViewById(R.id.email);
+        vPhone = (TextView) findViewById(R.id.phone);
+        vAddress = (TextView) findViewById(R.id.address);
+        deleteBtn = (Button) findViewById(R.id.delete);
 
-        //get restaurant by channelid
-        JsonObjectRequest getRestaurant = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/chains/"+myuserID, null, new Response.Listener<JSONObject>() {
+
+        JsonObjectRequest entityRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/all/parents/user/"+myuserID, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-                            System.out.println("response " + response);
-
-                            for(int i=0; i<values.length(); i++){
-                                JSONObject entity = values.getJSONObject(i);
-                                entities.put(entity);
+                            for(int i=0; i<values.length();i++){
+                                JSONObject parent = values.getJSONObject(i);
+                                if(parent.getString("id").equals(parentID)){
+                                    vName.setText(parent.getString("parent_name"));
+                                    vEmail.setText(parent.getString("parent_email"));
+                                    vPhone.setText(parent.getString("parent_phone"));
+                                    vAddress.setText(parent.getString("parent_address"));
+                                }
                             }
-                            addList(entities);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -118,9 +118,9 @@ public class EditTerminal extends AppCompatActivity {
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
 
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
+                System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -128,32 +128,15 @@ public class EditTerminal extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
+        Volley.newRequestQueue(getApplicationContext()).add(entityRequest);
 
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                checkForm();
-
-            }
-        });
-
-        vUUID.setText(uuid);
-        deleteBtn = (Button) findViewById(R.id.delete);
-        if(status.equals("0")){
-            deleteBtn.setText("Activer");
-        }else{
-            deleteBtn.setText("Désactiver");
-        }
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if(deleteBtn.getText().toString().equals("Activer")){
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(EditTerminal.this);
-                    builder1.setMessage("Etes-vous sûr de vouloir activer ce terminal ?");
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(EditParent.this);
+                    builder1.setMessage("Etes-vous sûr de vouloir activer cette franchise ?");
                     builder1.setCancelable(true);
 
                     builder1.setPositiveButton(
@@ -177,8 +160,8 @@ public class EditTerminal extends AppCompatActivity {
                     AlertDialog alert11 = builder1.create();
                     alert11.show();
                 }else{
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(EditTerminal.this);
-                    builder1.setMessage("Etes-vous sûr de vouloir désactiver ce terminal ?");
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(EditParent.this);
+                    builder1.setMessage("Etes-vous sûr de vouloir désactiver cette franchise ?");
                     builder1.setCancelable(true);
 
                     builder1.setPositiveButton(
@@ -206,92 +189,14 @@ public class EditTerminal extends AppCompatActivity {
         });
     }
 
-    private void checkForm()
-    {
-        channel_id = selectedID;
-
-
-        if (channel_id.equals("") ) {
-           Toast.makeText(getApplicationContext(), "Veuillez séléctionner une restaurant ", Toast.LENGTH_LONG).show();
-        }else{
-            new EditTask().execute();
-        }
-
-
+    private void checkForm(){
+        name = vName.getText().toString();
+        email = vEmail.getText().toString();
+        phone = vPhone.getText().toString();
+        address = vAddress.getText().toString();
+        new EditTask().execute();
     }
-
-    private void addList(final JSONArray jsonArray){
-
-        List<String> list = new ArrayList<String>();
-
-        list.add(0, "Select a restaurant");
-        for (int i = 0; i < jsonArray.length(); i++) {
-            try {
-                String name = jsonArray.getJSONObject(i).getString("name");
-                list.add(name);
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        System.out.println("list " + "listist.size() : " + list.size());
-
-        dataAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        entitySpinner.setAdapter(dataAdapter);
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            try {
-                String name = jsonArray.getJSONObject(i).getString("name");
-                if(jsonArray.getJSONObject(i).getString("id").equals(channel_id)){
-                    entitySpinner.setSelection(list.indexOf(name));
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-
-        entitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> arg0, View arg1,
-                                       int arg2, long arg3) {
-                // TODO Auto-generated method stub
-                Object item = arg0.getItemAtPosition(arg2);
-                if(arg2 == 0){
-                    selectedID = "";
-                }else{
-                    if (item != null) {
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            try {
-                                String name = jsonArray.getJSONObject(i).getString("name");
-                                if(item.equals(name)){
-
-                                    //get selected channel
-                                    selectedID = jsonArray.getJSONObject(i).getString("id");
-
-                                }
-                            } catch (JSONException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-
-    }
+    //edit task to do
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
         int i;
         String result = null;
@@ -304,7 +209,7 @@ public class EditTerminal extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task ");
+            System.out.println("do in background edit task "+parentID+name+phone+address+email);
             JSONObject jsonObject = new JSONObject();
             String json = "";
 
@@ -313,17 +218,12 @@ public class EditTerminal extends AppCompatActivity {
                 HttpClient httpClient = new DefaultHttpClient();
 
                 //setting up the http put method
-                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/terminal/edit");
-                nameValuePairs.add(new BasicNameValuePair("t_id", id));
-                nameValuePairs.add(new BasicNameValuePair("new_channelid", channel_id));
-                nameValuePairs.add(new BasicNameValuePair("user_id", myuserID));
-
-
-                //StringEntity se = new StringEntity(json);
-                //se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-
-//                httpPut.addHeader("content-type", "application/x-www-form-urlencoded");
-//                httpPut.setHeader("Accept", "application/json");
+                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/restaurant/edit/parent/"+myuserID);
+                nameValuePairs.add(new BasicNameValuePair("parent_id", parentID));
+                nameValuePairs.add(new BasicNameValuePair("new_res_name", name));
+                nameValuePairs.add(new BasicNameValuePair("new_res_phone", phone));
+                nameValuePairs.add(new BasicNameValuePair("new_res_address", address));
+                nameValuePairs.add(new BasicNameValuePair("new_res_email", email));
 
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
@@ -377,8 +277,8 @@ public class EditTerminal extends AppCompatActivity {
 
                 if (!result.isEmpty() && result.equals("success")) {
 
-                    Toast.makeText(getApplicationContext(), "Modification effectuée", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(EditTerminal.this, Terminals.class);
+                    Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(EditParent.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
 
@@ -393,6 +293,7 @@ public class EditTerminal extends AppCompatActivity {
 
         }
     }
+    //delete task
     class MyDelete extends HttpPost {
         public MyDelete(String url){
             super(url);
@@ -415,7 +316,7 @@ public class EditTerminal extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task "+id + " "+myuserID);
+            System.out.println("do in background edit task "+parentID + " "+myuserID);
             String json = "";
 
             try {
@@ -424,8 +325,8 @@ public class EditTerminal extends AppCompatActivity {
                 HttpClient httpClient = new DefaultHttpClient();
 
                 //setting up the http put method
-                MyDelete httpDelete = new MyDelete(Globales.baseUrl+"api/terminal/deactivate");
-                nameValuePairs.add(new BasicNameValuePair("td_term_id", id));
+                MyDelete httpDelete = new MyDelete(Globales.baseUrl+"api/restaurant/parent/delete");
+                nameValuePairs.add(new BasicNameValuePair("td_parent_id", parentID));
                 nameValuePairs.add(new BasicNameValuePair("delete_requester_id", myuserID));
 
                 httpDelete.setHeader("Api-User", Globales.API_USER);
@@ -478,8 +379,8 @@ public class EditTerminal extends AppCompatActivity {
 
                 if (!result.isEmpty() && result.equals("success")) {
 
-                    Toast.makeText(getApplicationContext(), "Le terminal a bien été supprimé", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(EditTerminal.this, MenuActivity.class);
+                    Toast.makeText(getApplicationContext(), "La franchise a bien été désactivée", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(EditParent.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
 
@@ -494,7 +395,6 @@ public class EditTerminal extends AppCompatActivity {
 
         }
     }
-
     private class RetreiveTask extends AsyncTask<Void, Void, InputStream> {
         int i;
         String result = null;
@@ -507,7 +407,7 @@ public class EditTerminal extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background retrieve task "+id + " "+myuserID);
+            System.out.println("do in background retrieve task "+parentID + " "+myuserID);
             String json = "";
 
             try {
@@ -515,8 +415,8 @@ public class EditTerminal extends AppCompatActivity {
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
 
-                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/terminal/activate");
-                nameValuePairs.add(new BasicNameValuePair("td_term_id", id));
+                HttpPut httpPut = new HttpPut(Globales.baseUrl+"api/restaurant/parent/retrive");
+                nameValuePairs.add(new BasicNameValuePair("td_parent_id", parentID));
                 nameValuePairs.add(new BasicNameValuePair("delete_requester_id", myuserID));
 
                 httpPut.setHeader("Api-User", Globales.API_USER);
@@ -569,8 +469,8 @@ public class EditTerminal extends AppCompatActivity {
 
                 if (!result.isEmpty() && result.equals("success")) {
 
-                    Toast.makeText(getApplicationContext(), "Le terminal a bien été activé", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(EditTerminal.this, MenuActivity.class);
+                    Toast.makeText(getApplicationContext(), "La franchise a bien été activée", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(EditParent.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
 
@@ -585,6 +485,5 @@ public class EditTerminal extends AppCompatActivity {
 
         }
     }
-
 
 }

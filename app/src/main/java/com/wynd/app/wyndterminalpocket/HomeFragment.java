@@ -109,7 +109,7 @@ public class HomeFragment extends Fragment {
                 if(value.contains("3")){
                     System.out.println("array permissions "+value);
                     utilisateurs.setVisibility(View.VISIBLE);
-                    terminals.setVisibility(View.VISIBLE);
+                    terminals.setVisibility(View.GONE);
                     historique.setVisibility(View.VISIBLE);
                     parents.setVisibility(View.VISIBLE);
                 }

@@ -78,7 +78,11 @@ public class InfoOfRestaurant extends AppCompatActivity {
                             response = response.getJSONObject("data");
                             System.out.println("response " + response);
 
-                            Name.setText(response.isNull("name") ? "" : response.getString("name"));
+                            if(response.getString("active").equals("0")){
+                                Name.setText(response.isNull("name") ? "" : response.getString("name") + " (inactive)");
+                            }else{
+                                Name.setText(response.isNull("name") ? "" : response.getString("name"));
+                            }
                             Email.setText(response.isNull("email") ? "" : response.getString("email"));
                             Phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
                             Channel.setText(response.isNull("channel") ? "" : response.getString("channel"));

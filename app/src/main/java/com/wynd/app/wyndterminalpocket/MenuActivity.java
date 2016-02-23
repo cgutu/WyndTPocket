@@ -24,11 +24,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ProfilFragment.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, Restaurants.OnFragmentInteractionListener,
@@ -58,11 +67,55 @@ public class MenuActivity extends AppCompatActivity
         }
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        editor = pref.edit();
         String username = pref.getString("username", "");
         userID = pref.getString("myuserID", "");
+
+        //get user info
+
+        JsonObjectRequest rolesRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // the response is already constructed as a JSONObject!
+                        try {
+                            response = response.getJSONObject("data");
+                            System.out.println("response " + response);
+                            JSONArray userResto = response.getJSONArray("usersInResto");
+
+                            System.out.println("result getinfo" + userResto);
+                            editor.putString("EntityInfo", userResto.toString());
+                            editor.apply();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+
+                System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
+                params.put("Api-User", Globales.API_USER);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
+
+
         EntityInfo = pref.getString("EntityInfo", "");
-       // permission = pref.getString("roles", "");
-       // rest_channel = pref.getString("rest_channel", "");
         String s1 = pref.getString("Check", "");
 
 

@@ -117,7 +117,6 @@
                     android:layout_height="wrap_content"
                     android:prompt="@string/parent_prompt" />
             </android.support.design.widget.TextInputLayout>
-
             <Button
                 android:id="@+id/addrest"
                 android:layout_width="wrap_content"

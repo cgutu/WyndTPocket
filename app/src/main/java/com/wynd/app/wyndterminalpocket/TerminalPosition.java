@@ -274,6 +274,9 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                             LatLng position = new LatLng(lat, lng);
                             animateMarker(marker, position, false);
 
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 16);
+                            mMap.animateCamera(cameraUpdate);
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -307,9 +310,9 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public void onLocationChanged(Location location) {
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
-        mMap.animateCamera(cameraUpdate);
+//        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
+//        mMap.animateCamera(cameraUpdate);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions

@@ -226,10 +226,16 @@ public class Terminals extends AppCompatActivity {
                 TerminalInfo ti = new TerminalInfo();
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
+                ti.terminalActive = (json_data.isNull("terminalActive") ? "" : json_data.getString("terminalActive"));
                 ti.id = (json_data.isNull("terminalID") ? "" : json_data.getString("terminalID"));
                 ti.registerTimestamp = (json_data.isNull("registerTimestamp") ? "" : json_data.getString("registerTimestamp"));
-                ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
-//                ti.channel = (json_data.isNull("channel") ? "" : json_data.getString("channel"));
+                if( ti.terminalActive.equals("0")){
+                    ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd")+" (inactive)");
+                }else{
+                    ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
+                }
+
+
                 ti.restaurant = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
                 ti.terminalStatus = (json_data.isNull("terminalStatus") ? "" : json_data.getString("terminalStatus"));
                 ti.terminalStatusUpdateTime = (json_data.isNull("terminalLastUpdated") ? "" : json_data.getString("terminalLastUpdated"));

@@ -65,6 +65,15 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
         restaurantViewHolder.vPhone.setText(ri.phone);
         restaurantViewHolder.vAddress.setText(ri.address);
 
+        restaurantViewHolder.vInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), EditParent.class);
+                intent.putExtra("parentID", ri.id);
+                v.getContext().startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -83,6 +92,7 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
         protected TextView vName;
         protected TextView vPhone;
         protected TextView vAddress;
+        protected ImageView vInfo;
 
         public ParentsViewHolder(View v) {
             super(v);
@@ -90,6 +100,7 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
             vName = (TextView) v.findViewById(R.id.txtName);
             vPhone = (TextView) v.findViewById(R.id.txtPhone);
             vAddress = (TextView) v.findViewById(R.id.txtAdd);
+            vInfo = (ImageView) v.findViewById(R.id.info);
         }
 
 

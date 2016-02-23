@@ -27,11 +27,11 @@ import java.util.Map;
 
 public class InfoOfTerminal extends AppCompatActivity {
 
-    private String channel, uuid, id, channel_id, phone, EntityInfo;
+    private String channel, uuid, id, channel_id, phone, EntityInfo, status;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private JSONArray infosArray = new JSONArray();
-    private TextView vUuid, vRestaurant, vPhone, vChannel, vEmail, vUser, vApk;
+    private TextView vUuid, vRestaurant, vPhone, vChannel, vEmail, vUser, vApk, vStatus;
     private JSONObject terminal = new JSONObject();
 
     @Override
@@ -97,9 +97,6 @@ public class InfoOfTerminal extends AppCompatActivity {
 
         }
 
-
-        vUuid.setText(uuid);
-
         //get info of clicked terminal
         JsonObjectRequest getTerminal = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/info/by/"+id, null, new Response.Listener<JSONObject>() {
@@ -111,15 +108,21 @@ public class InfoOfTerminal extends AppCompatActivity {
                             System.out.println("response terminals" + terminals);
                             for(int i =0; i<terminals.length(); i++){
                                 JSONObject id = terminals.getJSONObject(i);
+                                    vUuid.setText(uuid);
                                     vChannel.setText(id.getString("channelName"));
 
+                                    status = id.getString("terminalActive");
+
                                     String terminalInfo = id.isNull("terminalInfo") ? "" : id.getString("terminalInfo");
-                                    JSONObject infoObject = new JSONObject(terminalInfo);
-                                    vPhone.setText(infoObject.getString("phone"));
-                                    vRestaurant.setText(infoObject.getString("entity_label"));
-                                    vEmail.setText(infoObject.getString("email"));
-                                    vApk.setText(infoObject.getString("apk_version"));
-                                    vUser.setText(infoObject.getString("username"));
+                                    if(!terminalInfo.isEmpty()){
+                                        JSONObject infoObject = new JSONObject(terminalInfo);
+                                        vPhone.setText(infoObject.getString("phone"));
+                                        vRestaurant.setText(infoObject.getString("entity_label"));
+                                        vEmail.setText(infoObject.getString("email"));
+                                        vApk.setText(infoObject.getString("apk_version"));
+                                        vUser.setText(infoObject.getString("username"));
+                                    }
+
 
                             }
                         } catch (JSONException e) {
@@ -137,9 +140,9 @@ public class InfoOfTerminal extends AppCompatActivity {
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
 
-                System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
+                System.out.println("api infos sent" + Globales.API_TERMINAL + " " + Globales.API_HASH);
                 params.put("Api-User", Globales.API_TERMINAL);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -164,6 +167,7 @@ public class InfoOfTerminal extends AppCompatActivity {
                 i.putExtra("terminalID", id);
                 i.putExtra("terminalUuid", uuid);
                 i.putExtra("channelID", channel_id);
+                i.putExtra("status", status);
                 startActivity(i);
             }
         });

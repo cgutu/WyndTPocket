@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -27,12 +29,23 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,8 +55,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -63,7 +74,7 @@ public class HistoriqueFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
-    private String uuid, id, channel_id, userID, parentID, permission, rest_channel, myuserID, EntityInfo, selectedID;
+    private String uuid, id, channel_id, userID, parentID, permission, rest_channel, myuserID, EntityInfo, selectedID, terminalID;
     private FloatingActionButton fab;
     private TextView vDate1, vDate2, vTime1, vTime2;
     private View rootView;
@@ -71,9 +82,14 @@ public class HistoriqueFragment extends Fragment {
     private SharedPreferences.Editor editor;
     private JSONArray infosArray = new JSONArray();
     private JSONArray parents = new JSONArray();
+    private JSONArray datas = new JSONArray();
     private Spinner restSpinner, parentSpinner, deviceSpinner;
     private ArrayAdapter<String> dataAdapter;
     private JSONArray terminals = new JSONArray();
+    private BarChart chart;
+    private LineChart lineChart;
+
+    private RelativeLayout rlChart;
 
     public HistoriqueFragment() {
         // Required empty public constructor
@@ -188,20 +204,150 @@ public class HistoriqueFragment extends Fragment {
         restSpinner = (Spinner) rootView.findViewById(R.id.rest_channel_id);
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         deviceSpinner = (Spinner) rootView.findViewById(R.id.device);
+        rlChart = (RelativeLayout) rootView.findViewById(R.id.layoutChart);
 
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               //set map visible
+                chart.invalidate();
+                loadMap();
             }
         });
 
-        LineChart chart = (LineChart) rootView.findViewById(R.id.chart);
 
+       // chart = (BarChart) rootView.findViewById(R.id.chart);
+
+        chart = new BarChart(getActivity());
+        lineChart = new LineChart(getActivity());
         return rootView;
     }
 
+    private void loadMap(){
+
+        //getDate
+        rlChart.setVisibility(View.VISIBLE);
+
+        final String date1 = vDate1.getText().toString();
+       final String date2 = vDate2.getText().toString();
+
+        System.out.println("dates "+date1 + " "+date2+ " "+terminalID);
+
+        JsonObjectRequest request = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+terminalID+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray values = response.getJSONArray("data");
+
+                            ArrayList<String> xValues = new ArrayList<String>();
+                            ArrayList<BarEntry> entries = new ArrayList<>();
+
+                            //first date, la plus petite t_last_seen
+                            //end date, la plus grand t_last_seen
+                            try{
+                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
+                                Date startDate = formatter.parse(date1);
+                                Date endDate = formatter.parse(date2);
+                                Calendar start = Calendar.getInstance();
+                                start.setTime(startDate);
+                                Calendar end = Calendar.getInstance();
+                                end.setTime(endDate);
+
+                                for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
+                                    // Do your job here with `date`.
+                                    System.out.println(date);
+                                    xValues.add(""+date);
+                                }
+                            }catch (ParseException e){
+
+                            }
+                            for(int i=0; i<xValues.size(); i++){
+                                entries.add(new BarEntry(1, i));
+                            }
+//                            for(int i=0; i<values.length(); i++){
+//                                datas.put(values.getJSONObject(i));
+//                                String status = values.getJSONObject(i).getString("t_status");
+//                                Float f= Float.parseFloat(status);
+////                                if(status.equals("0")){
+////                                    entries.add(new BarEntry(f, i));
+////                                    xValues.add(values.getJSONObject(i).getString("t_last_seen"));
+////                                }
+//                            }
+                            System.out.println("map data "+datas);
+
+                            BarDataSet dataset = new BarDataSet(entries, "# 1 = ON / 0 = OFF");
+
+                            BarData data = new BarData(xValues, dataset);
+
+                            chart.setData(data);
+                            chart.setDescription("Device status");
+                            chart.setMinimumWidth(1400);
+                            chart.setMinimumHeight(1000);
+
+                            if(chart.getParent()!=null)
+                                ((ViewGroup)chart.getParent()).removeView(chart); // <- fix
+                            rlChart.addView(chart);
+
+ //                           ArrayList<Entry> entries = new ArrayList<>();
+//                            entries.add(new Entry(0f, 0));
+//                            entries.add(new Entry(0f, 1));
+//                            entries.add(new Entry(1f, 2));
+//                            entries.add(new Entry(0f, 3));
+//                            entries.add(new Entry(1f, 4));
+//                            entries.add(new Entry(1f, 5));
+
+//                            ArrayList<String> labels = new ArrayList<String>();
+//
+//                            for(int i=0; i<values.length(); i++){
+//                                datas.put(values.getJSONObject(i));
+//                                String status = values.getJSONObject(i).getString("t_status");
+//                                Float f= Float.parseFloat(status);
+//                                entries.add(new Entry(f, i));
+//
+//                                labels.add(values.getJSONObject(i).getString("t_last_seen"));
+//                            }
+//
+//                            LineDataSet dataset = new LineDataSet(entries, "# of Calls");
+//
+//                            LineData data = new LineData(labels, dataset);
+//                            lineChart.setData(data); // set the data and list of lables into chart
+//
+//                            lineChart.setMinimumWidth(1400);
+//                            lineChart.setMinimumHeight(1000);
+//                            if(lineChart.getParent()!=null)
+//                                ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
+//                            rlChart.addView(lineChart);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+
+                System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
+                params.put("Api-User", Globales.API_TERMINAL);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getContext()).add(request);
+    }
     private void initViews(){
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
@@ -212,14 +358,14 @@ public class HistoriqueFragment extends Fragment {
         String data = sdf.format(new Date());
 
         vDate1 = (TextView) rootView.findViewById(R.id.date1);
-        vTime1 = (TextView) rootView.findViewById(R.id.time1);
+       // vTime1 = (TextView) rootView.findViewById(R.id.time1);
         vDate2 = (TextView) rootView.findViewById(R.id.date2);
-        vTime2 = (TextView) rootView.findViewById(R.id.time2);
+        //vTime2 = (TextView) rootView.findViewById(R.id.time2);
 
         vDate1.setText(data);
-        vTime1.setText(time);
+      //  vTime1.setText(time);
         vDate2.setText(data);
-        vTime2.setText(time);
+      //  vTime2.setText(time);
 
         vDate1.setOnClickListener(new View.OnClickListener() {
 
@@ -232,17 +378,17 @@ public class HistoriqueFragment extends Fragment {
                 dte.show(getFragmentManager().beginTransaction(), "DatePickerFragment");
             }
         });
-        vTime1.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new TimePickerFragment();
-                // TODO Auto-generated method stub
-                TimePickerFragment tme = TimePickerFragment.newInstance();
-                tme.setCallBack(onTime);
-                tme.show(getFragmentManager().beginTransaction(), "TimePickerFragment");
-            }
-        });
+//        vTime1.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                new TimePickerFragment();
+//                // TODO Auto-generated method stub
+//                TimePickerFragment tme = TimePickerFragment.newInstance();
+//                tme.setCallBack(onTime);
+//                tme.show(getFragmentManager().beginTransaction(), "TimePickerFragment");
+//            }
+//        });
         vDate2.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -254,17 +400,17 @@ public class HistoriqueFragment extends Fragment {
                 dte.show(getFragmentManager().beginTransaction(), "DatePickerFragment");
             }
         });
-        vTime2.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new TimePickerFragment();
-                // TODO Auto-generated method stub
-                TimePickerFragment tme = TimePickerFragment.newInstance();
-                tme.setCallBack(onTime2);
-                tme.show(getFragmentManager().beginTransaction(), "TimePickerFragment");
-            }
-        });
+//        vTime2.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                new TimePickerFragment();
+//                // TODO Auto-generated method stub
+//                TimePickerFragment tme = TimePickerFragment.newInstance();
+//                tme.setCallBack(onTime2);
+//                tme.show(getFragmentManager().beginTransaction(), "TimePickerFragment");
+//            }
+//        });
     }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -316,15 +462,15 @@ public class HistoriqueFragment extends Fragment {
             vDate1.setText(sdf.format(newDate.getTime()));
         }
     };
-    TimePickerDialog.OnTimeSetListener onTime = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
-
-            vTime1.setText(hourOfDay+":"+minute);
-        }
-
-    };
+//    TimePickerDialog.OnTimeSetListener onTime = new TimePickerDialog.OnTimeSetListener() {
+//        @Override
+//        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+//
+//
+//            vTime1.setText(hourOfDay+":"+minute);
+//        }
+//
+//    };
     DatePickerDialog.OnDateSetListener onDate2 = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -335,13 +481,13 @@ public class HistoriqueFragment extends Fragment {
             vDate2.setText(sdf.format(newDate.getTime()));
         }
     };
-    TimePickerDialog.OnTimeSetListener onTime2 = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            vTime2.setText(hourOfDay+":"+minute);
-        }
-
-    };
+//    TimePickerDialog.OnTimeSetListener onTime2 = new TimePickerDialog.OnTimeSetListener() {
+//        @Override
+//        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+//            vTime2.setText(hourOfDay+":"+minute);
+//        }
+//
+//    };
 
     private void addParent(final JSONArray jsonArray){
 
@@ -380,6 +526,8 @@ public class HistoriqueFragment extends Fragment {
                 if(arg2 == 0){
                     restSpinner.setVisibility(View.GONE);
                     deviceSpinner.setVisibility(View.GONE);
+                    fab.setVisibility(View.GONE);
+                    rlChart.setVisibility(View.GONE);
                 }else{
                     restSpinner.setVisibility(View.VISIBLE);
                 }
@@ -488,8 +636,12 @@ public class HistoriqueFragment extends Fragment {
                 Object item = arg0.getItemAtPosition(arg2);
                 if(arg2 == 0){
                     deviceSpinner.setVisibility(View.GONE);
+                    fab.setVisibility(View.GONE);
+                    rlChart.setVisibility(View.GONE);
                 }else{
                     deviceSpinner.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.VISIBLE);
+                    rlChart.setVisibility(View.GONE);
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -518,7 +670,7 @@ public class HistoriqueFragment extends Fragment {
                                                             terminals.put(terminal);
                                                         }
                                                     }
-                                                    System.out.println("users " + terminals);
+                                                    System.out.println("terminals " + terminals);
                                                     addTerminal(terminals);
 
                                                 } catch (JSONException e) {
@@ -597,20 +749,21 @@ public class HistoriqueFragment extends Fragment {
                 Object item = arg0.getItemAtPosition(arg2);
                 if(arg2 == 0){
                    //map visibility gone
+                    fab.setVisibility(View.GONE);
+                    rlChart.setVisibility(View.GONE);
                 }else{
                     //map visibility visible
+                    fab.setVisibility(View.VISIBLE);
+                    rlChart.setVisibility(View.GONE);
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
                             String name = jsonArray.getJSONObject(i).getString("terminalMacadd");
                             if(item.equals(name)){
-                                System.out.println("name ok "+item);
-                                selectedID = jsonArray.getJSONObject(i).getString("terminalID");
-                                System.out.println("item id "+selectedID);
-
-                                //set map
-
+                                System.out.println("name ok " + item);
+                                terminalID = jsonArray.getJSONObject(i).getString("terminalID");
+                                System.out.println("item id " + selectedID);
                             }
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block

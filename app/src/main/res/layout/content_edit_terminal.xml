@@ -96,6 +96,14 @@
                     android:prompt="@string/parent_prompt" />
             </android.support.design.widget.TextInputLayout>
 
+            <Button
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/delete_button"
+                android:textColor="@color/white"
+                android:text="Désactiver"/>
+
         </LinearLayout>
     </ScrollView>
 
