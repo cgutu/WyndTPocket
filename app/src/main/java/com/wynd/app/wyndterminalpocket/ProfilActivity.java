@@ -36,7 +36,7 @@ import java.util.Map;
 public class ProfilActivity extends AppCompatActivity {
 
     private JSONObject user = new JSONObject();
-    private String id, username, email, hash, phone, permission, rest_channel, userID, restId, savedUserID, ID;
+    private String id, username, email, hash, phone, permission, rest_channel, userID, restId, savedUserID, ID, restaurantID, restaurant;
     private TextView vUsername, vEmail, vPhone, vPermission, vRest_channel;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -102,64 +102,54 @@ public class ProfilActivity extends AppCompatActivity {
                             email = response.getString("email");
                             phone = response.getString("phone");
                             JSONArray userResto = response.getJSONArray("usersInResto");
-                            for(int i=0; i<userResto.length(); i++){
+                            for(int i=0; i<userResto.length(); i++) {
                                 JSONObject userRestInfo = userResto.getJSONObject(i);
-                                permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
-                                rest_channel = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
+                                final String permissionID = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
+                                restaurantID = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
 
-                                if(!permission.isEmpty() && permission.equalsIgnoreCase("1")){
-                                    permission = "USER";
-                                }else if(!permission.isEmpty() && permission.equalsIgnoreCase("2")){
-                                    permission = "ADMIN";
-                                }else if(!permission.isEmpty() && permission.equalsIgnoreCase("3")){
-                                    permission = "SUPER_ADMIN";
-                                }
-                                //set listview
+                                JsonObjectRequest restaurantRequest = new JsonObjectRequest
+                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/id/" + restaurantID, null, new Response.Listener<JSONObject>() {
+                                            @Override
+                                            public void onResponse(JSONObject response) {
 
-                                if(!rest_channel.isEmpty()) {
-                                    final JsonObjectRequest restaurantRequest = new JsonObjectRequest
-                                            (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/id/" + rest_channel, null, new Response.Listener<JSONObject>() {
-                                                @Override
-                                                public void onResponse(JSONObject response) {
-
-                                                    try {
-                                                        response = response.getJSONObject("data");
-                                                        System.out.println("response " + response);
-
-
-                                                        String restaurantName = response.isNull("name") ? "" : response.getString("name");
-                                                        listItems.add(permission + " <----> " + restaurantName);
-                                                        addItem(listItems);
-
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
+                                                try {
+                                                    response = response.getJSONObject("data");
+                                                    System.out.println("permission before" + permissionID);
+                                                    if (!permissionID.isEmpty() && permissionID.equals("1")) {
+                                                        permission = "USER";
+                                                    } else if (!permissionID.isEmpty() && permissionID.equals("2")) {
+                                                        permission = "ADMIN";
+                                                    } else if (!permissionID.isEmpty() && permissionID.equals("3")) {
+                                                        permission = "SUPER_ADMIN";
                                                     }
-
+                                                    restaurant = response.isNull("name") ? "" : response.getString("name");
+                                                    listItems.add(permission + " <----------> " + restaurant);
+                                                    addItem(listItems);
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
                                                 }
-                                            }, new Response.ErrorListener() {
 
-                                                @Override
-                                                public void onErrorResponse(VolleyError error) {
+                                            }
+                                        }, new Response.ErrorListener() {
 
-                                                    error.printStackTrace();
-                                                }
-                                            }) {
-                                        @Override
-                                        public Map<String, String> getHeaders() throws AuthFailureError {
-                                            Map<String, String> params = new HashMap<String, String>();
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
 
-                                            System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
-                                            params.put("Api-User", Globales.API_USER);
-                                            params.put("Api-Hash", Globales.API_HASH);
+                                                error.printStackTrace();
+                                            }
+                                        }) {
+                                    @Override
+                                    public Map<String, String> getHeaders() throws AuthFailureError {
+                                        Map<String, String> params = new HashMap<String, String>();
+                                        params.put("Api-User", Globales.API_USER);
+                                        params.put("Api-Hash", Globales.API_HASH);
 
-                                            return params;
-                                        }
-                                    };
+                                        return params;
+                                    }
+                                };
 
-                                    Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
-                                }
+                                Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
                             }
-                            System.out.println("userrestinfo " + permission + " " + rest_channel);
 
 
                             vUsername.setText(username);

@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -24,16 +25,37 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class Historique extends AppCompatActivity {
@@ -41,6 +63,8 @@ public class Historique extends AppCompatActivity {
     private String uuid, id, channel_id;
     private  FloatingActionButton fab;
     private TextView vDate1, vDate2, vTime1, vTime2;
+    private BarChart chart;
+    private RelativeLayout rlChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +81,7 @@ public class Historique extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+              loadMap();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -71,26 +94,98 @@ public class Historique extends AppCompatActivity {
         System.out.println("terminal info " + uuid + " id " + id + " channelid " + channel_id);
 
         initViews();
+        chart = new BarChart(getApplicationContext());
+        rlChart = (RelativeLayout) findViewById(R.id.layoutChart);
+    }
+    private void loadMap(){
+
+        final String date1 = vDate1.getText().toString();
+        final String date2 = vDate2.getText().toString();
+
+        System.out.println("dates "+date1 + " "+date2+ " "+id);
+
+
+        JsonObjectRequest request = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+id+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray values = response.getJSONArray("data");
+
+                            ArrayList<String> xValues = new ArrayList<String>();
+                            ArrayList<BarEntry> entries = new ArrayList<>();
+
+                            for(int i=0; i<values.length(); i++){
+                                String status = values.getJSONObject(i).getString("t_status");
+                                String date = values.getJSONObject(i).getString("t_last_seen");
+                                System.out.println("date "+date);
+                                Float f= Float.parseFloat(status);
+                                entries.add(new BarEntry(f, i));
+                                xValues.add(date);
+                            }
+
+                            BarDataSet dataset = new BarDataSet(entries, "1 = ON / 0 = OFF");
+
+                            BarData data = new BarData(xValues, dataset);
+
+                            chart.setData(data);
+                            chart.setDescription("Device status");
+                            chart.setMinimumWidth(1300);
+                            chart.setMinimumHeight(1200);
+
+                            YAxis mYAxis = chart.getAxisLeft();
+                            mYAxis.setDrawAxisLine(false);
+                            mYAxis.setDrawGridLines(false);
+                            mYAxis.setStartAtZero(false);
+
+                            XAxis xAxis = chart.getXAxis();
+                            xAxis.setTextColor(Color.RED);
+
+
+                            if(chart.getParent()!=null)
+                                ((ViewGroup)chart.getParent()).removeView(chart); // <- fix
+                            rlChart.addView(chart);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+
+                System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
+                params.put("Api-User", Globales.API_TERMINAL);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getApplicationContext()).add(request);
     }
 
     private void initViews(){
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        SimpleDateFormat stm = new SimpleDateFormat("HH:mm", Locale.FRANCE);
-        String time = stm.format(new Date());
         String data = sdf.format(new Date());
 
         vDate1 = (TextView) findViewById(R.id.date1);
-        vTime1 = (TextView) findViewById(R.id.time1);
         vDate2 = (TextView) findViewById(R.id.date2);
-        vTime2 = (TextView) findViewById(R.id.time2);
 
         vDate1.setText(data);
-        vTime1.setText(time);
         vDate2.setText(data);
-        vTime2.setText(time);
 
         vDate1.setOnClickListener(new View.OnClickListener() {
 
@@ -103,17 +198,6 @@ public class Historique extends AppCompatActivity {
                 dte.show(getSupportFragmentManager().beginTransaction(), "DatePickerFragment");
             }
         });
-        vTime1.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new TimePickerFragment();
-                // TODO Auto-generated method stub
-                TimePickerFragment tme = TimePickerFragment.newInstance();
-                tme.setCallBack(onTime);
-                tme.show(getSupportFragmentManager().beginTransaction(), "TimePickerFragment");
-            }
-        });
         vDate2.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -123,17 +207,6 @@ public class Historique extends AppCompatActivity {
                 DatePickerFragment dte = DatePickerFragment.newInstance();
                 dte.setCallBack(onDate2);
                 dte.show(getSupportFragmentManager().beginTransaction(), "DatePickerFragment");
-            }
-        });
-        vTime2.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new TimePickerFragment();
-                // TODO Auto-generated method stub
-                TimePickerFragment tme = TimePickerFragment.newInstance();
-                tme.setCallBack(onTime2);
-                tme.show(getSupportFragmentManager().beginTransaction(), "TimePickerFragment");
             }
         });
     }
@@ -148,15 +221,7 @@ public class Historique extends AppCompatActivity {
             vDate1.setText(sdf.format(newDate.getTime()));
         }
     };
-    TimePickerDialog.OnTimeSetListener onTime = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
-
-            vTime1.setText(hourOfDay+":"+minute);
-        }
-
-    };
     DatePickerDialog.OnDateSetListener onDate2 = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -166,12 +231,5 @@ public class Historique extends AppCompatActivity {
             newDate.set(year, monthOfYear, dayOfMonth);
             vDate2.setText(sdf.format(newDate.getTime()));
         }
-    };
-    TimePickerDialog.OnTimeSetListener onTime2 = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            vTime2.setText(hourOfDay+":"+minute);
-        }
-
     };
 }

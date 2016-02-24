@@ -46,19 +46,12 @@ public class MenuActivity extends AppCompatActivity
     private SharedPreferences pref;
     private boolean viewIsAtHome;
     private String userID, parentID, permission, rest_channel, EntityInfo, restID;
-    private boolean mState = false;
     private SharedPreferences.Editor editor;
-    private JSONArray infosArray = new JSONArray();
-    private JSONArray permissions = new JSONArray();
-    private JSONArray restVSroles = new JSONArray();
-    public static String ROLE = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-
-       // displayView(R.id.nav_gallery);
 
         if (savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -68,22 +61,20 @@ public class MenuActivity extends AppCompatActivity
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         editor = pref.edit();
-        String username = pref.getString("username", "");
         userID = pref.getString("myuserID", "");
 
-        //get user info
-
+       /**
+        * get user info
+        */
         JsonObjectRequest rolesRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        // the response is already constructed as a JSONObject!
+
                         try {
                             response = response.getJSONObject("data");
-                            System.out.println("response " + response);
                             JSONArray userResto = response.getJSONArray("usersInResto");
 
-                            System.out.println("result getinfo" + userResto);
                             editor.putString("EntityInfo", userResto.toString());
                             editor.apply();
 
@@ -118,8 +109,6 @@ public class MenuActivity extends AppCompatActivity
         EntityInfo = pref.getString("EntityInfo", "");
         String s1 = pref.getString("Check", "");
 
-
-        System.out.println("s1 "+s1);
         if(!s1.isEmpty() && s1.equals("inforestaurant")){
             editor = pref.edit();
             editor.putString("Check", "0");
@@ -151,19 +140,9 @@ public class MenuActivity extends AppCompatActivity
 
             displayView(R.id.nav_slideshow);
         }
-//        else if(!s1.isEmpty() && s1.equals("userlist")){
-//            editor = pref.edit();
-//            editor.putString("Check", "0");
-//            editor.apply();
-//
-//            displayView(R.id.nav_manage);
-//        }
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //toolbar.setTitle("Bonjour "+username);
         setSupportActionBar(toolbar);
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -250,33 +229,12 @@ public class MenuActivity extends AppCompatActivity
 
                 return true;
         }
-
-       // return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-//        int id = item.getItemId();
-//
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
-//
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        drawer.closeDrawer(GravityCompat.START);
-
         displayView(item.getItemId());
         return true;
     }
@@ -318,20 +276,12 @@ public class MenuActivity extends AppCompatActivity
 
         if (fragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Bundle args = new Bundle();
-            args.putString("userID", userID);
-            args.putString("parentID", parentID);
-            fragment.setArguments(args);
             ft.replace(R.id.content_frame, fragment);
             ft.commit();
         }
-
-        // set the toolbar title
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(title);
         }
-
-
 
         drawer.closeDrawer(GravityCompat.START);
 

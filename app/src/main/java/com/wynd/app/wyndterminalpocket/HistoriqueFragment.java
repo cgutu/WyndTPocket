@@ -2,6 +2,7 @@ package com.wynd.app.wyndterminalpocket;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -39,6 +41,9 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,6 +93,7 @@ public class HistoriqueFragment extends Fragment {
     private JSONArray terminals = new JSONArray();
     private BarChart chart;
     private LineChart lineChart;
+    private RelativeLayout rLperiod;
 
     private RelativeLayout rlChart;
 
@@ -205,11 +211,13 @@ public class HistoriqueFragment extends Fragment {
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         deviceSpinner = (Spinner) rootView.findViewById(R.id.device);
         rlChart = (RelativeLayout) rootView.findViewById(R.id.layoutChart);
+        rLperiod = (RelativeLayout) rootView.findViewById(R.id.period);
 
         fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 chart.invalidate();
                 loadMap();
             }
@@ -225,13 +233,14 @@ public class HistoriqueFragment extends Fragment {
 
     private void loadMap(){
 
-        //getDate
+
         rlChart.setVisibility(View.VISIBLE);
 
         final String date1 = vDate1.getText().toString();
-       final String date2 = vDate2.getText().toString();
+        final String date2 = vDate2.getText().toString();
 
         System.out.println("dates "+date1 + " "+date2+ " "+terminalID);
+
 
         JsonObjectRequest request = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+terminalID+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
@@ -240,85 +249,77 @@ public class HistoriqueFragment extends Fragment {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-
+/*
                             ArrayList<String> xValues = new ArrayList<String>();
                             ArrayList<BarEntry> entries = new ArrayList<>();
 
-                            //first date, la plus petite t_last_seen
-                            //end date, la plus grand t_last_seen
-                            try{
-                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
-                                Date startDate = formatter.parse(date1);
-                                Date endDate = formatter.parse(date2);
-                                Calendar start = Calendar.getInstance();
-                                start.setTime(startDate);
-                                Calendar end = Calendar.getInstance();
-                                end.setTime(endDate);
-
-                                for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
-                                    // Do your job here with `date`.
-                                    System.out.println(date);
-                                    xValues.add(""+date);
-                                }
-                            }catch (ParseException e){
-
+                            for(int i=0; i<values.length(); i++){
+                                String status = values.getJSONObject(i).getString("t_status");
+                                String date = values.getJSONObject(i).getString("t_last_seen");
+                                System.out.println("date "+date);
+                                Float f= Float.parseFloat(status);
+                                entries.add(new BarEntry(f, i));
+                                xValues.add(date);
                             }
-                            for(int i=0; i<xValues.size(); i++){
-                                entries.add(new BarEntry(1, i));
-                            }
-//                            for(int i=0; i<values.length(); i++){
-//                                datas.put(values.getJSONObject(i));
-//                                String status = values.getJSONObject(i).getString("t_status");
-//                                Float f= Float.parseFloat(status);
-////                                if(status.equals("0")){
-////                                    entries.add(new BarEntry(f, i));
-////                                    xValues.add(values.getJSONObject(i).getString("t_last_seen"));
-////                                }
-//                            }
-                            System.out.println("map data "+datas);
 
-                            BarDataSet dataset = new BarDataSet(entries, "# 1 = ON / 0 = OFF");
+                            BarDataSet dataset = new BarDataSet(entries, "1 = ON / 0 = OFF");
 
                             BarData data = new BarData(xValues, dataset);
 
                             chart.setData(data);
                             chart.setDescription("Device status");
-                            chart.setMinimumWidth(1200);
-                            chart.setMinimumHeight(1000);
+                            chart.setMinimumWidth(1300);
+                            chart.setMinimumHeight(1200);
+
+                            YAxis mYAxis = chart.getAxisLeft();
+                            mYAxis.setDrawAxisLine(false);
+                            mYAxis.setDrawGridLines(false);
+                            mYAxis.setStartAtZero(false);
+
+                            XAxis xAxis = chart.getXAxis();
+                            xAxis.setTextColor(Color.RED);
+
+                            chart.animateXY(3000, 3000);
 
                             if(chart.getParent()!=null)
                                 ((ViewGroup)chart.getParent()).removeView(chart); // <- fix
-                            rlChart.addView(chart);
+                            rlChart.addView(chart);*/
+                            ArrayList<String> xValues = new ArrayList<String>();
+                            ArrayList<Entry> entries = new ArrayList<>();
 
- //                           ArrayList<Entry> entries = new ArrayList<>();
-//                            entries.add(new Entry(0f, 0));
-//                            entries.add(new Entry(0f, 1));
-//                            entries.add(new Entry(1f, 2));
-//                            entries.add(new Entry(0f, 3));
-//                            entries.add(new Entry(1f, 4));
-//                            entries.add(new Entry(1f, 5));
+                            for(int i=0; i<values.length(); i++){
+                                String status = values.getJSONObject(i).getString("t_status");
+                                String date = values.getJSONObject(i).getString("t_last_seen");
+                                System.out.println("date " + date);
+                                Float f= Float.parseFloat(status);
+                                entries.add(new Entry(f, i));
+                                xValues.add(date);
+                            }
 
-//                            ArrayList<String> labels = new ArrayList<String>();
-//
-//                            for(int i=0; i<values.length(); i++){
-//                                datas.put(values.getJSONObject(i));
-//                                String status = values.getJSONObject(i).getString("t_status");
-//                                Float f= Float.parseFloat(status);
-//                                entries.add(new Entry(f, i));
-//
-//                                labels.add(values.getJSONObject(i).getString("t_last_seen"));
-//                            }
-//
-//                            LineDataSet dataset = new LineDataSet(entries, "# of Calls");
-//
-//                            LineData data = new LineData(labels, dataset);
-//                            lineChart.setData(data); // set the data and list of lables into chart
-//
-//                            lineChart.setMinimumWidth(1400);
-//                            lineChart.setMinimumHeight(1000);
-//                            if(lineChart.getParent()!=null)
-//                                ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
-//                            rlChart.addView(lineChart);
+                            LineDataSet dataset = new LineDataSet(entries, "1 = ON / 0 = OFF");
+
+                            LineData data = new LineData(xValues, dataset);
+
+                            lineChart.setData(data);
+                            lineChart.setDescription("Device status");
+                            lineChart.setMinimumWidth(1300);
+                            lineChart.setMinimumHeight(1200);
+
+                            YAxis mYAxis = lineChart.getAxisLeft();
+                            mYAxis.setDrawAxisLine(false);
+                            mYAxis.setDrawGridLines(false);
+                            mYAxis.setStartAtZero(false);
+
+                            XAxis xAxis = lineChart.getXAxis();
+                            xAxis.setTextColor(Color.RED);
+                            dataset.setColors(new int[] { R.color.red}, getActivity());
+
+                            lineChart.animateXY(3000, 3000);
+                            data.setHighlightEnabled(true);
+
+                            if(lineChart.getParent()!=null)
+                                ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
+                            rlChart.addView(lineChart);
 
 
                         } catch (JSONException e) {
@@ -378,17 +379,7 @@ public class HistoriqueFragment extends Fragment {
                 dte.show(getFragmentManager().beginTransaction(), "DatePickerFragment");
             }
         });
-//        vTime1.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                new TimePickerFragment();
-//                // TODO Auto-generated method stub
-//                TimePickerFragment tme = TimePickerFragment.newInstance();
-//                tme.setCallBack(onTime);
-//                tme.show(getFragmentManager().beginTransaction(), "TimePickerFragment");
-//            }
-//        });
+
         vDate2.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -400,17 +391,7 @@ public class HistoriqueFragment extends Fragment {
                 dte.show(getFragmentManager().beginTransaction(), "DatePickerFragment");
             }
         });
-//        vTime2.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                new TimePickerFragment();
-//                // TODO Auto-generated method stub
-//                TimePickerFragment tme = TimePickerFragment.newInstance();
-//                tme.setCallBack(onTime2);
-//                tme.show(getFragmentManager().beginTransaction(), "TimePickerFragment");
-//            }
-//        });
+
     }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -462,15 +443,7 @@ public class HistoriqueFragment extends Fragment {
             vDate1.setText(sdf.format(newDate.getTime()));
         }
     };
-//    TimePickerDialog.OnTimeSetListener onTime = new TimePickerDialog.OnTimeSetListener() {
-//        @Override
-//        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//
-//
-//            vTime1.setText(hourOfDay+":"+minute);
-//        }
-//
-//    };
+
     DatePickerDialog.OnDateSetListener onDate2 = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -481,13 +454,6 @@ public class HistoriqueFragment extends Fragment {
             vDate2.setText(sdf.format(newDate.getTime()));
         }
     };
-//    TimePickerDialog.OnTimeSetListener onTime2 = new TimePickerDialog.OnTimeSetListener() {
-//        @Override
-//        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-//            vTime2.setText(hourOfDay+":"+minute);
-//        }
-//
-//    };
 
     private void addParent(final JSONArray jsonArray){
 
@@ -530,6 +496,7 @@ public class HistoriqueFragment extends Fragment {
                     rlChart.setVisibility(View.GONE);
                 }else{
                     restSpinner.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.GONE);
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -640,7 +607,7 @@ public class HistoriqueFragment extends Fragment {
                     rlChart.setVisibility(View.GONE);
                 }else{
                     deviceSpinner.setVisibility(View.VISIBLE);
-                    fab.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.GONE);
                     rlChart.setVisibility(View.GONE);
                 }
                 if (item != null) {

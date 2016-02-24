@@ -11,5 +11,6 @@ public class ParentInfo {
     protected String address;
     protected String phone;
     protected String email;
+    protected String status;
 }
 

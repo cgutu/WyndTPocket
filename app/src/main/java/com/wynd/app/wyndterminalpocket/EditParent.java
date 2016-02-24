@@ -48,7 +48,7 @@ import java.util.Map;
 
 public class EditParent extends AppCompatActivity {
 
-    private String myuserID, name, address, email, phone, parentID;
+    private String myuserID, name, address, email, phone, parentID, status;
     private SharedPreferences pref;
     private JSONArray entities = new JSONArray();
     private TextView vName, vAddress, vEmail, vPhone;
@@ -78,6 +78,7 @@ public class EditParent extends AppCompatActivity {
         myuserID = pref.getString("myuserID", "");
         Intent i = getIntent();
         parentID = i.getStringExtra("parentID");
+        status = i.getStringExtra("parentStatus");
 
         vName = (TextView) findViewById(R.id.name);
         vEmail = (TextView) findViewById(R.id.email);
@@ -85,6 +86,11 @@ public class EditParent extends AppCompatActivity {
         vAddress = (TextView) findViewById(R.id.address);
         deleteBtn = (Button) findViewById(R.id.delete);
 
+        if(status.equals("0")){
+            deleteBtn.setText("Activer");
+        }else{
+            deleteBtn.setText("Désactiver");
+        }
 
         JsonObjectRequest entityRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/all/parents/user/"+myuserID, null, new Response.Listener<JSONObject>() {

@@ -136,10 +136,9 @@ public class LoginActivity extends AppCompatActivity {
         try {
 
             Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
-            System.out.println("SHA1 API_HASH " + Globales.API_HASH);
 
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            System.out.println("Error sha1 " + e);
+            Log.e("Error sha1 API_HASH", e.toString());
         }
 
         //if no account, go to another form
@@ -201,11 +200,9 @@ public class LoginActivity extends AppCompatActivity {
              */
             try {
                 password = AeSimpleSHA1.SHA1(password);
-                System.out.println("SHA1 password " + password);
-
 
             } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-                System.out.println("Error sha1 " + e);
+                Log.e("Error sha1 password", e.toString());
             }
 
 
@@ -232,8 +229,6 @@ public class LoginActivity extends AppCompatActivity {
 
                 //setting nameValuePairs
                 nameValuePairs = new ArrayList<NameValuePair>(1);
-                System.out.println("do in background login task "+password+" "+Globales.API_HASH );
-
                 try {
                     //Setting up the default http client
                     HttpClient httpClient = new DefaultHttpClient();
@@ -290,7 +285,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     is.close();
                     String json = total.toString();
-                    System.out.println("total: " + json);
+
                     JSONTokener tokener = new JSONTokener(json);
                     JSONObject finalResult = new JSONObject(tokener);
 
@@ -304,7 +299,6 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("username", username);
                         editor.putString("myuserID", userID);
                         editor.apply();
-
 
                         /**
                          * @GET - get user info
@@ -320,7 +314,6 @@ public class LoginActivity extends AppCompatActivity {
                                         // the response is already constructed as a JSONObject!
                                         try {
                                             response = response.getJSONObject("data");
-                                            System.out.println("response " + response);
                                             JSONArray userResto = response.getJSONArray("usersInResto");
                                             for(int i=0; i<userResto.length(); i++){
                                                 JSONObject userRestInfo = userResto.getJSONObject(i);
@@ -331,7 +324,6 @@ public class LoginActivity extends AppCompatActivity {
                                                 //store the return in a Entity Info
                                                 EntityInfo.put(userRestInfo);
                                             }
-                                            System.out.println("result " + EntityInfo);
                                             editor.putString("EntityInfo", EntityInfo.toString());
                                             editor.apply();
 
@@ -358,7 +350,6 @@ public class LoginActivity extends AppCompatActivity {
                             public Map<String, String> getHeaders() throws AuthFailureError {
                                 Map<String, String> params = new HashMap<String, String>();
 
-                                System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                                 params.put("Api-User", Globales.API_USER);
                                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -374,18 +365,12 @@ public class LoginActivity extends AppCompatActivity {
                         mPasswordView.requestFocus();
                     }
 
-                    System.out.println("result " + result);
-
-
                 } catch (Exception e) {
                     Log.i("tagconvertstr", "" + e.toString());
                     showProgress(false);
                     mUserView.setError(getString(R.string.error_connexion));
                     mUserView.requestFocus();
                 }
-
-
-
         }
     }
 

@@ -85,10 +85,6 @@ public class AddEntity extends AppCompatActivity {
 
         Intent i = getIntent();
         parentID = i.getStringExtra("parentID");
-
-        System.out.println("parentID "+parentID);
-
-
     }
     private void checkForm(){
 
@@ -225,7 +221,6 @@ public class AddEntity extends AppCompatActivity {
                 int i = 0;
 
                 String result = finalResult.getString("result");
-                System.out.println("result " + result);
 
                 if (!result.isEmpty() && result.equals("success")) {
 
@@ -245,9 +240,6 @@ public class AddEntity extends AppCompatActivity {
                     vName.setError("Impossible d'ajouter cette entité");
                     vName.requestFocus();
                 }
-
-                System.out.println("result " + result);
-
 
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());

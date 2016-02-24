@@ -208,7 +208,6 @@ public class AddParent extends AppCompatActivity {
                 int i = 0;
 
                 String result = finalResult.getString("result");
-                System.out.println("result " + result);
 
                 if (!result.isEmpty() && result.equals("success")) {
 
@@ -228,9 +227,6 @@ public class AddParent extends AppCompatActivity {
                     vName.setError("Impossible d'ajouter ce parent");
                     vName.requestFocus();
                 }
-
-                System.out.println("result " + result);
-
 
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());

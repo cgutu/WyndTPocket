@@ -61,7 +61,6 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
     public void onBindViewHolder(final ParentsAdapter.ParentsViewHolder restaurantViewHolder,final int i)  {
         final ParentInfo ri = parentList.get(i);
         restaurantViewHolder.vEmail.setText(ri.email);
-        restaurantViewHolder.vName.setText(ri.name);
         restaurantViewHolder.vPhone.setText(ri.phone);
         restaurantViewHolder.vAddress.setText(ri.address);
 
@@ -70,9 +69,15 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), EditParent.class);
                 intent.putExtra("parentID", ri.id);
+                intent.putExtra("parentStatus", ri.status);
                 v.getContext().startActivity(intent);
             }
         });
+        if(ri.status.equals("0")){
+            restaurantViewHolder.vName.setText(ri.name+" (inactive)");
+        }else{
+            restaurantViewHolder.vName.setText(ri.name);
+        }
 
     }
 

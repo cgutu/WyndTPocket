@@ -71,12 +71,8 @@ public class EditMyProfil extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         username = (EditText) findViewById(R.id.username);
-       // password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
         phone = (EditText) findViewById(R.id.phone);
-//        permission = (EditText) findViewById(R.id.permission);
-//        rest_channel = (EditText) findViewById(R.id.restchannel);
-       // submit = (Button) findViewById(R.id.submit);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
