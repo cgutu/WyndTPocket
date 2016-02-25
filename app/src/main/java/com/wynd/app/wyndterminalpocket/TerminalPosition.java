@@ -274,6 +274,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                             LatLng position = new LatLng(lat, lng);
                             animateMarker(marker, position, false);
 
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
                             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 16);
                             mMap.animateCamera(cameraUpdate);
 
