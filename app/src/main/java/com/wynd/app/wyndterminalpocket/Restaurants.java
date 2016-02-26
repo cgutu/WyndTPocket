@@ -93,9 +93,6 @@ public class Restaurants extends Fragment{
             for (int j = 0; j < infosArray.length(); j++) {
                 JSONObject info = infosArray.getJSONObject(j);
                 final String parentID= info.isNull("res_parent_id") ? "" : info.getString("res_parent_id");
-
-                System.out.println("parentID " + parentID);
-
                 if(info.getString("permissionID").equals("3")){
                     //show parents which I am allow to see
                     //If I am not allowed, permission denied
@@ -273,8 +270,6 @@ public class Restaurants extends Fragment{
                 e.printStackTrace();
             }
         }
-
-        System.out.println("list " + "listist.size() : " + list.size());
 
         dataAdapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item, list);

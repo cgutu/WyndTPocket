@@ -93,7 +93,6 @@ public class ProfilActivity extends AppCompatActivity {
 
                         try {
                             response = response.getJSONObject("data");
-                            System.out.println("response " + response);
 
                             id = response.getString("id");
                             username = response.getString("username");
@@ -112,7 +111,6 @@ public class ProfilActivity extends AppCompatActivity {
 
                                                 try {
                                                     response = response.getJSONObject("data");
-                                                    System.out.println("permission before" + permissionID);
                                                     if (!permissionID.isEmpty() && permissionID.equals("1")) {
                                                         permission = "USER";
                                                     } else if (!permissionID.isEmpty() && permissionID.equals("2")) {

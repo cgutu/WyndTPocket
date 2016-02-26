@@ -61,8 +61,6 @@ public class InfoOfTerminal extends AppCompatActivity {
         id = intent.getStringExtra("terminalID");
         channel_id = intent.getStringExtra("channelID");
 
-        System.out.println("terminal info " + uuid + " id " + id + " channel_id " + channel_id);
-
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         EntityInfo = pref.getString("EntityInfo", "");
 
@@ -79,8 +77,6 @@ public class InfoOfTerminal extends AppCompatActivity {
         if(id == null){
             id = savedTerminalID;
         }
-        System.out.println("terminal info " + uuid + " id " + id + " channel_id " + channel_id);
-
         try {
             infosArray = new JSONArray(EntityInfo);
             for (int j = 0; j < infosArray.length(); j++) {
@@ -108,7 +104,6 @@ public class InfoOfTerminal extends AppCompatActivity {
 
                         try {
                             JSONArray terminals = response.getJSONArray("data");
-                            System.out.println("response terminals" + terminals);
                             for(int i =0; i<terminals.length(); i++){
                                 JSONObject id = terminals.getJSONObject(i);
                                     vUuid.setText(uuid);
@@ -157,7 +152,6 @@ public class InfoOfTerminal extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                //save the clicked channel
                 editor = pref.edit();
                 editor.putString("channelID", channel_id);
                 editor.putString("terminalUuid", uuid);

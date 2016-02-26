@@ -88,8 +88,6 @@ public class EditRestaurant extends AppCompatActivity {
 
                         try {
                             response = response.getJSONObject("data");
-                            System.out.println("response " + response);
-
                             vName.setText(response.isNull("name") ? "" : response.getString("name"));
                             vEmail.setText(response.isNull("email") ? "" : response.getString("email"));
                             vPhone.setText(response.isNull("phone") ? "" : response.getString("phone"));
@@ -314,7 +312,6 @@ public class EditRestaurant extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task "+restId + " "+myuserID);
             String json = "";
 
             try {
@@ -340,10 +337,8 @@ public class EditRestaurant extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -367,24 +362,16 @@ public class EditRestaurant extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
-
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
-
                     Toast.makeText(getApplicationContext(), "Le restaurant a bien été supprimé", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditRestaurant.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
-
                 }
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }
@@ -406,7 +393,6 @@ public class EditRestaurant extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background retrieve task "+restId + " "+myuserID);
             String json = "";
 
             try {
@@ -431,10 +417,7 @@ public class EditRestaurant extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
-
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -458,13 +441,9 @@ public class EditRestaurant extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
-
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
 
@@ -474,8 +453,6 @@ public class EditRestaurant extends AppCompatActivity {
                     finish();
 
                 }
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }

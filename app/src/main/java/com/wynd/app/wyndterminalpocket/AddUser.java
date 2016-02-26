@@ -105,9 +105,7 @@ public class AddUser extends AppCompatActivity{
         mProgressView = findViewById(R.id.login_progress);
         parentSpinner = (Spinner) findViewById(R.id.parent);
 
-
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
-        System.out.println("rest id test " + pref.getString("restId", ""));
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
         EntityInfo = pref.getString("EntityInfo", "");
@@ -115,7 +113,6 @@ public class AddUser extends AppCompatActivity{
         editor = pref.edit();
         editor.putString("Check", "userlist");
         editor.apply();
-
 
         mUsernameView = (EditText) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -269,13 +266,9 @@ public class AddUser extends AppCompatActivity{
             itemsArray = new JSONArray();
             for(int i=0; i<selectedItem.size(); i++){
                 String selectedName = selectedItem.get(i);
-                System.out.println("selected id "+selectedName);
-
                 for(int j=0; j<chains.length(); j++){
                     String name = chains.getJSONObject(j).getString("name");
-
                     if(selectedName.equalsIgnoreCase(name)){
-
                         channels = new JSONObject();
                         channels.put("restid", chains.getJSONObject(j).getString("id"));
                         channels.put("permission", "2");
@@ -284,9 +277,6 @@ public class AddUser extends AppCompatActivity{
                 itemsArray.put(channels);
 
             }
-
-
-            System.out.println("itemsArray" + itemsArray);
         }catch (JSONException e){
 
         }
@@ -332,10 +322,6 @@ public class AddUser extends AppCompatActivity{
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("selected item "+channels);
-            System.out.println("do in background adduser task "+ID +" "+username+" "+password+" "+email+"");
-
-
             try {
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
@@ -404,12 +390,8 @@ public class AddUser extends AppCompatActivity{
                 int i = 0;
 
                 String result = finalResult.getString("result");
-                System.out.println("result " + result);
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    JSONObject jsonObject = finalResult.getJSONObject("data");
-                    System.out.println("data " + jsonObject);
-
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
@@ -421,9 +403,6 @@ public class AddUser extends AppCompatActivity{
                     mUsernameView.setError("Impossible d'ajouter ce contact");
                     mUsernameView.requestFocus();
                 }
-
-                System.out.println("result " + result);
-
 
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
@@ -485,9 +464,6 @@ public class AddUser extends AppCompatActivity{
                 e.printStackTrace();
             }
         }
-
-        System.out.println("list " + "listist.size() : " + list.size());
-
         dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -503,7 +479,6 @@ public class AddUser extends AppCompatActivity{
                 // TODO Auto-generated method stub
 
                 Object item = arg0.getItemAtPosition(arg2);
-                System.out.println("item " + item + " position " + arg2);
                 if(arg2 == 0){
                     selectEntityButton.setVisibility(View.GONE);
                 }else{
@@ -526,14 +501,9 @@ public class AddUser extends AppCompatActivity{
                                                     listItems = new ArrayList<String>();
                                                     JSONArray values = response.getJSONArray("data");
                                                     for (int i = 0; i < values.length(); i++) {
-                                                        //names.put(values.getJSONObject(i).getString("name"));
                                                         listItems.add(values.getJSONObject(i).getString("name"));
                                                         chains.put(values.getJSONObject(i));
                                                     }
-//                                                    for(int i = 0; i < names.length(); i++){
-//                                                        listItems.add(names.get(i).toString());
-//                                                    }
-                                                    System.out.println("names list" + restaurants);
 
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();

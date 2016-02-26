@@ -136,8 +136,6 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         channel_id = intent.getStringExtra("channelID");
         phone = intent.getStringExtra("phone");
 
-        System.out.println("terminal info " + uuid + " id " + id + " channel " + channel);
-
       //  getMarkers();
         timer.schedule(task, DELAY, DELAY);
 
@@ -183,7 +181,6 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
                         try {
                             JSONArray data = response.getJSONArray("data");
-                            System.out.println("response " + response);
 
                             for(int i=0; i<data.length(); i++){
                                 JSONObject result = data.getJSONObject(i);
@@ -191,10 +188,8 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                                 if(!macadd.isEmpty() && macadd.equals(uuid)){
                                     String Position = result.getString("t_lat_lng");
                                     JSONObject objet = new JSONObject(Position);
-                                    System.out.println("array " + objet);
                                     LAT = objet.getString("lat");
                                     LNG = objet.getString("lng");
-                                    System.out.println("array " + LAT + LNG);
                                 }
 
                             }
@@ -248,18 +243,15 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
                         try {
                             JSONArray data = response.getJSONArray("data");
-                            System.out.println("response " + response);
-
                             for(int i=0; i<data.length(); i++){
                                 JSONObject result = data.getJSONObject(i);
                                 String macadd = result.getString("t_name");
                                 if(!macadd.isEmpty() && macadd.equals(uuid)){
                                     String Position = result.getString("t_lat_lng");
                                     JSONObject objet = new JSONObject(Position);
-                                    System.out.println("array " + objet);
+
                                     LAT = objet.getString("lat");
                                     LNG = objet.getString("lng");
-                                    System.out.println("array " + LAT + LNG);
                                 }
 
                             }

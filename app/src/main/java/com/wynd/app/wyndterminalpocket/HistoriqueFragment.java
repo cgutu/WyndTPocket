@@ -149,8 +149,6 @@ public class HistoriqueFragment extends Fragment {
                 infoObject = infosArray.getJSONObject(j);
                 final String parentID= infoObject.isNull("res_parent_id") ? "" : infoObject.getString("res_parent_id");
 
-                System.out.println("parentID "+parentID);
-
                 //show parents which I am allow to see
                 JsonObjectRequest parentRequest = new JsonObjectRequest
                         (Request.Method.GET, Globales.baseUrl+"api/user/get/parent/info/"+parentID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
@@ -163,8 +161,6 @@ public class HistoriqueFragment extends Fragment {
                                     for(int i=0; i<values.length(); i++){
                                         parents.put(values.getJSONObject(i));
                                     }
-
-                                    System.out.println("parents " + parents);
                                     addParent(parents);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -237,9 +233,6 @@ public class HistoriqueFragment extends Fragment {
         final String date1 = vDate1.getText().toString();
         final String date2 = vDate2.getText().toString();
 
-        System.out.println("dates "+date1 + " "+date2+ " "+terminalID);
-
-
         JsonObjectRequest request = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+terminalID+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -293,6 +286,24 @@ public class HistoriqueFragment extends Fragment {
                                 xValues.add(date);
                             }
 
+//                            try{
+//                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
+//                                Date startDate = formatter.parse(date1);
+//                                Date endDate = formatter.parse(date2);
+//                                Calendar start = Calendar.getInstance();
+//                                start.setTime(startDate);
+//                                Calendar end = Calendar.getInstance();
+//                                end.setTime(endDate);
+//
+//                                for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
+//                                    xValues.add(""+date);
+//                                }
+//                                for(int i=0; i<xValues.size(); i++){
+//                                    entries.add(new Entry(1, i));
+//                                }
+//                            }catch (ParseException e){
+//
+//                            }
                             LineDataSet dataset = new LineDataSet(entries, "1 = ON / 0 = OFF");
 
                             LineData data = new LineData(xValues, dataset);
@@ -316,8 +327,7 @@ public class HistoriqueFragment extends Fragment {
                             XAxis xAxis = lineChart.getXAxis();
                             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
                             xAxis.setTextColor(Color.RED);
-                            xAxis.setSpaceBetweenLabels(4);
-                            xAxis.setTextSize(5f);
+                            xAxis.setTextSize(3f);
                             dataset.setColors(new int[]{R.color.red}, getActivity());
 
                             lineChart.animateXY(3000, 3000);
@@ -424,16 +434,6 @@ public class HistoriqueFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
@@ -466,7 +466,7 @@ public class HistoriqueFragment extends Fragment {
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Select franchise");
+        list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("resturant_name");
@@ -478,9 +478,6 @@ public class HistoriqueFragment extends Fragment {
                 e.printStackTrace();
             }
         }
-
-        System.out.println("list " + "listist.size() : " + list.size());
-
         dataAdapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -495,7 +492,6 @@ public class HistoriqueFragment extends Fragment {
                 // TODO Auto-generated method stub
 
                 Object item = arg0.getItemAtPosition(arg2);
-                System.out.println("item "+item + " position "+arg2);
                 if(arg2 == 0){
                     restSpinner.setVisibility(View.GONE);
                     deviceSpinner.setVisibility(View.GONE);
@@ -527,7 +523,6 @@ public class HistoriqueFragment extends Fragment {
                                                         entities.put(restaurants);
 
                                                     }
-                                                    System.out.println("entities " + entities);
                                                     addList(entities);
 
                                                 } catch (JSONException e) {
@@ -580,7 +575,7 @@ public class HistoriqueFragment extends Fragment {
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Select a restaurant");
+        list.add(0, "Séléctionner un restaurant");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("name");
@@ -590,8 +585,6 @@ public class HistoriqueFragment extends Fragment {
                 e.printStackTrace();
             }
         }
-
-        System.out.println("list " + "listist.size() : " + list.size());
 
         dataAdapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item, list);
@@ -620,10 +613,7 @@ public class HistoriqueFragment extends Fragment {
                         try {
                             String name = jsonArray.getJSONObject(i).getString("name");
                             if(item.equals(name)){
-                                System.out.println("name ok "+item);
                                 selectedID = jsonArray.getJSONObject(i).getString("id");
-                                System.out.println("item id "+selectedID);
-
                                 terminals = new JSONArray();
                                 //get user of selected restaurant
                                 JsonObjectRequest userRequest = new JsonObjectRequest
@@ -633,7 +623,6 @@ public class HistoriqueFragment extends Fragment {
 
                                                 try {
                                                     JSONArray values = response.getJSONArray("data");
-                                                    System.out.println("response " + response);
 
                                                     for (int i = 0; i < values.length(); i++) {
 
@@ -642,7 +631,6 @@ public class HistoriqueFragment extends Fragment {
                                                             terminals.put(terminal);
                                                         }
                                                     }
-                                                    System.out.println("terminals " + terminals);
                                                     addTerminal(terminals);
 
                                                 } catch (JSONException e) {
@@ -691,7 +679,7 @@ public class HistoriqueFragment extends Fragment {
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Select a terminal");
+        list.add(0, "Séléctionner un terminal");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("terminalMacadd");
@@ -701,8 +689,6 @@ public class HistoriqueFragment extends Fragment {
                 e.printStackTrace();
             }
         }
-
-        System.out.println("list " + "listist.size() : " + list.size());
 
         dataAdapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item, list);
@@ -731,9 +717,7 @@ public class HistoriqueFragment extends Fragment {
                         try {
                             String name = jsonArray.getJSONObject(i).getString("terminalMacadd");
                             if(item.equals(name)){
-                                System.out.println("name ok " + item);
                                 terminalID = jsonArray.getJSONObject(i).getString("terminalID");
-                                System.out.println("item id " + selectedID);
                             }
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block

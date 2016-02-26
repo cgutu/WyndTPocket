@@ -75,8 +75,6 @@ public class ProfilFragment extends Fragment {
                         public void onResponse(JSONObject response) {
                                 try {
                                     response = response.getJSONObject("data");
-                                    System.out.println("response "+response);
-
                                     username = response.isNull("username") ? "" : response.getString("username");
                                     email = response.isNull("email") ? "" : response.getString("email");
                                     phone = response.isNull("phone") ? "" : response.getString("phone");
@@ -98,7 +96,6 @@ public class ProfilFragment extends Fragment {
 
                                                             try {
                                                                 response = response.getJSONObject("data");
-                                                                System.out.println("permission before"+permissionID);
                                                                 if(!permissionID.isEmpty() && permissionID.equals("1")){
                                                                     permission = "USER";
                                                                 }else if(!permissionID.isEmpty() && permissionID.equals("2")){

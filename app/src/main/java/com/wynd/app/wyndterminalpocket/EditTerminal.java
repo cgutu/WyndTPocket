@@ -98,7 +98,6 @@ public class EditTerminal extends AppCompatActivity {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-                            System.out.println("response " + response);
 
                             for(int i=0; i<values.length(); i++){
                                 JSONObject entity = values.getJSONObject(i);
@@ -225,7 +224,7 @@ public class EditTerminal extends AppCompatActivity {
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Select a restaurant");
+        list.add(0, "Séléctionner un restaurant");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("name");
@@ -235,9 +234,6 @@ public class EditTerminal extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
-        System.out.println("list " + "listist.size() : " + list.size());
-
         dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -305,7 +301,6 @@ public class EditTerminal extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task ");
             JSONObject jsonObject = new JSONObject();
             String json = "";
 
@@ -339,10 +334,8 @@ public class EditTerminal extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -366,26 +359,18 @@ public class EditTerminal extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
                 int i = 0;
-                System.out.println("result: " + finalResult);
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
-
                     Toast.makeText(getApplicationContext(), "Modification effectuée", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditTerminal.this, Terminals.class);
                     startActivity(intent);
                     finish();
-
                 }
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }
@@ -416,7 +401,6 @@ public class EditTerminal extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task "+id + " "+myuserID);
             String json = "";
 
             try {
@@ -442,10 +426,8 @@ public class EditTerminal extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -469,24 +451,16 @@ public class EditTerminal extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
-
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
-
                     Toast.makeText(getApplicationContext(), "Le terminal a bien été supprimé", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditTerminal.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
-
                 }
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }
@@ -508,7 +482,6 @@ public class EditTerminal extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background retrieve task "+id + " "+myuserID);
             String json = "";
 
             try {
@@ -533,10 +506,8 @@ public class EditTerminal extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -560,24 +531,16 @@ public class EditTerminal extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
-
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
-
                     Toast.makeText(getApplicationContext(), "Le terminal a bien été activé", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditTerminal.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
-
                 }
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }

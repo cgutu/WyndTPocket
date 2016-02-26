@@ -80,7 +80,6 @@ public class EditMyProfil extends AppCompatActivity {
 
         Intent intent = getIntent();
         myuserID = intent.getStringExtra("userID");
-        System.out.println("myuserID " + myuserID);
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         editor = pref.edit();
@@ -89,7 +88,9 @@ public class EditMyProfil extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //get user informations
+        /**
+         * get user informations
+         */
         JsonObjectRequest userRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/user/get/info/"+myuserID, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -97,8 +98,6 @@ public class EditMyProfil extends AppCompatActivity {
 
                         try {
                             response = response.getJSONObject("data");
-                            System.out.println("response " + response);
-
                             username.setText(response.isNull("username") ? "" : response.getString("username"));
                             Password = (response.isNull("hash") ? "" : response.getString("hash"));
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
@@ -111,7 +110,6 @@ public class EditMyProfil extends AppCompatActivity {
                                 info.put("permission", usersInResto.getJSONObject(i).getString("permissionID"));
                                 restovspermission.put(info);
                             }
-
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -139,7 +137,6 @@ public class EditMyProfil extends AppCompatActivity {
 
         Volley.newRequestQueue(getApplicationContext()).add(userRequest);
 
-        //on submit, the admin can update user's profil
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -196,11 +193,8 @@ public class EditMyProfil extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task " + Password + "restovspermission "+restovspermission.toString());
 
             try {
-
-                System.out.println("submit "+Username+Email+Password+Phone+Permission+Rest_channel);
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
 
@@ -224,10 +218,8 @@ public class EditMyProfil extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -241,7 +233,6 @@ public class EditMyProfil extends AppCompatActivity {
 
         protected void onPostExecute(InputStream is) {
 
-
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 StringBuilder total = new StringBuilder();
@@ -251,15 +242,12 @@ public class EditMyProfil extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
                 int i = 0;
-                System.out.println("result: " + finalResult);
                 String result = finalResult.getString("result");
                 String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
@@ -269,12 +257,9 @@ public class EditMyProfil extends AppCompatActivity {
 
                 }
 
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }
-
-
 
         }
     }

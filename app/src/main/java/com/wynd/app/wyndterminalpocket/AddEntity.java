@@ -149,9 +149,6 @@ public class AddEntity extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background add entity task "+name+email+phone+address+channel+parent+userID);
-
-
             try {
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();

@@ -298,7 +298,6 @@ public class LoginActivity extends AppCompatActivity {
                         JSONObject jsonObject = finalResult.getJSONObject("data");
                         userID = jsonObject.isNull("user_id") ? "" : jsonObject.getString("user_id");
 
-                        //store username and user_id of connected user
                         editor.putString("username", username);
                         editor.putString("myuserID", userID);
                         editor.apply();
@@ -320,11 +319,6 @@ public class LoginActivity extends AppCompatActivity {
                                             JSONArray userResto = response.getJSONArray("usersInResto");
                                             for(int i=0; i<userResto.length(); i++){
                                                 JSONObject userRestInfo = userResto.getJSONObject(i);
-                                                parentID = userRestInfo.isNull("res_parent_id") ? "" : userRestInfo.getString("res_parent_id");
-                                                permission = userRestInfo.isNull("permissionID") ? "" : userRestInfo.getString("permissionID");
-                                                rest_channel = userRestInfo.isNull("resaturantChainID") ? "" : userRestInfo.getString("resaturantChainID");
-
-                                                //store the return in a Entity Info
                                                 EntityInfo.put(userRestInfo);
                                             }
                                             editor.putString("EntityInfo", EntityInfo.toString());

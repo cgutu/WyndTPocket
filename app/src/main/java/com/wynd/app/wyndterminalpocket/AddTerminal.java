@@ -69,8 +69,6 @@ public class AddTerminal extends AppCompatActivity {
 
         Intent intent = getIntent();
         restId = intent.getStringExtra("restId");
-
-        System.out.println("restID "+restId);
         vImei = (EditText) findViewById(R.id.imei);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -122,8 +120,6 @@ public class AddTerminal extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background add terminal task "+imei + " "+restId+" "+myuserID);
-
             try {
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
@@ -190,12 +186,8 @@ public class AddTerminal extends AppCompatActivity {
                 int i = 0;
 
                 String result = finalResult.getString("result");
-                System.out.println("result " + result);
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    JSONObject jsonObject = finalResult.getJSONObject("data");
-                    System.out.println("data " + jsonObject);
-
                     Toast.makeText(getApplicationContext(), "Terminal ajouté", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
@@ -207,9 +199,6 @@ public class AddTerminal extends AppCompatActivity {
                     vImei.setError(getString(R.string.error_invalid_user_pwd));
                     vImei.requestFocus();
                 }
-
-                System.out.println("result " + result);
-
 
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());

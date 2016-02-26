@@ -251,10 +251,7 @@ public class Utilisateurs extends Fragment {
                         try {
                             String name = jsonArray.getJSONObject(i).getString("name");
                             if(item.equals(name)){
-                                System.out.println("name ok "+item);
                                 selectedID = jsonArray.getJSONObject(i).getString("id");
-                                System.out.println("item id "+selectedID);
-
                                 users = new JSONArray();
 
                                 /**
@@ -342,7 +339,7 @@ public class Utilisateurs extends Fragment {
             }
 
         }catch (JSONException e){
-            System.out.println("Erreur json "+e);
+            Log.e("JSON parsing error", e.toString());
         }
 
         return result;
@@ -410,7 +407,6 @@ public class Utilisateurs extends Fragment {
                                                         entities.put(restaurants);
 
                                                     }
-                                                    System.out.println("entities " + entities);
                                                     addList(entities);
 
                                                 } catch (JSONException e) {

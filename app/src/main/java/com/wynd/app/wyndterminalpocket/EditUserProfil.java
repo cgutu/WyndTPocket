@@ -93,7 +93,6 @@ public class EditUserProfil extends AppCompatActivity {
 
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
-        System.out.println("userID " + userID);
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         myuserID = pref.getString("myuserID", "");
 
@@ -109,8 +108,6 @@ public class EditUserProfil extends AppCompatActivity {
 
                         try {
                             response = response.getJSONObject("data");
-                            System.out.println("response " + response);
-
                             restovspermission = new JSONArray();
                             username.setText(response.isNull("username") ? "" : response.getString("username"));
                             password.setText(response.isNull("hash") ? "" : response.getString("hash"));
@@ -127,12 +124,7 @@ public class EditUserProfil extends AppCompatActivity {
                                 channels.put("restid", restID);
                                 channels.put("permission", permissionID);
                                 restovspermission.put(channels);
-                                System.out.println("channels " + channels.toString());
                             }
-
-                            System.out.println("restovspermission "+restovspermission.toString());
-
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -169,11 +161,10 @@ public class EditUserProfil extends AppCompatActivity {
 
                 try {
                     Password = AeSimpleSHA1.SHA1(Password);
-                    System.out.println("SHA1 user password " + Password);
                     new EditTask().execute();
 
                 } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-                    System.out.println("Error sha1 " + e);
+                  Log.e("Error sha1 ", e.toString());
                 }
 
             }
@@ -223,12 +214,9 @@ public class EditUserProfil extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task " + Password);
             String json = "";
 
             try {
-
-                System.out.println("submit "+Username+Email+Password+Phone+Permission+Rest_channel);
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
 
@@ -256,10 +244,8 @@ public class EditUserProfil extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -283,24 +269,17 @@ public class EditUserProfil extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
-
                 if (!result.isEmpty() && result.equals("success")) {
 
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditUserProfil.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
-
                 }
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }
@@ -331,7 +310,6 @@ public class EditUserProfil extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task ");
             String json = "";
 
             try {
@@ -357,10 +335,8 @@ public class EditUserProfil extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -384,14 +360,10 @@ public class EditUserProfil extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
-
                 if (!result.isEmpty() && result.equals("success")) {
 
                     Toast.makeText(getApplicationContext(), "L'utilisateur a bien été supprimé", Toast.LENGTH_LONG).show();
@@ -400,8 +372,6 @@ public class EditUserProfil extends AppCompatActivity {
                     finish();
 
                 }
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }

@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -245,9 +246,7 @@ public class TerminalsFragment extends Fragment {
                         try {
                             String name = jsonArray.getJSONObject(i).getString("name");
                             if (item.equals(name)) {
-                                System.out.println("name ok " + item);
                                 selectedID = jsonArray.getJSONObject(i).getString("id");
-
                                 terminals = new JSONArray();
 
                                 /**
@@ -365,12 +364,8 @@ public class TerminalsFragment extends Fragment {
 
                     Date date1 = sdf.parse(currentDateandTime);
                     Date date2 = sdf.parse(ti.terminalStatusUpdateTime);
-                    System.out.println("today date " + currentDateandTime);
-                    System.out.println("terminal date " + ti.terminalStatusUpdateTime);
 
                     long diffInMs = date1.getTime() - date2.getTime();
-
-                    System.out.println("date diff "+diffInMs);
                     long secondsInMilli = 1000;
                     long minutesInMilli = secondsInMilli * 60;
                     long hoursInMilli = minutesInMilli * 60;
@@ -427,14 +422,14 @@ public class TerminalsFragment extends Fragment {
 
 
                 }catch (Exception e){
-                    System.out.println("Erreur  "+e);
+                    Log.e("Time error", e.toString());
                 }
 
                 result.add(ti);
             }
 
         }catch (JSONException e){
-            System.out.println("Erreur json "+e);
+            Log.e("JSON parsing error", e.toString());
         }
 
         return result;
@@ -502,7 +497,6 @@ public class TerminalsFragment extends Fragment {
                                                         entities.put(restaurants);
 
                                                     }
-                                                    System.out.println("entities " + entities);
                                                     addList(entities);
 
                                                 } catch (JSONException e) {

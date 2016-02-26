@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -117,17 +118,12 @@ public class UsersActivity extends AppCompatActivity {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-                            System.out.println("response " + response);
-
                             for (int i = 0; i < values.length(); i++) {
 
                                 JSONObject restaurants = values.getJSONObject(i);
                                 users.put(restaurants);
 
                             }
-
-
-                            System.out.println("users " + users);
                             ra = new UserAdapter(createList(users));
                             recList.setAdapter(ra);
 
@@ -200,7 +196,7 @@ public class UsersActivity extends AppCompatActivity {
             }
 
         }catch (JSONException e){
-            System.out.println("Erreur json "+e);
+            Log.e("JSON parsing error", e.toString());
         }
 
         return result;

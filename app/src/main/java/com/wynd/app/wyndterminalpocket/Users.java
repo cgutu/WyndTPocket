@@ -79,16 +79,12 @@ public class Users extends Fragment {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-                            System.out.println("response "+response);
-
                             for (int i = 0; i < values.length(); i++) {
 
                                 JSONObject restaurants = values.getJSONObject(i);
                                 users.put(restaurants);
 
                             }
-                            System.out.println("users " + users);
-
 
                         } catch (JSONException e) {
                             e.printStackTrace();

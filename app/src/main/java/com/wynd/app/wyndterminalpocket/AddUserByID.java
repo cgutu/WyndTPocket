@@ -108,7 +108,6 @@ public class AddUserByID extends AppCompatActivity {
         restId = intent.getStringExtra("restId");
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
-        System.out.println("rest id test " + pref.getString("restId", ""));
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
         role = pref.getString("ROLE", "");
@@ -120,15 +119,11 @@ public class AddUserByID extends AppCompatActivity {
             ID = restId;
         }
 
-        System.out.println("adduser for " + restId+ " or "+ID);
-
         mUsernameView = (EditText) findViewById(R.id.username);
         mPasswordView = (EditText) findViewById(R.id.password);
         mEmailView = (EditText) findViewById(R.id.email);
         mPhoneView = (EditText) findViewById(R.id.phone);
 
-
-        // btnSubmit = (Button) findViewById(R.id.submit);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,9 +203,6 @@ public class AddUserByID extends AppCompatActivity {
 
         }
 
-        System.out.println("itemsArray" + itemsArray);
-
-
         if (TextUtils.isEmpty(username) ) {
             mUsernameView.setError(getString(R.string.error_field_required));
             focusView = mUsernameView;
@@ -252,10 +244,6 @@ public class AddUserByID extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("selected item "+channels);
-            System.out.println("do in background adduser task "+ID +" "+username+" "+password+" "+email+"");
-
-
             try {
                 //Setting up the default http client
                 HttpClient httpClient = new DefaultHttpClient();
@@ -324,17 +312,10 @@ public class AddUserByID extends AppCompatActivity {
                 int i = 0;
 
                 String result = finalResult.getString("result");
-                System.out.println("result " + result);
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    JSONObject jsonObject = finalResult.getJSONObject("data");
-                    System.out.println("data " + jsonObject);
-
-                    System.out.println("Utilisateur ajouté ");
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
-
                     showProgress(false);
-
                     Intent intent = new Intent(AddUserByID.this, UsersActivity.class);
                     startActivity(intent);
                     finish();
@@ -343,10 +324,6 @@ public class AddUserByID extends AppCompatActivity {
                     mUsernameView.setError("Impossible d'ajouter ce contact");
                     mUsernameView.requestFocus();
                 }
-
-                System.out.println("result " + result);
-
-
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
                 showProgress(false);

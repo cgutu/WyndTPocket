@@ -108,9 +108,6 @@ public class Historique extends AppCompatActivity {
         final String date1 = vDate1.getText().toString();
         final String date2 = vDate2.getText().toString();
 
-        System.out.println("dates "+date1 + " "+date2+ " "+id);
-
-
         JsonObjectRequest request = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+id+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -150,13 +147,12 @@ public class Historique extends AppCompatActivity {
                             rAxis.setShowOnlyMinMax(true);
                             rAxis.setAxisMaxValue(1f);
                             rAxis.setAxisMinValue(0f);
-//                            mYAxis.setDrawAxisLine(false);
-//                            mYAxis.setDrawGridLines(false);
-//                            mYAxis.setStartAtZero(false);
 
                             XAxis xAxis = lineChart.getXAxis();
+                            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
                             xAxis.setTextColor(Color.RED);
-                            xAxis.setSpaceBetweenLabels(4);
+                          //  xAxis.setSpaceBetweenLabels(4);
+                            xAxis.setTextSize(3f);
                             dataset.setColors(new int[]{R.color.red}, getApplicationContext());
 
                             lineChart.animateXY(3000, 3000);
@@ -168,6 +164,7 @@ public class Historique extends AppCompatActivity {
                             if(lineChart.getParent()!=null)
                                 ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
                             rlChart.addView(lineChart);
+
 
 
                         } catch (JSONException e) {

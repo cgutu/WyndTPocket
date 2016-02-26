@@ -88,8 +88,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), UsersActivity.class);
-                intent.putExtra("restId",ri.id);
-                System.out.println("restId "+ri.id);
+                intent.putExtra("restId", ri.id);
                 v.getContext().startActivity(intent);
 
             }
@@ -228,7 +227,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         @Override
         public void onClick(View v) {
-            System.out.println("isViewExpanded "+isViewExpanded);
             if (vExpandable.getVisibility()==View.GONE){
                 isViewExpanded = true;
                 expand();
@@ -238,6 +236,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             }
 
         }
+
 
 
     }

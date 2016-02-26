@@ -82,7 +82,6 @@ public class Parents extends Fragment {
                                         if(!entities.toString().contains("\"id\":\""+parent.getString("id")+"\"")){
                                             entities.put(parent);
                                         }
-                                        System.out.println("test parent "+entities.toString().contains("\"id\":\"" + parent.getString("id") + "\""));
 
                                     }
                                     pa = new ParentsAdapter(createList(entities));

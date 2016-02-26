@@ -115,7 +115,6 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             @Override
             public void onClick(View v) {
 
-                System.out.println("test " + i);
                 if (terminalViewHolder.vExpandable.getVisibility() == View.GONE) {
                     terminalViewHolder.vExpandable.setVisibility(View.VISIBLE);
 
