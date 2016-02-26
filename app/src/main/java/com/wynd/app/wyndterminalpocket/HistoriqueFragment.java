@@ -328,6 +328,8 @@ public class HistoriqueFragment extends Fragment {
                             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
                             xAxis.setTextColor(Color.RED);
                             xAxis.setTextSize(3f);
+                            xAxis.setDrawAxisLine(true);
+                            xAxis.setDrawGridLines(true);
                             dataset.setColors(new int[]{R.color.red}, getActivity());
 
                             lineChart.animateXY(3000, 3000);
