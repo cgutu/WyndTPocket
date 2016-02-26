@@ -41,6 +41,9 @@ public class InfoOfTerminal extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                InfoOfTerminal.class));
+
         vUuid = (TextView) findViewById(R.id.uuid);
         vPhone = (TextView) findViewById(R.id.phone);
         vRestaurant = (TextView) findViewById(R.id.restaurantname);
@@ -141,8 +144,6 @@ public class InfoOfTerminal extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_TERMINAL + " " + Globales.API_HASH);
                 params.put("Api-User", Globales.API_TERMINAL);
                 params.put("Api-Hash", Globales.API_HASH);
 

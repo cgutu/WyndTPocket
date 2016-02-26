@@ -74,13 +74,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         restaurantViewHolder.vName.setText(ri.name);
         restaurantViewHolder.vPhone.setText(ri.phone);
         restaurantViewHolder.vChannel.setText(ri.channel);
-       // restaurantViewHolder.vId.setText(ri.id);
 
-       // restaurantViewHolder.vId.setVisibility(View.INVISIBLE);
-
-        //restaurantViewHolder.vExpandable.setVisibility(View.GONE);
-
-        System.out.println("user permissions " + ri.userPermission);
         permission = ri.userPermission;
         if(permission.equalsIgnoreCase("2") || permission.equalsIgnoreCase("3")){
             restaurantViewHolder.vBtnUsers.setVisibility(View.VISIBLE);
@@ -140,7 +134,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected TextView vName;
         protected TextView vPhone;
         protected TextView vChannel;
-        //protected TextView vId;
         protected Button vBtnUsers;
         protected Button vBtnTerminals;
         protected RelativeLayout vHeader;
@@ -157,7 +150,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             vName = (TextView) v.findViewById(R.id.txtName);
             vPhone = (TextView) v.findViewById(R.id.txtPhone);
             vChannel = (TextView) v.findViewById(R.id.txtChannel);
-           // vId = (TextView) v.findViewById(R.id.txtID);
             vBtnUsers = (Button) v.findViewById(R.id.btnUsers);
             vBtnTerminals = (Button) v.findViewById(R.id.btnTerminals);
 

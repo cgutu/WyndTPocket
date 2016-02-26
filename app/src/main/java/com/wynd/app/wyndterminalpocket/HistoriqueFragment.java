@@ -182,8 +182,6 @@ public class HistoriqueFragment extends Fragment {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String>  params = new HashMap<String, String>();
-
-                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                         params.put("Api-User", Globales.API_USER);
                         params.put("Api-Hash", Globales.API_HASH);
 
@@ -290,7 +288,6 @@ public class HistoriqueFragment extends Fragment {
                             for(int i=0; i<values.length(); i++){
                                 String status = values.getJSONObject(i).getString("t_status");
                                 String date = values.getJSONObject(i).getString("t_last_seen");
-                                System.out.println("date " + date);
                                 Float f= Float.parseFloat(status);
                                 entries.add(new Entry(f, i));
                                 xValues.add(date);
@@ -305,17 +302,29 @@ public class HistoriqueFragment extends Fragment {
                             lineChart.setMinimumWidth(1300);
                             lineChart.setMinimumHeight(1200);
 
+
                             YAxis mYAxis = lineChart.getAxisLeft();
-                            mYAxis.setDrawAxisLine(false);
-                            mYAxis.setDrawGridLines(false);
-                            mYAxis.setStartAtZero(false);
+                            mYAxis.setShowOnlyMinMax(true);
+                            mYAxis.setAxisMaxValue(1f);
+                            mYAxis.setAxisMinValue(0f);
+
+                            YAxis rAxis = lineChart.getAxisRight();
+                            rAxis.setShowOnlyMinMax(true);
+                            rAxis.setAxisMaxValue(1f);
+                            rAxis.setAxisMinValue(0f);
 
                             XAxis xAxis = lineChart.getXAxis();
+                            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
                             xAxis.setTextColor(Color.RED);
-                            dataset.setColors(new int[] { R.color.red}, getActivity());
+                            xAxis.setSpaceBetweenLabels(4);
+                            xAxis.setTextSize(5f);
+                            dataset.setColors(new int[]{R.color.red}, getActivity());
 
                             lineChart.animateXY(3000, 3000);
                             data.setHighlightEnabled(true);
+
+                            lineChart.setTouchEnabled(true);
+
 
                             if(lineChart.getParent()!=null)
                                 ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
@@ -338,8 +347,6 @@ public class HistoriqueFragment extends Fragment {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_TERMINAL);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -539,8 +546,6 @@ public class HistoriqueFragment extends Fragment {
                                     @Override
                                     public Map<String, String> getHeaders() throws AuthFailureError {
                                         Map<String, String> params = new HashMap<String, String>();
-
-                                        System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                                         params.put("Api-User", Globales.API_USER);
                                         params.put("Api-Hash", Globales.API_HASH);
 
@@ -656,8 +661,6 @@ public class HistoriqueFragment extends Fragment {
                                     @Override
                                     public Map<String, String> getHeaders() throws AuthFailureError {
                                         Map<String, String> params = new HashMap<String, String>();
-
-                                        System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                                         params.put("Api-User", Globales.API_USER);
                                         params.put("Api-Hash", Globales.API_HASH);
 

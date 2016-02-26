@@ -63,6 +63,9 @@ public class ProfilFragment extends Fragment {
         }
         pref = getContext().getSharedPreferences("Infos", 0);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getActivity(),
+                ProfilFragment.class));
+
         userID = pref.getString("myuserID", "");
         EntityInfo = pref.getString("EntityInfo", "");
 

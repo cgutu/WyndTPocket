@@ -21,6 +21,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                MainActivity.class));
+
         /**
          * @user clear stored data if exists
          */

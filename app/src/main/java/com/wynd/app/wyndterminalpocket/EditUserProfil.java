@@ -82,6 +82,9 @@ public class EditUserProfil extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                EditUserProfil.class));
+
         username = (EditText) findViewById(R.id.username);
         password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
@@ -146,8 +149,6 @@ public class EditUserProfil extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 

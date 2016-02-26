@@ -32,6 +32,9 @@ public class MdpOublie extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                MdpOublie.class));
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

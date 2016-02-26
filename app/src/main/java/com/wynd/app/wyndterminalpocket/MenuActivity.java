@@ -41,7 +41,8 @@ import java.util.Map;
 
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ProfilFragment.OnFragmentInteractionListener, HomeFragment.OnFragmentInteractionListener, Restaurants.OnFragmentInteractionListener,
-        Users.OnFragmentInteractionListener, MonRestaurant.OnFragmentInteractionListener, Utilisateurs.OnFragmentInteractionListener, HistoriqueFragment.OnFragmentInteractionListener, Parents.OnFragmentInteractionListener{
+        Users.OnFragmentInteractionListener, Utilisateurs.OnFragmentInteractionListener, HistoriqueFragment.OnFragmentInteractionListener, Parents.OnFragmentInteractionListener,
+        TerminalsFragment.OnFragmentInteractionListener{
 
     private SharedPreferences pref;
     private boolean viewIsAtHome;
@@ -52,6 +53,9 @@ public class MenuActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                MenuActivity.class));
 
         if (savedInstanceState == null) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -64,7 +68,7 @@ public class MenuActivity extends AppCompatActivity
         userID = pref.getString("myuserID", "");
 
        /**
-        * get user info
+        * get user info and store it in a session
         */
         JsonObjectRequest rolesRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
@@ -94,8 +98,6 @@ public class MenuActivity extends AppCompatActivity
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -105,6 +107,9 @@ public class MenuActivity extends AppCompatActivity
 
         Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
 
+        /**
+         * display fragment views
+         */
 
         EntityInfo = pref.getString("EntityInfo", "");
         String s1 = pref.getString("Check", "");
@@ -184,6 +189,9 @@ public class MenuActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        /**
+         * logout on click event
+         */
         Fragment fragment1 = null;
         switch (id) {
             case R.id.logout:

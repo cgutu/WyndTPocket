@@ -51,7 +51,8 @@ public class ProfilActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                ProfilActivity.class));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         vUsername = (TextView) findViewById(R.id.username);
@@ -62,10 +63,8 @@ public class ProfilActivity extends AppCompatActivity {
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
         restId = intent.getStringExtra("restId");
-        System.out.println("userID" + userID + "restId "+restId);
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
-        System.out.println("rest id test " + pref.getString("userID", ""));
         savedUserID = pref.getString("userID", "");
 
         if(userID == null){
@@ -78,16 +77,15 @@ public class ProfilActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-
                 Intent i = new Intent(ProfilActivity.this, EditUserProfil.class);
                 i.putExtra("userID", ID);
                 startActivity(i);
             }
         });
 
-        //get user profil
+        /**
+         * get user info
+         */
         JsonObjectRequest userProfil = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/user/get/info/"+ID, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -179,7 +177,6 @@ public class ProfilActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
 
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 

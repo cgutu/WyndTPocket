@@ -81,8 +81,8 @@
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/layoutChart"
-                android:layout_width="wrap_content"
-                android:padding="5dp"
+                android:layout_width="match_parent"
+                android:padding="10dp"
                 android:layout_below="@id/period"
                 android:layout_height="wrap_content">
 

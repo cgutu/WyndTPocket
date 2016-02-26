@@ -137,6 +137,5 @@
             android:gravity="right"
             android:text="Parents"/>
     </LinearLayout>
-
 </RelativeLayout>
 </FrameLayout>

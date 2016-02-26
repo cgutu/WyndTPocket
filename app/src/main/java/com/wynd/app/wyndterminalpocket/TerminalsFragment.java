@@ -1,5 +1,7 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,19 +9,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -32,51 +32,44 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-public class Utilisateurs extends Fragment {
+public class TerminalsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
-
+    private SharedPreferences pref;
     private Spinner restSpinner, parentSpinner;
     private View rootView;
-    private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
-
     String userID, parentID, permission, rest_channel, restID, myuserID;
     private JSONArray chains = new JSONArray();
-    private JSONArray users = null;
-    private String selectedID, EntityInfo, role;
+    private JSONArray terminals = null;
+    private String selectedID, EntityInfo;
     private ArrayAdapter<String> dataAdapter;
     private RecyclerView recList;
-    private UserAdapter ra;
-    private List<UserInfo> user;
+    private TerminalAdapter ta;
+    private List<TerminalInfo> terminal;
     private FloatingActionButton fab;
     private JSONArray infosArray = new JSONArray();
     private JSONArray parents = new JSONArray();
-    private TextView empty;
+    private NotificationManager mNotificationManager= null;
 
-    public Utilisateurs() {
+    public TerminalsFragment() {
         // Required empty public constructor
     }
 
-    // TODO: Rename and change types and number of parameters
-    public static Utilisateurs newInstance(String param1, String param2) {
-        Utilisateurs fragment = new Utilisateurs();
+    public static TerminalsFragment newInstance(String param1, String param2) {
+        TerminalsFragment fragment = new TerminalsFragment();
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-
-        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getActivity(),
-                Utilisateurs.class));
 
         /**
          * get stored informations
@@ -137,14 +130,13 @@ public class Utilisateurs extends Fragment {
         }catch (JSONException e){
 
         }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        rootView = inflater.inflate(R.layout.fragment_utilisateurs, container, false);
+        rootView = inflater.inflate(R.layout.fragment_terminals, container, false);
 
         /**
          * init the views
@@ -152,7 +144,6 @@ public class Utilisateurs extends Fragment {
         restSpinner = (Spinner) rootView.findViewById(R.id.rest_channel_id);
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         recList = (RecyclerView) rootView.findViewById(R.id.cardList);
-        empty = (TextView) rootView.findViewById(R.id.empty);
         recList.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
@@ -161,9 +152,9 @@ public class Utilisateurs extends Fragment {
         /**
          * create the list adapter
          */
-        user = new ArrayList<>();
-        ra = new UserAdapter(user);
-        recList.setAdapter(ra);
+        terminal = new ArrayList<>();
+        ta = new TerminalAdapter(terminal);
+        recList.setAdapter(ta);
 
         /**
          * create a new user
@@ -172,7 +163,8 @@ public class Utilisateurs extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getActivity(), AddUser.class);
+                Intent i = new Intent(getActivity(), AddTerminal.class);
+                i.putExtra("restId", selectedID);
                 startActivity(i);
             }
         });
@@ -241,27 +233,28 @@ public class Utilisateurs extends Fragment {
                                        int arg2, long arg3) {
                 // TODO Auto-generated method stub
                 Object item = arg0.getItemAtPosition(arg2);
-                if(arg2 == 0){
+                if (arg2 == 0) {
                     recList.setVisibility(View.GONE);
-                }else{
+                    fab.setVisibility(View.GONE);
+                } else {
                     recList.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.VISIBLE);
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
                             String name = jsonArray.getJSONObject(i).getString("name");
-                            if(item.equals(name)){
-                                System.out.println("name ok "+item);
+                            if (item.equals(name)) {
+                                System.out.println("name ok " + item);
                                 selectedID = jsonArray.getJSONObject(i).getString("id");
-                                System.out.println("item id "+selectedID);
 
-                                users = new JSONArray();
+                                terminals = new JSONArray();
 
                                 /**
-                                 * show user's selected informations
+                                 * show terminal's selected informations
                                  */
                                 JsonObjectRequest userRequest = new JsonObjectRequest
-                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/user/in_restaurant/"+selectedID, null, new Response.Listener<JSONObject>() {
+                                        (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
                                             @Override
                                             public void onResponse(JSONObject response) {
 
@@ -269,12 +262,13 @@ public class Utilisateurs extends Fragment {
                                                     JSONArray values = response.getJSONArray("data");
                                                     for (int i = 0; i < values.length(); i++) {
 
-                                                        JSONObject restaurants = values.getJSONObject(i);
-                                                        users.put(restaurants);
-
+                                                        JSONObject object = values.getJSONObject(i);
+                                                        if(selectedID.equals(object.getString("channelID"))){
+                                                            terminals.put(object);
+                                                        }
                                                     }
-                                                    ra = new UserAdapter(createList(users));
-                                                    recList.setAdapter(ra);
+                                                    ta = new TerminalAdapter(createList(terminals));
+                                                    recList.setAdapter(ta);
 
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
@@ -319,26 +313,124 @@ public class Utilisateurs extends Fragment {
         });
 
     }
+    private List<TerminalInfo> createList(JSONArray jsonArray) {
 
-    private List<UserInfo> createList(JSONArray jsonArray) {
-
-        List<UserInfo> result = new ArrayList<UserInfo>();
+        List<TerminalInfo> result = new ArrayList<TerminalInfo>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentDateandTime = sdf.format(new Date());
 
         try{
             for (int i = 0; i < jsonArray.length(); i++) {
-                UserInfo ui = new UserInfo();
+                TerminalInfo ti = new TerminalInfo();
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
-                String id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX + json_data.getString("id"));
-                if (!id.isEmpty() && !id.equalsIgnoreCase(myuserID)) {
-                    ui.id = (json_data.isNull("id") ? "" : UserInfo.ID_PREFIX + json_data.getString("id"));
-                    ui.username = (json_data.isNull("username") ? "" : UserInfo.USERNAME_PREFIX + json_data.getString("username"));
-                    ui.email = (json_data.isNull("email") ? "" : UserInfo.EMAIL_PREFIX + json_data.getString("email"));
-                    ui.phone = (json_data.isNull("phone") ? "" : UserInfo.PHONE_PREFIX + json_data.getString("phone"));
-                    ui.permission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
-
-                    result.add(ui);
+                ti.terminalActive = (json_data.isNull("terminalActive") ? "" : json_data.getString("terminalActive"));
+                ti.id = (json_data.isNull("terminalID") ? "" : json_data.getString("terminalID"));
+                ti.registerTimestamp = (json_data.isNull("registerTimestamp") ? "" : json_data.getString("registerTimestamp"));
+                if( ti.terminalActive.equals("0")){
+                    ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd")+" (inactive)");
+                }else{
+                    ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
                 }
+
+
+                ti.restaurant = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
+                ti.terminalStatus = (json_data.isNull("terminalStatus") ? "" : json_data.getString("terminalStatus"));
+                ti.terminalStatusUpdateTime = (json_data.isNull("terminalLastUpdated") ? "" : json_data.getString("terminalLastUpdated"));
+                ti.channel_id = (json_data.isNull("channelID") ? "" : json_data.getString("channelID"));
+
+                if(!json_data.getString("terminalInfo").isEmpty() && json_data.getString("terminalInfo") != null){
+                    String terminalInfo = json_data.isNull("terminalInfo") ? "" : json_data.getString("terminalInfo");
+                    JSONObject infoObject = new JSONObject(terminalInfo);
+
+                    ti.terminalUser = (infoObject.isNull("username") ? "" : infoObject.getString("username"));
+                    ti.entity_parent = (infoObject.isNull("entity_parent") ? "" : infoObject.getString("entity_parent"));
+                    ti.entity_id = (infoObject.isNull("entity_id") ? "" : infoObject.getString("entity_id"));
+                    ti.entity_label = (infoObject.isNull("entity_label") ? "" : infoObject.getString("entity_label"));
+                    ti.email = (infoObject.isNull("email") ? "" : infoObject.getString("email"));
+                    ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
+                    ti.apk_version = (infoObject.isNull("apk_version") ? "" : infoObject.getString("apk_version"));
+                }else{
+                    ti.terminalUser = "";
+                    ti.entity_parent = "";
+                    ti.entity_id = "";
+                    ti.entity_label = "";
+                    ti.email = "";
+                    ti.phone = "";
+                    ti.apk_version = "";
+                }
+
+                //time configuration
+                try{
+
+                    Date date1 = sdf.parse(currentDateandTime);
+                    Date date2 = sdf.parse(ti.terminalStatusUpdateTime);
+                    System.out.println("today date " + currentDateandTime);
+                    System.out.println("terminal date " + ti.terminalStatusUpdateTime);
+
+                    long diffInMs = date1.getTime() - date2.getTime();
+
+                    System.out.println("date diff "+diffInMs);
+                    long secondsInMilli = 1000;
+                    long minutesInMilli = secondsInMilli * 60;
+                    long hoursInMilli = minutesInMilli * 60;
+                    long daysInMilli = hoursInMilli * 24;
+
+                    long elapsedDays = diffInMs / daysInMilli;
+                    diffInMs = diffInMs % daysInMilli;
+
+                    long elapsedHours = diffInMs / hoursInMilli;
+                    diffInMs = diffInMs % hoursInMilli;
+
+                    long elapsedMinutes = diffInMs / minutesInMilli;
+                    diffInMs = diffInMs % minutesInMilli;
+
+                    long elapsedSeconds = diffInMs / secondsInMilli;
+
+//                    mNotificationManager =
+//                            (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+//                    if(ti.terminalStatus.equalsIgnoreCase("0")) {
+//                        NotificationCompat.Builder mBuilder =
+//                                new NotificationCompat.Builder(getActivity())
+//                                        .setSmallIcon(R.drawable.ic_terminal)
+//                                        .setContentTitle(ti.restaurant +" HS! "+ti.uuid)
+//                                        .setContentText("OFF depuis " +elapsedDays+"j "+elapsedHours+"h "+ elapsedMinutes + "min" + elapsedSeconds + "s");
+//                        Intent resultIntent = new Intent(getActivity(), TerminalsFragment.class);
+//
+//                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getActivity());
+//                        stackBuilder.addParentStack(TerminalsFragment.class);
+//                        stackBuilder.addNextIntent(resultIntent);
+//                        PendingIntent resultPendingIntent =
+//                                stackBuilder.getPendingIntent(
+//                                        0,
+//                                        PendingIntent.FLAG_UPDATE_CURRENT
+//                                );
+//                        mBuilder.setContentIntent(resultPendingIntent);
+//
+//                        mNotificationManager.notify(i, mBuilder.build());
+//                    }else{
+//                        mNotificationManager.cancel(i);
+//                    }
+                    if(elapsedDays>0) {
+                        ti.terminalStatusUpdateTime = elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min "+elapsedSeconds+"s";
+                    }else{
+                        if(elapsedHours>0) {
+                            ti.terminalStatusUpdateTime = elapsedHours + "h " + elapsedMinutes + "min " + elapsedSeconds + "s";
+                        }else {
+                            if(elapsedMinutes>0) {
+                                ti.terminalStatusUpdateTime = elapsedMinutes + "min "+elapsedSeconds+"s";
+                            }else {
+                                ti.terminalStatusUpdateTime = elapsedSeconds + "s";
+                            }
+                        }
+                    }
+
+
+                }catch (Exception e){
+                    System.out.println("Erreur  "+e);
+                }
+
+                result.add(ti);
             }
 
         }catch (JSONException e){
@@ -460,6 +552,4 @@ public class Utilisateurs extends Fragment {
 
 
     }
-
-
 }

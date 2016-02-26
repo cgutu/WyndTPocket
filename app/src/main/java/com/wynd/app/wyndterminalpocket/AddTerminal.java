@@ -199,7 +199,7 @@ public class AddTerminal extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Terminal ajouté", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
-                    Intent intent = new Intent(AddTerminal.this, Terminals.class);
+                    Intent intent = new Intent(AddTerminal.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
                 }else{

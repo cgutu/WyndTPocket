@@ -95,6 +95,8 @@ public class AddUser extends AppCompatActivity{
         setSupportActionBar(toolbar);
 
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                AddUser.class));
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -159,8 +161,6 @@ public class AddUser extends AppCompatActivity{
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String>  params = new HashMap<String, String>();
-
-                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                         params.put("Api-User", Globales.API_USER);
                         params.put("Api-Hash", Globales.API_HASH);
 
@@ -552,7 +552,6 @@ public class AddUser extends AppCompatActivity{
                                     public Map<String, String> getHeaders() throws AuthFailureError {
                                         Map<String, String> params = new HashMap<String, String>();
 
-                                        System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                                         params.put("Api-User", Globales.API_USER);
                                         params.put("Api-Hash", Globales.API_HASH);
 

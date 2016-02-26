@@ -60,6 +60,9 @@ public class EditRestaurant extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                EditRestaurant.class));
+
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         String username = pref.getString("username", "");
         myuserID = pref.getString("myuserID", "");
@@ -115,8 +118,6 @@ public class EditRestaurant extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -211,7 +212,6 @@ public class EditRestaurant extends AppCompatActivity {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
-            System.out.println("do in background edit task ");
             JSONObject jsonObject = new JSONObject();
             String json = "";
 
@@ -242,10 +242,8 @@ public class EditRestaurant extends AppCompatActivity {
 
                 //setting up the content inside the input stream reader
                 is = entity.getContent();
-                System.out.println("is "+is);
 
             } catch (Exception e) {
-                System.out.println("Error http put "+e.toString() + e.getLocalizedMessage());
                 Log.i("Error http put", "" + e.toString());
             }
 
@@ -269,15 +267,12 @@ public class EditRestaurant extends AppCompatActivity {
                 }
                 is.close();
                 String json = total.toString();
-                System.out.println("total: " + json);
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
                 int i = 0;
-                System.out.println("result: " + finalResult);
                 String result = finalResult.getString("result");
                 String msg = finalResult.getString("message");
-                System.out.println("result: " + result + " message: "+msg);
 
                 if (!result.isEmpty() && result.equals("success")) {
 

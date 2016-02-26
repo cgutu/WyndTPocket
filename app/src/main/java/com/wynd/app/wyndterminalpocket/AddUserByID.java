@@ -93,7 +93,8 @@ public class AddUserByID extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                AddUserByID.class));
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -142,7 +143,6 @@ public class AddUserByID extends AppCompatActivity {
                 JSONObject infoObject = infosArray.getJSONObject(j);
                 permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
                 restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-                System.out.println("rest et role " + permission + " " + restID);
 
                 if (permission.equals("3")) {
                     //I can only create administators
@@ -186,7 +186,6 @@ public class AddUserByID extends AppCompatActivity {
                     JSONObject infoObject = infosArray.getJSONObject(j);
                     permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
                     restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-                    System.out.println("rest et role " + permission + " " + restID);
 
                     if(permission.equals("3")){
                         //I can only create administators

@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.View;
 
 import com.android.volley.AuthFailureError;
@@ -76,13 +77,8 @@ public class Terminals extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recList.setLayoutManager(llm);
 
-        //if permission is CHAIN_ADMIN
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
-
         userID = pref.getString("userID", "");
-        parentID = pref.getString("parentID", "");
-        permission = pref.getString("roles", "");
-        rest_channel = pref.getString("rest_channel", "");
         String savedChannel = pref.getString("clickedchannel", "");
 
         editor = pref.edit();
@@ -93,17 +89,12 @@ public class Terminals extends AppCompatActivity {
         clickedChannel = intent.getStringExtra("channel");
         clickedChannelID = intent.getStringExtra("restId");
 
-        System.out.println("restchannel before" + "clicked "+clickedChannel + "saved "+savedChannel+" last"+channelName);
-
         if(clickedChannel == null){
             channelName = savedChannel;
         }else{
             channelName = clickedChannel;
         }
 
-        // Only super admin can add terminal
-
-        System.out.println("restchannel after " + channelName);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,7 +104,6 @@ public class Terminals extends AppCompatActivity {
             }
         });
 
-        //if permission if SUPER ADMIN I can manage terminals (add or edit)
         EntityInfo = pref.getString("EntityInfo", "");
         JSONArray array = new JSONArray();
         try{
@@ -122,8 +112,6 @@ public class Terminals extends AppCompatActivity {
                 JSONObject infoObject = infosArray.getJSONObject(j);
                 permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
                 restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-                System.out.println("rest et role " + permission + " " + restID);
-
                 array.put(permission);
             }
             int l = array.length();
@@ -131,7 +119,6 @@ public class Terminals extends AppCompatActivity {
                 String value = array.getString(i);
 
                 if(value.contains("3")){
-                    System.out.println("array permissions "+value);
                     fab.setVisibility(View.VISIBLE);
                 }
 
@@ -158,7 +145,9 @@ public class Terminals extends AppCompatActivity {
 
         terminals = new JSONArray();
 
-        //get all restaurants
+        /**
+         * get all terminals request
+         */
         JsonObjectRequest terminalRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/all", null, new Response.Listener<JSONObject>() {
                     @Override
@@ -166,14 +155,12 @@ public class Terminals extends AppCompatActivity {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-                            System.out.println("response "+response);
-
                             for (int i = 0; i < values.length(); i++) {
 
                                 JSONObject terminalObject = values.getJSONObject(i);
                                 String channelID = terminalObject.isNull("channelID") ? "" : terminalObject.getString("channelID");
                                 String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
-                                System.out.println("channel "+channelID);
+
                                 if(!channel.isEmpty() && channel.equalsIgnoreCase(channelName)){
                                         editor = pref.edit();
                                         editor.putString("clickedchannel", channel);
@@ -181,7 +168,6 @@ public class Terminals extends AppCompatActivity {
                                     terminals.put(terminalObject);
                                 }
                             }
-                            System.out.println("terminals " + terminals);
                             ta = new TerminalAdapter(createList(terminals));
                             recList.setAdapter(ta);
 
@@ -202,8 +188,6 @@ public class Terminals extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_TERMINAL);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -262,17 +246,15 @@ public class Terminals extends AppCompatActivity {
                     ti.apk_version = "";
                 }
 
-                //time configuration
+                /**
+                 * configure a time laps for getting ON/OFF
+                 */
                 try{
 
                     Date date1 = sdf.parse(currentDateandTime);
                     Date date2 = sdf.parse(ti.terminalStatusUpdateTime);
-                    System.out.println("today date " + currentDateandTime);
-                    System.out.println("terminal date " + ti.terminalStatusUpdateTime);
 
                     long diffInMs = date1.getTime() - date2.getTime();
-
-                    System.out.println("date diff "+diffInMs);
                     long secondsInMilli = 1000;
                     long minutesInMilli = secondsInMilli * 60;
                     long hoursInMilli = minutesInMilli * 60;
@@ -291,6 +273,10 @@ public class Terminals extends AppCompatActivity {
 
                     mNotificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                    /**
+                     * set a notification if the device is getting OFF / disable the notification when the device is getting ON
+                     */
                     if(ti.terminalStatus.equalsIgnoreCase("0")) {
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(this)
@@ -329,14 +315,14 @@ public class Terminals extends AppCompatActivity {
 
 
                 }catch (Exception e){
-                    System.out.println("Erreur  "+e);
+                    Log.e("Date parsing error", e.toString());
                 }
 
                     result.add(ti);
             }
 
         }catch (JSONException e){
-            System.out.println("Erreur json "+e);
+            Log.e("JSON Parsing error", e.toString());
         }
 
         return result;

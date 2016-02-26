@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,14 +32,7 @@ import java.util.Map;
 
 
 public class Parents extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
     private View rootView;
     private RecyclerView recList;
     private ParentsAdapter pa;
@@ -57,10 +51,6 @@ public class Parents extends Fragment {
 
     public static Parents newInstance(String param1, String param2) {
         Parents fragment = new Parents();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -68,8 +58,6 @@ public class Parents extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getActivity(),
@@ -78,6 +66,9 @@ public class Parents extends Fragment {
 
         myuserID = pref.getString("myuserID", "");
 
+        /**
+         * get parents informations
+         */
                 JsonObjectRequest entityRequest = new JsonObjectRequest
                         (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/all/parents/user/"+myuserID, null, new Response.Listener<JSONObject>() {
                             @Override
@@ -94,8 +85,6 @@ public class Parents extends Fragment {
                                         System.out.println("test parent "+entities.toString().contains("\"id\":\"" + parent.getString("id") + "\""));
 
                                     }
-
-                                    System.out.println("entities " + entities);
                                     pa = new ParentsAdapter(createList(entities));
                                     recList.setAdapter(pa);
 
@@ -115,8 +104,6 @@ public class Parents extends Fragment {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String> params = new HashMap<String, String>();
-
-                        System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                         params.put("Api-User", Globales.API_USER);
                         params.put("Api-Hash", Globales.API_HASH);
 
@@ -207,7 +194,7 @@ public class Parents extends Fragment {
             }
 
         }catch (JSONException e){
-            System.out.println("Erreur json "+e);
+            Log.e("Erreur json ", e.toString());
         }
 
         return result;

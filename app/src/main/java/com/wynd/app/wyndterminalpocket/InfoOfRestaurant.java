@@ -46,6 +46,9 @@ public class InfoOfRestaurant extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                InfoOfRestaurant.class));
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -76,7 +79,6 @@ public class InfoOfRestaurant extends AppCompatActivity {
 
                         try {
                             response = response.getJSONObject("data");
-                            System.out.println("response " + response);
 
                             if(response.getString("active").equals("0")){
                                 Name.setText(response.isNull("name") ? "" : response.getString("name") + " (inactive)");
@@ -109,7 +111,6 @@ public class InfoOfRestaurant extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
 
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -131,7 +132,6 @@ public class InfoOfRestaurant extends AppCompatActivity {
                 JSONObject infoObject = infosArray.getJSONObject(j);
                 String permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
                 String restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-                System.out.println("rest et role "+permission  +" "+restID);
 
                 if(permission.equals("3")){
                     fab.setVisibility(View.VISIBLE);

@@ -36,11 +36,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,6 +69,7 @@ public class Historique extends AppCompatActivity {
     private TextView vDate1, vDate2, vTime1, vTime2;
     private BarChart chart;
     private RelativeLayout rlChart;
+    private LineChart lineChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +101,7 @@ public class Historique extends AppCompatActivity {
         initViews();
         chart = new BarChart(getApplicationContext());
         rlChart = (RelativeLayout) findViewById(R.id.layoutChart);
+        lineChart = new LineChart(getApplicationContext());
     }
     private void loadMap(){
 
@@ -114,38 +120,55 @@ public class Historique extends AppCompatActivity {
                             JSONArray values = response.getJSONArray("data");
 
                             ArrayList<String> xValues = new ArrayList<String>();
-                            ArrayList<BarEntry> entries = new ArrayList<>();
+                            ArrayList<Entry> entries = new ArrayList<>();
 
                             for(int i=0; i<values.length(); i++){
                                 String status = values.getJSONObject(i).getString("t_status");
                                 String date = values.getJSONObject(i).getString("t_last_seen");
-                                System.out.println("date "+date);
+                                System.out.println("date " + date);
                                 Float f= Float.parseFloat(status);
-                                entries.add(new BarEntry(f, i));
+                                entries.add(new Entry(f, i));
                                 xValues.add(date);
                             }
 
-                            BarDataSet dataset = new BarDataSet(entries, "1 = ON / 0 = OFF");
+                            LineDataSet dataset = new LineDataSet(entries, "1 = ON / 0 = OFF");
 
-                            BarData data = new BarData(xValues, dataset);
+                            LineData data = new LineData(xValues, dataset);
 
-                            chart.setData(data);
-                            chart.setDescription("Device status");
-                            chart.setMinimumWidth(1300);
-                            chart.setMinimumHeight(1200);
+                            lineChart.setData(data);
+                            lineChart.setDescription("Device status");
+                            lineChart.setMinimumWidth(1300);
+                            lineChart.setMinimumHeight(1200);
 
-                            YAxis mYAxis = chart.getAxisLeft();
-                            mYAxis.setDrawAxisLine(false);
-                            mYAxis.setDrawGridLines(false);
-                            mYAxis.setStartAtZero(false);
 
-                            XAxis xAxis = chart.getXAxis();
+                            YAxis mYAxis = lineChart.getAxisLeft();
+                            mYAxis.setShowOnlyMinMax(true);
+                            mYAxis.setAxisMaxValue(1f);
+                            mYAxis.setAxisMinValue(0f);
+
+                            YAxis rAxis = lineChart.getAxisRight();
+                            rAxis.setShowOnlyMinMax(true);
+                            rAxis.setAxisMaxValue(1f);
+                            rAxis.setAxisMinValue(0f);
+//                            mYAxis.setDrawAxisLine(false);
+//                            mYAxis.setDrawGridLines(false);
+//                            mYAxis.setStartAtZero(false);
+
+                            XAxis xAxis = lineChart.getXAxis();
                             xAxis.setTextColor(Color.RED);
+                            xAxis.setSpaceBetweenLabels(4);
+                            dataset.setColors(new int[]{R.color.red}, getApplicationContext());
+
+                            lineChart.animateXY(3000, 3000);
+                            data.setHighlightEnabled(true);
+
+                            lineChart.setTouchEnabled(true);
 
 
-                            if(chart.getParent()!=null)
-                                ((ViewGroup)chart.getParent()).removeView(chart); // <- fix
-                            rlChart.addView(chart);
+                            if(lineChart.getParent()!=null)
+                                ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
+                            rlChart.addView(lineChart);
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -163,8 +186,6 @@ public class Historique extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-
-                System.out.println("api infos sent" + Globales.API_TERMINAL + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_TERMINAL);
                 params.put("Api-Hash", Globales.API_HASH);
 

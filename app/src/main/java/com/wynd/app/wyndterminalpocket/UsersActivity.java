@@ -65,13 +65,14 @@ public class UsersActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                UsersActivity.class));
+
         Intent intent = getIntent();
         final String restId;
         restId = intent.getStringExtra("restId");
-        System.out.println("test click " + restId);
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
-        System.out.println("rest id test " + pref.getString("restId", ""));
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
         entities =  pref.getString("entities", "");
@@ -148,7 +149,6 @@ public class UsersActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
 
-                System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -182,11 +182,8 @@ public class UsersActivity extends AppCompatActivity {
 
                     String userPermission = (json_data.isNull("permission") ? "" : json_data.getString("permission"));
 
-
                     //check user permission and display
                     //if user is a super_admin, I not display it
-
-                    System.out.println("permission user "+userPermission);
 
                     editor = pref.edit();
                     editor.putString("restId", ID);

@@ -17,17 +17,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HomeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class HomeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -47,15 +38,6 @@ public class HomeFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HomeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance(String param1, String param2) {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -72,6 +54,8 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getActivity(),
+                HomeFragment.class));
     }
 
     @Override
@@ -98,18 +82,15 @@ public class HomeFragment extends Fragment {
                 JSONObject infoObject = infosArray.getJSONObject(j);
                 permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
                 restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-                System.out.println("rest et role " + permission + " " + restID);
-
-               array.put(permission);
+                array.put(permission);
             }
             int l = array.length();
             for(int i=0; i<l; i++){
                 String value = array.getString(i);
 
                 if(value.contains("3")){
-                    System.out.println("array permissions "+value);
                     utilisateurs.setVisibility(View.VISIBLE);
-                    terminals.setVisibility(View.GONE);
+                    terminals.setVisibility(View.VISIBLE);
                     historique.setVisibility(View.VISIBLE);
                     parents.setVisibility(View.VISIBLE);
                 }
@@ -119,9 +100,6 @@ public class HomeFragment extends Fragment {
         }catch(JSONException e){
 
         }
-        System.out.println("array permissions "+array);
-
-
         username.setText("Bonjour " + user);
 
         restaurants.setOnClickListener(new View.OnClickListener() {
@@ -151,13 +129,13 @@ public class HomeFragment extends Fragment {
         terminals.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                TerminalsFragment fragment = new TerminalsFragment();
-//                FragmentTransaction ft = getFragmentManager().beginTransaction();
-//                Bundle args = new Bundle();
-//                args.putString("userID", userID);
-//                fragment.setArguments(args);
-//                ft.replace(R.id.content_frame, fragment);
-//                ft.commit();
+                TerminalsFragment fragment = new TerminalsFragment();
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Bundle args = new Bundle();
+                args.putString("userID", userID);
+                fragment.setArguments(args);
+                ft.replace(R.id.content_frame, fragment);
+                ft.commit();
             }
         });
         historique.setOnClickListener(new View.OnClickListener() {
@@ -212,16 +190,6 @@ public class HomeFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

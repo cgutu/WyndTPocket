@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,14 +45,6 @@ import java.util.Map;
 
 
 public class Restaurants extends Fragment{
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -77,34 +70,21 @@ public class Restaurants extends Fragment{
         // Required empty public constructor
     }
 
-
-    // TODO: Rename and change types and number of parameters
     public static Restaurants newInstance(String param1, String param2) {
         Restaurants fragment = new Restaurants();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getActivity(),
                 Restaurants.class));
         pref = getContext().getSharedPreferences("Infos", 0);
 
-        userID = pref.getString("userID", "");
         EntityInfo = pref.getString("EntityInfo", "");
-        permission = pref.getString("ROLE", "");
         myuserID = pref.getString("myuserID", "");
-        System.out.println("params! userid :" + userID + " parentid: " + EntityInfo + " roles: " + permission);
-
 
         boolean authorized = false;
         try{
@@ -136,12 +116,9 @@ public class Restaurants extends Fragment{
 
                             try {
                                 JSONArray values = response.getJSONArray("data");
-
                                 for(int i=0; i<values.length(); i++){
                                     parents.put(values.getJSONObject(i));
                                 }
-
-                                System.out.println("parents " + parents);
                                 addList(parents);
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -159,8 +136,6 @@ public class Restaurants extends Fragment{
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String>  params = new HashMap<String, String>();
-
-                    System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                     params.put("Api-User", Globales.API_USER);
                     params.put("Api-Hash", Globales.API_HASH);
 
@@ -175,7 +150,6 @@ public class Restaurants extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
 
         rootView =  inflater.inflate(R.layout.fragment_restaurants, container, false);
         setHasOptionsMenu(true);
@@ -202,18 +176,9 @@ public class Restaurants extends Fragment{
                 permission = object.isNull("permissionID") ? "" : object.getString("permissionID");
                 restID = object.isNull("resaturantChainID") ? "" : object.getString("resaturantChainID");
 
-                //ssi permission SUPER ADMIN et plusieurs parents
                 if(permission.equals("3")){
-
-                    System.out.println("parentID " + parentID);
-
                     parentSpinner.setVisibility(View.VISIBLE);
-
-                    //si super admin, afficher une dropdown pour afficher tous les entités par parent séléctionné
-                    //get parents infos where parent id = user parent id and display all entity which have the same channelParentID
-
                 }else{
-                //get all restaurants
                 JsonObjectRequest restaurantRequest = new JsonObjectRequest
                         (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/by/id/"+restID, null, new Response.Listener<JSONObject>() {
                             @Override
@@ -221,19 +186,9 @@ public class Restaurants extends Fragment{
 
                                 try {
                                     response = response.getJSONObject("data");
-                                    System.out.println("response "+response);
-
-                                        //check if the restaurant id is the same on with i have permissions to see
-                                        //display only restaurants which I allow to see
-                                        chains.put(response);
-
-                                    System.out.println("rest " + chains);
-
+                                    chains.put(response);
                                     ra = new RestaurantAdapter(createList(chains));
                                     recList.setAdapter(ra);
-
-
-
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -250,8 +205,6 @@ public class Restaurants extends Fragment{
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
                         Map<String, String>  params = new HashMap<String, String>();
-
-                        System.out.println("api infos sent" + Globales.API_USER + " "+Globales.API_HASH);
                         params.put("Api-User", Globales.API_USER);
                         params.put("Api-Hash", Globales.API_HASH);
 
@@ -308,7 +261,7 @@ public class Restaurants extends Fragment{
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Select franchise");
+        list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("parent_name");
@@ -337,11 +290,12 @@ public class Restaurants extends Fragment{
                 // TODO Auto-generated method stub
 
                 Object item = arg0.getItemAtPosition(arg2);
-                System.out.println("item "+item + " position "+arg2);
                 if(arg2 == 0){
                     recList.setVisibility(View.GONE);
+                    fab.setVisibility(View.GONE);
                 }else{
                     recList.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.VISIBLE);
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -350,8 +304,7 @@ public class Restaurants extends Fragment{
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
                                 choosedParentID = selectedID;
-                                fab.setVisibility(View.VISIBLE);
-                                //get entity of selected parent
+
                                 final JSONArray entities = new JSONArray();
                                 JsonObjectRequest entityRequest = new JsonObjectRequest
                                         (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/"+selectedID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
@@ -364,7 +317,6 @@ public class Restaurants extends Fragment{
                                                         JSONObject restaurants = values.getJSONObject(i);
                                                         entities.put(restaurants);
                                                     }
-                                                    System.out.println("entities " + entities);
                                                     ra = new RestaurantAdapter(createList(entities));
                                                     recList.setAdapter(ra);
 
@@ -385,7 +337,6 @@ public class Restaurants extends Fragment{
                                     public Map<String, String> getHeaders() throws AuthFailureError {
                                         Map<String, String> params = new HashMap<String, String>();
 
-                                        System.out.println("api infos sent" + Globales.API_USER + " " + Globales.API_HASH);
                                         params.put("Api-User", Globales.API_USER);
                                         params.put("Api-Hash", Globales.API_HASH);
 
@@ -442,13 +393,10 @@ public class Restaurants extends Fragment{
                     for (int j = 0; j < infosArray.length(); j++) {
                         JSONObject infoObject = infosArray.getJSONObject(j);
 
-                        System.out.println("infoObject "+infoObject);
-
                         permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
                         restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
 
                         if(!restId.isEmpty() && restId.equals(restID)){
-                            System.out.println("rest et role ok"+infoObject);
                             ri.userPermission = permission;
                             result.add(ri);
                         }
@@ -461,7 +409,7 @@ public class Restaurants extends Fragment{
             }
 
         }catch (JSONException e){
-            System.out.println("Erreur json "+e);
+           Log.e("Erreur json ", e.toString());
         }
 
         return result;

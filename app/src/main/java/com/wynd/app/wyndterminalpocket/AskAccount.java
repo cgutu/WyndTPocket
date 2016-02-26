@@ -31,7 +31,8 @@ public class AskAccount extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                AskAccount.class));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 //        mFormview = findViewById(R.id.login_form);

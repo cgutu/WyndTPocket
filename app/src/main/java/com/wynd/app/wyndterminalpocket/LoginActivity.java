@@ -81,6 +81,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                LoginActivity.class));
+
         /**
          * get stored user infos
          */
