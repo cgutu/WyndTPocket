@@ -35,12 +35,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/addtext"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add user"/>
-
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -110,6 +104,17 @@
                     android:maxLines="1"
                     android:singleLine="true" />
 
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="20dp"
+                android:padding="10dp"
+                android:layout_height="wrap_content">
+                <Spinner
+                    android:id="@+id/permission"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:prompt="@string/parent_prompt" />
             </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>

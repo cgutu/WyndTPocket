@@ -1,17 +1,25 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -74,6 +82,9 @@ public class EditUserProfil extends AppCompatActivity {
     private JSONObject channels = new JSONObject();
     private JSONArray restovspermission = new JSONArray();
     private Button deleteBtn;
+    private View mProgressView;
+    private View mFormview;
+    private String firstPWD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +96,8 @@ public class EditUserProfil extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
                 EditUserProfil.class));
 
+        mFormview = findViewById(R.id.edit_form);
+        mProgressView = findViewById(R.id.login_progress);
         username = (EditText) findViewById(R.id.username);
         password = (EditText) findViewById(R.id.password);
         email = (EditText) findViewById(R.id.email);
@@ -99,7 +112,7 @@ public class EditUserProfil extends AppCompatActivity {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
+        System.out.println("userID " + userID);
         //get user informations
         JsonObjectRequest userRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/user/get/info/"+userID, null, new Response.Listener<JSONObject>() {
@@ -113,7 +126,7 @@ public class EditUserProfil extends AppCompatActivity {
                             password.setText(response.isNull("hash") ? "" : response.getString("hash"));
                             email.setText(response.isNull("email") ? "" : response.getString("email"));
                             phone.setText(response.isNull("phone") ? "" : response.getString("phone"));
-
+                            firstPWD = response.isNull("hash") ? "" : response.getString("hash");
                             JSONArray usersInResto = response.getJSONArray("usersInResto");
                             for(int i=0; i<usersInResto.length(); i++){
                                 JSONObject infos = usersInResto.getJSONObject(i);
@@ -150,23 +163,13 @@ public class EditUserProfil extends AppCompatActivity {
 
         Volley.newRequestQueue(getApplicationContext()).add(userRequest);
 
-        //on submit, the admin can update user's profil
+        /**
+         * verify form and update user profil
+         */
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Username = username.getText().toString();
-                Email = email.getText().toString();
-                Password = password.getText().toString();
-                Phone = phone.getText().toString();
-
-                try {
-                    Password = AeSimpleSHA1.SHA1(Password);
-                    new EditTask().execute();
-
-                } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-                  Log.e("Error sha1 ", e.toString());
-                }
-
+                checkForm();
             }
         });
 
@@ -202,6 +205,90 @@ public class EditUserProfil extends AppCompatActivity {
         });
     }
 
+    private void checkForm(){
+        boolean cancel = false;
+        View focusView = null;
+
+        username.setError(null);
+        email.setError(null);
+        password.setError(null);
+        phone.setError(null);
+
+        Username = username.getText().toString();
+        Email = email.getText().toString();
+        Password = password.getText().toString();
+        Phone = phone.getText().toString();
+
+        if (TextUtils.isEmpty(Username) ) {
+            username.setError(getString(R.string.error_field_required));
+            focusView = username;
+            cancel = true;
+        }else if (TextUtils.isEmpty(Password) ) {
+            password.setError(getString(R.string.error_field_required));
+            focusView = password;
+            cancel = true;
+        }else if (TextUtils.isEmpty(Email) ) {
+            email.setError(getString(R.string.error_field_required));
+            focusView = email;
+            cancel = true;
+        }else if (TextUtils.isEmpty(Phone) ) {
+            phone.setError(getString(R.string.error_field_required));
+            focusView = phone;
+            cancel = true;
+        }
+        if(!Password.equals(firstPWD)){
+            try {
+                Password = AeSimpleSHA1.SHA1(Password);
+
+            } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+                Log.e("Error sha1 ", e.toString());
+            }
+        }
+
+        System.out.println("password test "+Password);
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            showProgress(true);
+
+            new EditTask().execute();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mFormview.setVisibility(show ? View.GONE : View.VISIBLE);
+            mFormview.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mFormview.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mFormview.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
         int i;
         String result = null;

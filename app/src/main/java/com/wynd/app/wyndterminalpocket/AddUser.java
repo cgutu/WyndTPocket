@@ -4,17 +4,14 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -25,7 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -61,32 +57,23 @@ import java.util.Map;
 
 public class AddUser extends AppCompatActivity{
 
-    private String restId;
-    private String message;
     private EditText mUsernameView, mEmailView, mPasswordView, mPhoneView;
-    private String email, username, phone, password, permission, savedRestId, ID, myuserID, role;
-    private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
+    private String email, username, phone, password, userID;
     private View mProgressView;
     private View mFormview;
     private JSONArray chains = new JSONArray();
-
-    protected CharSequence[] colours = { "Red", "Green", "Blue", "Yellow", "Orange", "Purple" };
-    protected CharSequence[] restaurants, entities;
-
+    protected CharSequence[] restaurants;
     protected ArrayList<CharSequence> selectedEntity = new ArrayList<CharSequence>();
-    protected ArrayList<CharSequence> selectedPermission = new ArrayList<CharSequence>();
-    private Button selectEntityButton, selectPermissionBtn;
-    private JSONArray names = new JSONArray();
+    private Button selectEntityButton;
     List<String> listItems = new ArrayList<String>();
-    List<String> selectedItem, selectedItemPermission;
+    List<String> selectedItem;
     JSONObject channels;
     JSONArray itemsArray;
-    private String EntityInfo;
-    private JSONArray infosArray = new JSONArray();
     private JSONArray parents = new JSONArray();
-    private Spinner parentSpinner;
+    private Spinner parentSpinner, permissionSpinner;
     private ArrayAdapter<String> dataAdapter;
+    private String itemPermission;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,16 +88,18 @@ public class AddUser extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
+        /**
+         * set views
+         */
         mFormview = findViewById(R.id.add_form);
         mProgressView = findViewById(R.id.login_progress);
         parentSpinner = (Spinner) findViewById(R.id.parent);
+        permissionSpinner = (Spinner) findViewById(R.id.permission);
 
-        pref = getApplicationContext().getSharedPreferences("Infos", 0);
-        savedRestId = pref.getString("restId", "");
-        myuserID = pref.getString("myuserID", "");
-        EntityInfo = pref.getString("EntityInfo", "");
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        userID = pref.getString("myuserID", "");
 
-        editor = pref.edit();
+        SharedPreferences.Editor editor = pref.edit();
         editor.putString("Check", "userlist");
         editor.apply();
 
@@ -129,43 +118,45 @@ public class AddUser extends AppCompatActivity{
             }
         });
 
-                //show parents which I am allow to see
-                JsonObjectRequest parentRequest = new JsonObjectRequest
-                        (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/parents/user/"+myuserID, null, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-
-                                try {
-                                    JSONArray values = response.getJSONArray("data");
-
-                                    for(int i=0; i<values.length(); i++){
-                                        parents.put(values.getJSONObject(i));
-                                    }
-                                    addParent(parents);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        }, new Response.ErrorListener() {
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                                error.printStackTrace();
-                            }
-                        }) {
+        /**
+         * load parents
+         */
+        JsonObjectRequest parentRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/restaurant/get/all/parents/user/"+userID, null, new Response.Listener<JSONObject>() {
                     @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String>  params = new HashMap<String, String>();
-                        params.put("Api-User", Globales.API_USER);
-                        params.put("Api-Hash", Globales.API_HASH);
+                    public void onResponse(JSONObject response) {
 
-                        return params;
+                        try {
+                            JSONArray values = response.getJSONArray("data");
+
+                            for(int i=0; i<values.length(); i++){
+                                parents.put(values.getJSONObject(i));
+                            }
+                            addParent(parents);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
                     }
-                };
+                }, new Response.ErrorListener() {
 
-                Volley.newRequestQueue(getApplicationContext()).add(parentRequest);
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Api-User", Globales.API_USER);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getApplicationContext()).add(parentRequest);
 
         selectEntityButton = (Button) findViewById(R.id.addrest);
         selectEntityButton.setOnClickListener(new View.OnClickListener() {
@@ -175,7 +166,46 @@ public class AddUser extends AppCompatActivity{
             }
         });
 
+        /**
+         * set permission spinner
+         */
+        List<String> list = new ArrayList<String>();
+        list.add("Séléctionner une permission");
+        list.add("USER");
+        list.add("ADMIN");
+        dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        permissionSpinner.setAdapter(dataAdapter);
 
+        listItems = new ArrayList<String>();
+
+        permissionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                       int arg2, long arg3) {
+
+                Object item = arg0.getItemAtPosition(arg2);
+                if(arg2 == 0){
+                   itemPermission = "";
+                }else{
+                    if (item != null) {
+                        if(item.toString().equals("USER")){
+                            itemPermission = "1";
+                        }else{
+                            itemPermission = "2";
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+
+            }
+        });
 
     }
 
@@ -214,7 +244,7 @@ public class AddUser extends AppCompatActivity{
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Select restaurants");
+        builder.setTitle("Séléctionner un restaurant");
 
         builder.setMultiChoiceItems(restaurants, checkedEntities, entitiesDialogListener);
         AlertDialog dialog = builder.create();
@@ -244,6 +274,9 @@ public class AddUser extends AppCompatActivity{
 
     }
 
+    /**
+     * verify form
+     */
     private void checkForm(){
 
         mUsernameView.setError(null);
@@ -260,26 +293,6 @@ public class AddUser extends AppCompatActivity{
         password = mPasswordView.getText().toString();
         String items = selectEntityButton.getText().toString();
         selectedItem = Arrays.asList(items.split(","));
-
-        try{
-
-            itemsArray = new JSONArray();
-            for(int i=0; i<selectedItem.size(); i++){
-                String selectedName = selectedItem.get(i);
-                for(int j=0; j<chains.length(); j++){
-                    String name = chains.getJSONObject(j).getString("name");
-                    if(selectedName.equalsIgnoreCase(name)){
-                        channels = new JSONObject();
-                        channels.put("restid", chains.getJSONObject(j).getString("id"));
-                        channels.put("permission", "2");
-                    }
-                }
-                itemsArray.put(channels);
-
-            }
-        }catch (JSONException e){
-
-        }
 
         if (TextUtils.isEmpty(username) ) {
             mUsernameView.setError(getString(R.string.error_field_required));
@@ -298,6 +311,27 @@ public class AddUser extends AppCompatActivity{
             focusView = mPhoneView;
             cancel = true;
         }
+
+        try{
+
+            itemsArray = new JSONArray();
+            for(int i=0; i<selectedItem.size(); i++){
+                String selectedName = selectedItem.get(i);
+                for(int j=0; j<chains.length(); j++){
+                    String name = chains.getJSONObject(j).getString("name");
+                    if(selectedName.equalsIgnoreCase(name)){
+                        channels = new JSONObject();
+                        channels.put("restid", chains.getJSONObject(j).getString("id"));
+                        channels.put("permission", itemPermission);
+                    }
+                }
+                Log.i("items", channels.toString());
+                itemsArray.put(channels);
+            }
+        }catch (JSONException e){
+
+        }
+
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -333,7 +367,7 @@ public class AddUser extends AppCompatActivity{
                 nameValuePairs.add(new BasicNameValuePair("new_secret", password));
                 nameValuePairs.add(new BasicNameValuePair("new_email", email));
                 nameValuePairs.add(new BasicNameValuePair("new_phone", phone));
-                nameValuePairs.add(new BasicNameValuePair("userid", myuserID));
+                nameValuePairs.add(new BasicNameValuePair("userid", userID));
                 nameValuePairs.add(new BasicNameValuePair("new_restovspermission", itemsArray.toString()));
 
                 httpPost.setHeader("Api-User", Globales.API_USER);
@@ -352,16 +386,10 @@ public class AddUser extends AppCompatActivity{
             } catch (ClientProtocolException e) {
 
                 Log.e("ClientProtocole", "Log_tag");
-                String msg = "Erreur client protocole";
-                message = "Erreur client protocole";
-
 
             } catch (IOException e) {
                 Log.e("Log_tag", "IOException");
                 e.printStackTrace();
-                String msg = "Erreur IOException";
-                message = "Erreur IOException";
-
             }
 
             return is;
@@ -387,9 +415,9 @@ public class AddUser extends AppCompatActivity{
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
-                int i = 0;
-
                 String result = finalResult.getString("result");
+
+                Log.i("Result", result);
 
                 if (!result.isEmpty() && result.equals("success")) {
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
@@ -410,9 +438,6 @@ public class AddUser extends AppCompatActivity{
                 mUsernameView.setError(getString(R.string.error_connexion));
                 mUsernameView.requestFocus();
             }
-
-
-
         }
     }
 
@@ -452,7 +477,7 @@ public class AddUser extends AppCompatActivity{
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Select franchise");
+        list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("parent_name");
@@ -460,7 +485,6 @@ public class AddUser extends AppCompatActivity{
                     list.add("" + name);
                 }
             } catch (JSONException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -476,13 +500,15 @@ public class AddUser extends AppCompatActivity{
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1,
                                        int arg2, long arg3) {
-                // TODO Auto-generated method stub
 
                 Object item = arg0.getItemAtPosition(arg2);
                 if(arg2 == 0){
+
                     selectEntityButton.setVisibility(View.GONE);
+                    permissionSpinner.setVisibility(View.GONE);
                 }else{
                     selectEntityButton.setVisibility(View.VISIBLE);
+                    permissionSpinner.setVisibility(View.VISIBLE);
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -491,9 +517,11 @@ public class AddUser extends AppCompatActivity{
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
 
-                                //autocompleter la liste des restaurants après avoir sélectionner le parent
+                                /**
+                                 * complete entities list
+                                 */
                                 JsonObjectRequest entityRequest = new JsonObjectRequest
-                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/"+selectedID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/"+selectedID+"/user/"+userID, null, new Response.Listener<JSONObject>() {
                                             @Override
                                             public void onResponse(JSONObject response) {
 
@@ -533,7 +561,6 @@ public class AddUser extends AppCompatActivity{
 
                             }
                         } catch (JSONException e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
@@ -543,9 +570,6 @@ public class AddUser extends AppCompatActivity{
 
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
-                // TODO Auto-generated method stub
-
-
             }
         });
 

@@ -134,7 +134,7 @@ public class Historique extends AppCompatActivity {
 
                             lineChart.setData(data);
                             lineChart.setDescription("Device status");
-                            lineChart.setMinimumWidth(1300);
+                            lineChart.setMinimumWidth(1200);
                             lineChart.setMinimumHeight(1200);
 
 

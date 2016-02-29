@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -41,7 +42,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     private FragmentManager FragManager;
     private String RestID;
     private Activity context;
-    private boolean isViewExpanded = false;
     private SharedPreferences pref;
     private String permission;
     private LinearLayout mLinearLayout;
@@ -113,8 +113,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 v.getContext().startActivity(intent);
             }
         });
-
-
     }
 
     @Override
@@ -139,8 +137,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected LinearLayout vExpandable;
         protected CardView vCardView;
         protected ImageView vInfo;
-
-        private int originalHeight = 0;
         private boolean isViewExpanded = false;
 
         public RestaurantViewHolder(View v) {
@@ -201,7 +197,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
                 @Override
                 public void onAnimationRepeat(Animator animation) {
-
+                    vExpandable.setVisibility(View.GONE);
                 }
 
             });

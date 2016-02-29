@@ -21,8 +21,11 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,31 +63,22 @@ import java.util.Map;
 public class AddUserByID extends AppCompatActivity {
 
     private String restId;
-    private String message;
     private EditText mUsernameView, mEmailView, mPasswordView, mPhoneView;
-    private String email, username, phone, password, permission, savedRestId, ID, myuserID, role;
+    private String email, username, phone, password, permission, savedRestId, ID, myuserID;
     private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
     private View mProgressView;
     private View mFormview;
-    private JSONArray chains = new JSONArray();
-
-    protected CharSequence[] colours = { "Red", "Green", "Blue", "Yellow", "Orange", "Purple" };
     protected CharSequence[] restaurants;
-    protected CharSequence[] permissions = { "ADMIN", "USER" };
-
-    protected ArrayList<CharSequence> selectedEntity = new ArrayList<CharSequence>();
-    protected ArrayList<CharSequence> selectedPermission = new ArrayList<CharSequence>();
-    private Button selectEntityButton, selectPermissionBtn;
-    private JSONArray names = new JSONArray();
     List<String> list = new ArrayList<String>();
-    List<String> selectedItem, selectedItemPermission;
     JSONObject channels;
     JSONArray itemsArray;
-    private JSONArray EntityInfo = new JSONArray();
     private JSONArray infosArray = new JSONArray();
-    private String entityInfo, restID;
+    private String entityInfo;
     private TextView addText;
+    private Spinner permissionSpinner;
+    private ArrayAdapter<String> dataAdapter;
+    private String itemPermission;
+    List<String> listItems = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +95,7 @@ public class AddUserByID extends AppCompatActivity {
 
         mFormview = findViewById(R.id.add_form);
         mProgressView = findViewById(R.id.login_progress);
-        addText = (TextView) findViewById(R.id.addtext);
+        permissionSpinner = (Spinner) findViewById(R.id.permission);
 
         Intent intent = getIntent();
 
@@ -110,7 +104,6 @@ public class AddUserByID extends AppCompatActivity {
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         savedRestId = pref.getString("restId", "");
         myuserID = pref.getString("myuserID", "");
-        role = pref.getString("ROLE", "");
         entityInfo = pref.getString("EntityInfo", "");
 
         if(restId == null){
@@ -124,6 +117,44 @@ public class AddUserByID extends AppCompatActivity {
         mEmailView = (EditText) findViewById(R.id.email);
         mPhoneView = (EditText) findViewById(R.id.phone);
 
+        List<String> list = new ArrayList<String>();
+        list.add("Séléctionner une permission");
+        list.add("USER");
+        list.add("ADMIN");
+        dataAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        permissionSpinner.setAdapter(dataAdapter);
+
+        listItems = new ArrayList<String>();
+
+        permissionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1,
+                                       int arg2, long arg3) {
+
+                Object item = arg0.getItemAtPosition(arg2);
+                if(arg2 == 0){
+                    itemPermission = "";
+                }else{
+                    if (item != null) {
+                        if(item.toString().equals("USER")){
+                            itemPermission = "1";
+                        }else{
+                            itemPermission = "2";
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+
+            }
+        });
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,25 +163,6 @@ public class AddUserByID extends AppCompatActivity {
 
             }
         });
-        try {
-            infosArray = new JSONArray(entityInfo);
-            for (int j = 0; j < infosArray.length(); j++) {
-                JSONObject infoObject = infosArray.getJSONObject(j);
-                permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
-                restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-
-                if (permission.equals("3")) {
-                    //I can only create administators
-                    addText.setText("Créer un administrateur");
-                } else if (permission.equals("2")) {
-                    //I can only create users
-                    addText.setText("Créer un utilisateur");
-                }
-
-            }
-        }catch (JSONException e){
-
-        }
 
     }
 
@@ -174,30 +186,8 @@ public class AddUserByID extends AppCompatActivity {
             itemsArray = new JSONArray();
             channels = new JSONObject();
             channels.put("restid", ID);
-
-            try{
-                infosArray = new JSONArray(entityInfo);
-                for (int j = 0; j < infosArray.length(); j++) {
-                    JSONObject infoObject = infosArray.getJSONObject(j);
-                    permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
-                    restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
-
-                    if(permission.equals("3")){
-                        //I can only create administators
-                        addText.setText("Créer un administrateur");
-                        channels.put("permission", "2");
-                    }else if(permission.equals("2")){
-                        //I can only create users
-                        addText.setText("Créer un utilisateur");
-                        channels.put("permission", "1");
-                    }
-
-                }
-                itemsArray.put(channels);
-
-            }catch(JSONException e){
-
-            }
+            channels.put("permission", itemPermission);
+            itemsArray.put(channels);
 
         }catch (JSONException e){
 
@@ -218,6 +208,9 @@ public class AddUserByID extends AppCompatActivity {
         }else if (TextUtils.isEmpty(phone) ) {
             mPhoneView.setError(getString(R.string.error_field_required));
             focusView = mPhoneView;
+            cancel = true;
+        }else if(itemPermission.isEmpty()){
+            focusView = permissionSpinner;
             cancel = true;
         }
 
@@ -272,18 +265,10 @@ public class AddUserByID extends AppCompatActivity {
                 is = entity.getContent();
 
             } catch (ClientProtocolException e) {
-
                 Log.e("ClientProtocole", "Log_tag");
-                String msg = "Erreur client protocole";
-                message = "Erreur client protocole";
-
-
             } catch (IOException e) {
                 Log.e("Log_tag", "IOException");
                 e.printStackTrace();
-                String msg = "Erreur IOException";
-                message = "Erreur IOException";
-
             }
 
             return is;

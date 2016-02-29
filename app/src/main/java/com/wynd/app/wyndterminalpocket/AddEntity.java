@@ -45,10 +45,10 @@ public class AddEntity extends AppCompatActivity {
     private View mProgressView;
     private View mFormview;
     private EditText vName, vEmail, vPhone, vChannel, vAddress;
-    private String email, name, phone, channel, address, parent, userID, message;
+    private String email, name, phone, channel, address, userID;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    private String userInfo, parentID;
+    private String parentID;
 
 
     @Override
@@ -178,18 +178,11 @@ public class AddEntity extends AppCompatActivity {
                 is = entity.getContent();
 
             } catch (ClientProtocolException e) {
-
                 Log.e("ClientProtocole", "Log_tag");
-                String msg = "Erreur client protocole";
-                message = "Erreur client protocole";
-
 
             } catch (IOException e) {
                 Log.e("Log_tag", "IOException");
                 e.printStackTrace();
-                String msg = "Erreur IOException";
-                message = "Erreur IOException";
-
             }
 
             return is;
@@ -214,8 +207,6 @@ public class AddEntity extends AppCompatActivity {
                 String json = total.toString();
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
-
-                int i = 0;
 
                 String result = finalResult.getString("result");
 

@@ -91,8 +91,6 @@ public class Utilisateurs extends Fragment {
 
             for (int j = 0; j < infosArray.length(); j++) {
                 infoObject = infosArray.getJSONObject(j);
-                final String parentID= infoObject.isNull("res_parent_id") ? "" : infoObject.getString("res_parent_id");
-
                 /**
                  * show parents allowed to see
                  */

@@ -41,11 +41,10 @@ import java.util.List;
 public class AddTerminal extends AppCompatActivity {
 
     private String restId;
-    private String message, myuserID;
-    private EditText vImei, vEmail, vChannel, vPhone;
-    private String email,imei, name, phone, channel, permission, savedRestId, ID;
+    private String myuserID;
+    private EditText vImei;
+    private String imei;
     private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
     private View mProgressView;
     private View mFormview;
     @Override
@@ -146,18 +145,10 @@ public class AddTerminal extends AppCompatActivity {
                 is = entity.getContent();
 
             } catch (ClientProtocolException e) {
-
                 Log.e("ClientProtocole", "Log_tag");
-                String msg = "Erreur client protocole";
-                message = "Erreur client protocole";
-
-
             } catch (IOException e) {
                 Log.e("Log_tag", "IOException");
                 e.printStackTrace();
-                String msg = "Erreur IOException";
-                message = "Erreur IOException";
-
             }
 
             return is;
@@ -182,9 +173,6 @@ public class AddTerminal extends AppCompatActivity {
                 String json = total.toString();
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
-
-                int i = 0;
-
                 String result = finalResult.getString("result");
 
                 if (!result.isEmpty() && result.equals("success")) {

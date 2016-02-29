@@ -41,9 +41,11 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.XAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -278,14 +280,6 @@ public class HistoriqueFragment extends Fragment {
                             ArrayList<String> xValues = new ArrayList<String>();
                             ArrayList<Entry> entries = new ArrayList<>();
 
-                            for(int i=0; i<values.length(); i++){
-                                String status = values.getJSONObject(i).getString("t_status");
-                                String date = values.getJSONObject(i).getString("t_last_seen");
-                                Float f= Float.parseFloat(status);
-                                entries.add(new Entry(f, i));
-                                xValues.add(date);
-                            }
-
 //                            try{
 //                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
 //                                Date startDate = formatter.parse(date1);
@@ -296,22 +290,33 @@ public class HistoriqueFragment extends Fragment {
 //                                end.setTime(endDate);
 //
 //                                for (Date date = start.getTime(); start.before(end); start.add(Calendar.DATE, 1), date = start.getTime()) {
-//                                    xValues.add(""+date);
-//                                }
-//                                for(int i=0; i<xValues.size(); i++){
-//                                    entries.add(new Entry(1, i));
+//                                    xValues.add(date.toString());
+//                                    System.out.println("TEST date "+date.toString());
 //                                }
 //                            }catch (ParseException e){
 //
 //                            }
+
+                            for(int j=0; j<values.length(); j++){
+                                String status = values.getJSONObject(j).getString("t_status");
+                                String date = values.getJSONObject(j).getString("t_last_seen");
+                                System.out.println("status "+status+" & date "+date);
+                                Float f= Float.parseFloat(status);
+                                entries.add(new Entry(f, j));
+                                xValues.add(j, date);
+                            }
+
+
                             LineDataSet dataset = new LineDataSet(entries, "1 = ON / 0 = OFF");
 
                             LineData data = new LineData(xValues, dataset);
 
                             lineChart.setData(data);
                             lineChart.setDescription("Device status");
-                            lineChart.setMinimumWidth(1300);
+                            lineChart.setMinimumWidth(1200);
                             lineChart.setMinimumHeight(1200);
+//                            lineChart.setMinimumWidth(500);
+//                            lineChart.setMinimumHeight(500);
 
 
                             YAxis mYAxis = lineChart.getAxisLeft();
