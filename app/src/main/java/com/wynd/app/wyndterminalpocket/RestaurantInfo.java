@@ -12,12 +12,14 @@ public class RestaurantInfo {
     protected String phone;
     protected String channel;
     protected String userPermission;
+    protected String status;
 
     protected static final String ID_PREFIX = "";
     protected static final String NAME_PREFIX = "";
     protected static final String EMAIL_PREFIX = "";
     protected static final String PHONE_PREFIX = "";
     protected static final String CHANNEL_PREFIX = "";
+    protected static final String STATUS_PREFIX = "(inactive)";
 
 }
 

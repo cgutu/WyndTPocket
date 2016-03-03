@@ -1,5 +1,6 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -158,7 +159,6 @@ public class Terminals extends AppCompatActivity {
                             for (int i = 0; i < values.length(); i++) {
 
                                 JSONObject terminalObject = values.getJSONObject(i);
-                                String channelID = terminalObject.isNull("channelID") ? "" : terminalObject.getString("channelID");
                                 String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
 
                                 if(!channel.isEmpty() && channel.equalsIgnoreCase(channelName)){
@@ -278,6 +278,13 @@ public class Terminals extends AppCompatActivity {
                      * set a notification if the device is getting OFF / disable the notification when the device is getting ON
                      */
                     if(ti.terminalStatus.equalsIgnoreCase("0")) {
+
+//                        Context context = getApplicationContext();
+//                        AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+//                        Intent intent = new Intent(context, MyReceiver.class);
+//                        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+//                        alarmMgr.set(AlarmManager.RTC_WAKEUP, 0, alarmIntent) ;
+
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(this)
                                         .setSmallIcon(R.drawable.ic_terminal)

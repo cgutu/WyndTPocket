@@ -78,10 +78,10 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         permission = ri.userPermission;
         if(permission.equalsIgnoreCase("2") || permission.equalsIgnoreCase("3")){
             restaurantViewHolder.vBtnUsers.setVisibility(View.VISIBLE);
+            restaurantViewHolder.vBtnOrders.setVisibility(View.VISIBLE);
         }else if(permission.equalsIgnoreCase("1")){
             restaurantViewHolder.vBtnUsers.setVisibility(View.GONE);
         }
-
 
 
         restaurantViewHolder.vBtnUsers.setOnClickListener(new View.OnClickListener() {
@@ -108,7 +108,16 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), InfoOfRestaurant.class);
-                intent.putExtra("restId",ri.id);
+                intent.putExtra("restId", ri.id);
+                intent.putExtra("channel", ri.channel);
+                v.getContext().startActivity(intent);
+            }
+        });
+        restaurantViewHolder.vBtnOrders.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), Orders.class);
+                intent.putExtra("restId", ri.id);
                 intent.putExtra("channel", ri.channel);
                 v.getContext().startActivity(intent);
             }
@@ -121,7 +130,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 from(viewGroup.getContext()).
                 inflate(R.layout.card_restaurant, viewGroup, false);
 
-        final RestaurantViewHolder restaurantViewHolder = new RestaurantViewHolder(itemView);
+        RestaurantViewHolder restaurantViewHolder = new RestaurantViewHolder(itemView);
 
         return restaurantViewHolder;
     }
@@ -132,6 +141,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected TextView vPhone;
         protected TextView vChannel;
         protected Button vBtnUsers;
+        protected Button vBtnOrders;
         protected Button vBtnTerminals;
         protected RelativeLayout vHeader;
         protected LinearLayout vExpandable;
@@ -147,6 +157,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             vChannel = (TextView) v.findViewById(R.id.txtChannel);
             vBtnUsers = (Button) v.findViewById(R.id.btnUsers);
             vBtnTerminals = (Button) v.findViewById(R.id.btnTerminals);
+            vBtnOrders = (Button) v.findViewById(R.id.orders);
 
             vExpandable = (LinearLayout) v.findViewById(R.id.expandable);
             vHeader = (RelativeLayout) v.findViewById(R.id.header);
@@ -158,7 +169,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
 
             v.setOnClickListener(this);
-
         }
 
         private void expand() {
@@ -197,7 +207,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
                 @Override
                 public void onAnimationRepeat(Animator animation) {
-                    vExpandable.setVisibility(View.GONE);
                 }
 
             });
@@ -232,8 +241,6 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             }
 
         }
-
-
 
     }
 

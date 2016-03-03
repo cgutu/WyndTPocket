@@ -144,6 +144,12 @@ public class MenuActivity extends AppCompatActivity
             editor.apply();
 
             displayView(R.id.nav_slideshow);
+        }else if(!s1.isEmpty() && s1.equals("exitorders")){
+            editor = pref.edit();
+            editor.putString("Check", "0");
+            editor.apply();
+
+            displayView(R.id.nav_slideshow);
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

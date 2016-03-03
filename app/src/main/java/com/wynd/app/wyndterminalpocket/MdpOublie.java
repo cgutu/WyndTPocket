@@ -40,7 +40,6 @@ public class MdpOublie extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 checkForm();
-                email = vEmail.getText().toString();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -79,7 +78,7 @@ public class MdpOublie extends AppCompatActivity {
 
             showProgress(true);
 
-            //do staff
+            //send notification
             System.out.println("email "+email);
 
         }

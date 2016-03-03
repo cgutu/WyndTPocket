@@ -65,6 +65,7 @@ public class Restaurants extends Fragment{
     private JSONArray parents = new JSONArray();
     private FloatingActionButton fab;
     private TextView empty;
+    private Integer terminalCount;
 
     public Restaurants() {
         // Required empty public constructor
@@ -227,7 +228,6 @@ public class Restaurants extends Fragment{
             }
         });
 
-
         return rootView;
     }
 
@@ -375,7 +375,7 @@ public class Restaurants extends Fragment{
                 JSONObject json_data = jsonArray.getJSONObject(i);
 
                 ri.id = (json_data.isNull("id") ? "" : RestaurantInfo.ID_PREFIX +  json_data.getString("id"));
-                ri.name = (json_data.isNull("name") ? "" : RestaurantInfo.NAME_PREFIX +  json_data.getString("name"));
+
                 ri.email = (json_data.isNull("email") ? "" : RestaurantInfo.EMAIL_PREFIX +  json_data.getString("email"));
                 ri.phone = (json_data.isNull("phone") ? "" : RestaurantInfo.PHONE_PREFIX +  json_data.getString("phone"));
                 ri.channel = (json_data.isNull("channel") ? "" : RestaurantInfo.CHANNEL_PREFIX +  json_data.getString("channel"));
@@ -383,6 +383,12 @@ public class Restaurants extends Fragment{
                 String restId = (json_data.isNull("id") ? "" : RestaurantInfo.ID_PREFIX +  json_data.getString("id"));
                 ri.userPermission = "2";
 
+                ri.status = (json_data.isNull("active") ? "" : RestaurantInfo.ID_PREFIX +  json_data.getString("active"));
+                if(ri.status.equals("0")){
+                    ri.name = (json_data.isNull("name") ? "" : RestaurantInfo.NAME_PREFIX +  json_data.getString("name")+" (inactive) ");
+                }else{
+                    ri.name = (json_data.isNull("name") ? "" : RestaurantInfo.NAME_PREFIX +  json_data.getString("name"));
+                }
                 try{
                     infosArray = new JSONArray(EntityInfo);
                     for (int j = 0; j < infosArray.length(); j++) {
@@ -392,8 +398,14 @@ public class Restaurants extends Fragment{
                         restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
 
                         if(!restId.isEmpty() && restId.equals(restID)){
-                            ri.userPermission = permission;
-                            result.add(ri);
+                            if((permission.contains("3") && ri.status.equals("0")) || (permission.contains("3") && ri.status.equals("1")) ){
+                                ri.userPermission = permission;
+                                result.add(ri);
+                            }else if(!permission.contains("3") && ri.status.equals("1")){
+                                ri.userPermission = permission;
+                                result.add(ri);
+                            }
+
                         }
                     }
 

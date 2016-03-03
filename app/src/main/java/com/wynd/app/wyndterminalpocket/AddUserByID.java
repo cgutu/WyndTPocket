@@ -121,6 +121,7 @@ public class AddUserByID extends AppCompatActivity {
         list.add("Séléctionner une permission");
         list.add("USER");
         list.add("ADMIN");
+      //  list.add("SUPER ADMIN");
         dataAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_item, list);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -141,8 +142,10 @@ public class AddUserByID extends AppCompatActivity {
                     if (item != null) {
                         if(item.toString().equals("USER")){
                             itemPermission = "1";
-                        }else{
+                        }else if(item.toString().equals("ADMIN")){
                             itemPermission = "2";
+                        }else{
+                            itemPermission = "3";
                         }
                     }
                 }

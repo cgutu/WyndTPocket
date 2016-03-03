@@ -58,5 +58,6 @@
     <string name="title_activity_edit_terminal">Modifier</string>
     <string name="title_activity_add_parent">Ajouter</string>
     <string name="title_activity_edit_parent">Modifier</string>
+    <string name="title_activity_orders">Orders</string>
 
 </resources>

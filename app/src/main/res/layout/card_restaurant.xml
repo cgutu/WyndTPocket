@@ -145,6 +145,14 @@
             android:text="Dashboard Users"/>
         <Button android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:background="@drawable/buttons_chape"
+            android:textColor="@drawable/text_color"
+            android:id="@+id/orders"
+            android:visibility="gone"
+            android:layout_weight="1"
+            android:text="Orders"/>
+        <Button android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/buttons_chape"
             android:textColor="@drawable/text_color"
