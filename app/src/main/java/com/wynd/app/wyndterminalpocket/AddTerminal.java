@@ -131,7 +131,7 @@ public class AddTerminal extends AppCompatActivity {
                 nameValuePairs.add(new BasicNameValuePair("user_id", myuserID));
 
 
-                httpPost.setHeader("Api-User", Globales.API_TERMINAL);
+                httpPost.setHeader("Api-User", Globales.API_USER);
                 httpPost.setHeader("Api-Hash", Globales.API_HASH);
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 

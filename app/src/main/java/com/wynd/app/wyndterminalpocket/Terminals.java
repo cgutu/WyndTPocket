@@ -188,7 +188,7 @@ public class Terminals extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("Api-User", Globales.API_TERMINAL);
+                params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
                 return params;
@@ -254,6 +254,9 @@ public class Terminals extends AppCompatActivity {
                     Date date1 = sdf.parse(currentDateandTime);
                     Date date2 = sdf.parse(ti.terminalStatusUpdateTime);
 
+                    System.out.println("date 1"+date1);
+                    System.out.println("date 2"+date2);
+
                     long diffInMs = date1.getTime() - date2.getTime();
                     long secondsInMilli = 1000;
                     long minutesInMilli = secondsInMilli * 60;
@@ -274,17 +277,9 @@ public class Terminals extends AppCompatActivity {
                     mNotificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-                    /**
-                     * set a notification if the device is getting OFF / disable the notification when the device is getting ON
-                     */
-                    if(ti.terminalStatus.equalsIgnoreCase("0")) {
 
-//                        Context context = getApplicationContext();
-//                        AlarmManager alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-//                        Intent intent = new Intent(context, MyReceiver.class);
-//                        PendingIntent alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
-//                        alarmMgr.set(AlarmManager.RTC_WAKEUP, 0, alarmIntent) ;
-
+                    System.out.println("elapsedHours "+elapsedHours+" elapsedMinutes "+elapsedMinutes+ " elapsedSeconds "+elapsedSeconds);
+                    /*if(ti.terminalStatus.equalsIgnoreCase("0")) {
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(this)
                                         .setSmallIcon(R.drawable.ic_terminal)
@@ -305,7 +300,7 @@ public class Terminals extends AppCompatActivity {
                         mNotificationManager.notify(i, mBuilder.build());
                     }else{
                         mNotificationManager.cancel(i);
-                    }
+                    }*/
                     if(elapsedDays>0) {
                         ti.terminalStatusUpdateTime = elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min "+elapsedSeconds+"s";
                     }else{

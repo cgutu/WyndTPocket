@@ -81,6 +81,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             restaurantViewHolder.vBtnOrders.setVisibility(View.VISIBLE);
         }else if(permission.equalsIgnoreCase("1")){
             restaurantViewHolder.vBtnUsers.setVisibility(View.GONE);
+            restaurantViewHolder.vBtnOrders.setVisibility(View.VISIBLE);
         }
 
 
@@ -116,6 +117,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         restaurantViewHolder.vBtnOrders.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("channelID send"+ ri.id);
                 Intent intent = new Intent(v.getContext(), Orders.class);
                 intent.putExtra("restId", ri.id);
                 intent.putExtra("channel", ri.channel);
@@ -169,6 +171,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
 
             v.setOnClickListener(this);
+
         }
 
         private void expand() {
@@ -239,7 +242,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
                 isViewExpanded = false;
                 collapse();
             }
-
+            int position = getAdapterPosition();
+            System.out.println("position " + position);
         }
 
     }

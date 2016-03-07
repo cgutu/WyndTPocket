@@ -1,11 +1,15 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -48,11 +52,24 @@ public class MenuActivity extends AppCompatActivity
     private boolean viewIsAtHome;
     private String userID, parentID, permission, rest_channel, EntityInfo, restID;
     private SharedPreferences.Editor editor;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+        this.context = this;
+        Intent alarm = new Intent(this.context, MyReceiver.class);
+        boolean alarmRunning = (PendingIntent.getBroadcast(this.context, 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
+        if(!alarmRunning) {
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this.context, 0, alarm, 0);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 60000, pendingIntent);
+        }
+
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                MainActivity.class));
 
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
                 MenuActivity.class));

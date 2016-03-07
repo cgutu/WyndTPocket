@@ -1,5 +1,11 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+
 /**
  * Created by cgutu on 25/01/16.
  */

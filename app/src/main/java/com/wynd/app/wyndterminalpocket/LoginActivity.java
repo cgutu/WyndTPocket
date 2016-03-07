@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -157,7 +158,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.

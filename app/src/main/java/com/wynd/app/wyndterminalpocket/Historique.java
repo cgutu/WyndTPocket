@@ -183,7 +183,7 @@ public class Historique extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("Api-User", Globales.API_TERMINAL);
+                params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
                 return params;

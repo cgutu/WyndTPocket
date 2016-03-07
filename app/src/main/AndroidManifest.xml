@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -218,9 +219,15 @@
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
         </activity>
 
+        <service android:name=".BackgroundService" />
+
         <receiver
             android:name=".MyReceiver"
-            android:enabled="true" />
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".Orders"
