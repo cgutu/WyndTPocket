@@ -182,9 +182,10 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                         try {
                             JSONArray data = response.getJSONArray("data");
 
+                            String macadd = "TEST";
                             for(int i=0; i<data.length(); i++){
                                 JSONObject result = data.getJSONObject(i);
-                                String macadd = result.getString("t_name");
+                                macadd = result.getString("t_name");
                                 if(!macadd.isEmpty() && macadd.equals(uuid)){
                                     String Position = result.getString("t_lat_lng");
                                     JSONObject objet = new JSONObject(Position);
@@ -200,7 +201,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                             Float lat = Float.parseFloat(LAT);
                             Float lng = Float.parseFloat(LNG);
                             LatLng position = new LatLng(lat, lng);
-                            marker = mMap.addMarker(new MarkerOptions().position(position).title("TEST"));
+                            marker = mMap.addMarker(new MarkerOptions().position(position).title(macadd));
 
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
                             CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
