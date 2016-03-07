@@ -9,6 +9,10 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 
 /** 
  * Dashboard
@@ -25,13 +29,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         /**
-         * @user clear stored data if exists
+         * Set the API HASH
          */
-        pref = getApplicationContext().getSharedPreferences("Infos", 0); // 0 - for private mode
-        editor = pref.edit();
-        editor.clear();
-        editor.apply();
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
 
         /**
          * @main go to login after 5s
@@ -41,10 +49,32 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                Intent i = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(i);
+                /**
+                 * @user clear stored data if exists
+                 */
+                pref = getApplicationContext().getSharedPreferences("Infos", 0); // 0 - for private mode
+                /**
+                 * redirect interface if user already connected
+                 */
+                String userID = pref.getString("myuserID", "");
+                String EntityInfo = pref.getString("EntityInfo", "");
+                System.out.println("userID stored " + userID);
+                System.out.println("EntityInfo stored " + EntityInfo);
+                if(!userID.isEmpty() && !EntityInfo.isEmpty()){
+                    Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    editor = pref.edit();
+                    editor.clear();
+                    editor.apply();
 
-                finish();
+                    Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(i);
+                    finish();
+                }
+
+
             }
         }, 1000);
     }

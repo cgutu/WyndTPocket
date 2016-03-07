@@ -10,14 +10,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -26,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -39,7 +32,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,20 +42,17 @@ public class MenuActivity extends AppCompatActivity
 
     private SharedPreferences pref;
     private boolean viewIsAtHome;
-    private String userID, parentID, permission, rest_channel, EntityInfo, restID;
     private SharedPreferences.Editor editor;
-    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
 
-        this.context = this;
-        Intent alarm = new Intent(this.context, MyReceiver.class);
-        boolean alarmRunning = (PendingIntent.getBroadcast(this.context, 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
+        Intent alarm = new Intent(getApplicationContext(), MyReceiver.class);
+        boolean alarmRunning = (PendingIntent.getBroadcast(getApplicationContext(), 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
         if(!alarmRunning) {
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this.context, 0, alarm, 0);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, alarm, 0);
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 60000, pendingIntent);
         }
@@ -82,7 +71,7 @@ public class MenuActivity extends AppCompatActivity
 
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         editor = pref.edit();
-        userID = pref.getString("myuserID", "");
+        String userID = pref.getString("myuserID", "");
 
        /**
         * get user info and store it in a session
@@ -114,7 +103,7 @@ public class MenuActivity extends AppCompatActivity
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put("Api-User", Globales.API_USER);
                 params.put("Api-Hash", Globales.API_HASH);
 
@@ -125,10 +114,9 @@ public class MenuActivity extends AppCompatActivity
         Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
 
         /**
-         * display fragment views
+         * display fragment views, used on fragment return
          */
 
-        EntityInfo = pref.getString("EntityInfo", "");
         String s1 = pref.getString("Check", "");
 
         if(!s1.isEmpty() && s1.equals("inforestaurant")){
@@ -215,7 +203,7 @@ public class MenuActivity extends AppCompatActivity
         /**
          * logout on click event
          */
-        Fragment fragment1 = null;
+        Fragment fragment1;
         switch (id) {
             case R.id.logout:
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(MenuActivity.this);
@@ -272,8 +260,8 @@ public class MenuActivity extends AppCompatActivity
 
     public void displayView(int viewId) {
 
-        Fragment fragment = null;
-        String title = getString(R.string.app_name);
+        Fragment fragment;
+        String title;
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 
@@ -305,11 +293,10 @@ public class MenuActivity extends AppCompatActivity
 
         }
 
-        if (fragment != null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment);
-            ft.commit();
-        }
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.content_frame, fragment);
+        ft.commit();
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(title);
         }

@@ -366,7 +366,10 @@ public class EditUserProfil extends AppCompatActivity {
                     Intent intent = new Intent(EditUserProfil.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
+                }else{
+                    Toast.makeText(getApplicationContext(), "Erreur "+result, Toast.LENGTH_LONG).show();
                 }
+                Log.i("EDIT", "total "+total );
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
             }
@@ -458,6 +461,8 @@ public class EditUserProfil extends AppCompatActivity {
                     startActivity(intent);
                     finish();
 
+                }else{
+                    Toast.makeText(getApplicationContext(), "Erreur "+result, Toast.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());

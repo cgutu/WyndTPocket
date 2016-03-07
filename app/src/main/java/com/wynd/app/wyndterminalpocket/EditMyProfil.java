@@ -178,7 +178,7 @@ public class EditMyProfil extends AppCompatActivity {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            new EditTask().execute();
+             new EditTask().execute();
         }
     }
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
@@ -186,13 +186,12 @@ public class EditMyProfil extends AppCompatActivity {
         String result = null;
         InputStream is = null;
         List<NameValuePair> nameValuePairs;
-        JSONArray jsonArray = new JSONArray();
-
 
         protected InputStream doInBackground(Void... params) {
 
             //setting nameValuePairs
             nameValuePairs = new ArrayList<NameValuePair>(1);
+            Log.i("INFOS", restovspermission.toString());
 
             try {
                 //Setting up the default http client
@@ -245,16 +244,16 @@ public class EditMyProfil extends AppCompatActivity {
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
 
-                int i = 0;
+                Log.i("PUT", "total "+total + " json "+json);
                 String result = finalResult.getString("result");
-                String msg = finalResult.getString("message");
-
                 if (!result.isEmpty() && result.equals("success")) {
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditMyProfil.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
 
+                }else{
+                    Toast.makeText(getApplication(), "Permission denied", Toast.LENGTH_LONG).show();
                 }
 
             } catch (Exception e) {

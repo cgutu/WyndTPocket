@@ -68,105 +68,122 @@ public class BackgroundService extends Service {
     }
     public void postNotification(final Context c) {
         Context context = c.getApplicationContext();
+
+        SharedPreferences pref = context.getSharedPreferences("Infos", 0);
+        String EntityInfo = pref.getString("EntityInfo", "");
+
+
         Intent intent01 = new Intent(context, MainActivity.class);
         final PendingIntent pendingIntent01 = PendingIntent.getActivity(c, 1, intent01, 0);
         final NotificationManager notificationManager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        JsonObjectRequest terminalRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/all", null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
 
-                        try {
-                            JSONArray values = response.getJSONArray("data");
-                            for (int i = 0; i < values.length(); i++) {
+        try {
+            JSONArray infosArray = new JSONArray(EntityInfo);
 
-                                JSONObject terminalObject = values.getJSONObject(i);
-                                if(terminalObject.getString("terminalStatus").equals("0")){
-                                    String uuid = terminalObject.isNull("terminalMacadd") ? "" : terminalObject.getString("terminalMacadd");
-                                    String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
-                                    String terminalStatusUpdateTime = (terminalObject.isNull("terminalLastUpdated") ? "" : terminalObject.getString("terminalLastUpdated"));
+            for (int j = 0; j < infosArray.length(); j++) {
+                JSONObject info = infosArray.getJSONObject(j);
+                final String chaindID = info.isNull("resaturantChainID") ? "" : info.getString("resaturantChainID");
 
-                                    System.out.println("c " + uuid);
+                JsonObjectRequest terminalRequest = new JsonObjectRequest
+                        (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
 
-                                    /**
-                                     * configure a time laps for getting ON/OFF
-                                     */
-                                    try {
+                                try {
+                                    JSONArray values = response.getJSONArray("data");
+                                    for (int i = 0; i < values.length(); i++) {
 
-                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                        String currentDateandTime = sdf.format(new Date());
-                                        Date date1 = sdf.parse(currentDateandTime);
-                                        Date date2 = sdf.parse(terminalStatusUpdateTime);
+                                        JSONObject terminalObject = values.getJSONObject(i);
+                                        System.out.println("repeating notification");
 
-                                        System.out.println("date 1" + date1);
-                                        System.out.println("date 2" + date2);
+                                        if (terminalObject.getString("terminalStatus").equals("0") && terminalObject.getString("channelID").equals(chaindID)) {
+                                            String uuid = terminalObject.isNull("terminalMacadd") ? "" : terminalObject.getString("terminalMacadd");
+                                            String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
+                                            String terminalStatusUpdateTime = (terminalObject.isNull("terminalLastUpdated") ? "" : terminalObject.getString("terminalLastUpdated"));
 
-                                        long diffInMs = date1.getTime() - date2.getTime();
-                                        long secondsInMilli = 1000;
-                                        long minutesInMilli = secondsInMilli * 60;
-                                        long hoursInMilli = minutesInMilli * 60;
-                                        long daysInMilli = hoursInMilli * 24;
+                                            /**
+                                             * configure a time laps for getting ON/OFF
+                                             */
+                                            try {
 
-                                        long elapsedDays = diffInMs / daysInMilli;
-                                        diffInMs = diffInMs % daysInMilli;
+                                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                                String currentDateandTime = sdf.format(new Date());
+                                                Date date1 = sdf.parse(currentDateandTime);
+                                                Date date2 = sdf.parse(terminalStatusUpdateTime);
 
-                                        long elapsedHours = diffInMs / hoursInMilli;
-                                        diffInMs = diffInMs % hoursInMilli;
+                                                System.out.println("date 1" + date1);
+                                                System.out.println("date 2" + date2);
 
-                                        long elapsedMinutes = diffInMs / minutesInMilli;
-                                        diffInMs = diffInMs % minutesInMilli;
+                                                long diffInMs = date1.getTime() - date2.getTime();
+                                                long secondsInMilli = 1000;
+                                                long minutesInMilli = secondsInMilli * 60;
+                                                long hoursInMilli = minutesInMilli * 60;
+                                                long daysInMilli = hoursInMilli * 24;
 
-                                        long elapsedSeconds = diffInMs / secondsInMilli;
-                                        NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
-                                        builder.setSmallIcon(R.drawable.ic_terminal);
-                                        builder.setContentIntent(pendingIntent01);
-                                        builder.setAutoCancel(true);
-                                        builder.setContentTitle(channel +" HS ! "+uuid);
-                                        builder.setContentText("OFF depuis " +elapsedDays+"j "+elapsedHours+"h "+ elapsedMinutes + "min " + elapsedSeconds + "s");
-                                        //builder.setSubText("click here");
+                                                long elapsedDays = diffInMs / daysInMilli;
+                                                diffInMs = diffInMs % daysInMilli;
 
-                                        notificationManager.notify(i, builder.build());
-                                        try {
-                                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                            Ringtone r = RingtoneManager.getRingtone(c, notification);
-                                            r.play();
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
+                                                long elapsedHours = diffInMs / hoursInMilli;
+                                                diffInMs = diffInMs % hoursInMilli;
+
+                                                long elapsedMinutes = diffInMs / minutesInMilli;
+                                                diffInMs = diffInMs % minutesInMilli;
+
+                                                long elapsedSeconds = diffInMs / secondsInMilli;
+                                                NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
+                                                builder.setSmallIcon(R.drawable.ic_terminal);
+                                                builder.setContentIntent(pendingIntent01);
+                                                builder.setAutoCancel(true);
+                                                builder.setContentTitle(channel + " HS ! " + uuid);
+                                                builder.setContentText("OFF depuis " + elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min " + elapsedSeconds + "s");
+                                                //builder.setSubText("click here");
+
+                                                notificationManager.notify(i, builder.build());
+                                                try {
+                                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                                    Ringtone r = RingtoneManager.getRingtone(c, notification);
+                                                    r.play();
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                            } catch (Exception e) {
+                                                Log.e("Date parsing error", e.toString());
+                                            }
+                                        } else {
+                                            notificationManager.cancel(i);
                                         }
 
-                                    }catch (Exception e){
-                                        Log.e("Date parsing error", e.toString());
                                     }
-                                }else{
-                                    notificationManager.cancel(i);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
 
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        }, new Response.ErrorListener() {
 
-                    }
-                }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
 
+                                error.printStackTrace();
+                            }
+                        }) {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("Api-User", "admin");
+                        params.put("Api-Hash", "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4");
 
-                        error.printStackTrace();
+                        return params;
                     }
-                }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("Api-User", "admin");
-                params.put("Api-Hash", "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4");
+                };
 
-                return params;
+                Volley.newRequestQueue(c).add(terminalRequest);
             }
-        };
+        }catch (JSONException e){
 
-        Volley.newRequestQueue(c).add(terminalRequest);
+        }
     }
 
 }

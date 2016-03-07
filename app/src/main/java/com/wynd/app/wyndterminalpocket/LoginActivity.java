@@ -76,7 +76,6 @@ public class LoginActivity extends AppCompatActivity {
     private String message;
     private Button askaccount;
     private JSONArray EntityInfo = new JSONArray();
-
     /**
      * set up the login form
      */
@@ -92,7 +91,6 @@ public class LoginActivity extends AppCompatActivity {
          * get stored user infos
          */
         pref = getApplicationContext().getSharedPreferences("Infos", 0); // 0 - for private mode
-        editor = pref.edit();
 
         /**
          * Set up the login form.
@@ -137,16 +135,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
-        /**
-         * Set the API HASH
-         */
-        try {
 
-            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
-
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            Log.e("Error sha1 API_HASH", e.toString());
-        }
 
         //if no account, go to another form
         askaccount = (Button) findViewById(R.id.askaccount);
@@ -301,6 +290,7 @@ public class LoginActivity extends AppCompatActivity {
                         JSONObject jsonObject = finalResult.getJSONObject("data");
                         userID = jsonObject.isNull("user_id") ? "" : jsonObject.getString("user_id");
 
+                        editor = pref.edit();
                         editor.putString("username", username);
                         editor.putString("myuserID", userID);
                         editor.apply();
@@ -324,6 +314,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 JSONObject userRestInfo = userResto.getJSONObject(i);
                                                 EntityInfo.put(userRestInfo);
                                             }
+                                            editor = pref.edit();
                                             editor.putString("EntityInfo", EntityInfo.toString());
                                             editor.apply();
 
