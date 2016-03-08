@@ -58,9 +58,6 @@ public class MenuActivity extends AppCompatActivity
         }
 
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
-                MainActivity.class));
-
-        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
                 MenuActivity.class));
 
         if (savedInstanceState == null) {
@@ -87,6 +84,7 @@ public class MenuActivity extends AppCompatActivity
 
                             editor.putString("EntityInfo", userResto.toString());
                             editor.apply();
+                            editor.commit();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -112,6 +110,7 @@ public class MenuActivity extends AppCompatActivity
         };
 
         Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
+
 
         /**
          * display fragment views, used on fragment return

@@ -235,11 +235,53 @@ public class TerminalsFragment extends Fragment {
                 // TODO Auto-generated method stub
                 Object item = arg0.getItemAtPosition(arg2);
                 if (arg2 == 0) {
-                    recList.setVisibility(View.GONE);
-                    fab.setVisibility(View.GONE);
+                    //afficher tous les terminaux de cette franchise
+                    /**
+                     * show terminal's informations
+                     */
+                    JsonObjectRequest terminalRequest = new JsonObjectRequest
+                            (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    terminals = new JSONArray();
+                                    try {
+                                        JSONArray values = response.getJSONArray("data");
+                                        for (int i = 0; i < values.length(); i++) {
+
+                                            JSONObject object = values.getJSONObject(i);
+                                            terminals.put(object);
+                                        }
+                                        ta = new TerminalAdapter(createList(terminals));
+                                        recList.setAdapter(ta);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            }, new Response.ErrorListener() {
+
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+                                    error.printStackTrace();
+                                }
+                            }) {
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> params = new HashMap<String, String>();
+
+                            params.put("Api-User", Globales.API_USER);
+                            params.put("Api-Hash", Globales.API_HASH);
+
+                            return params;
+                        }
+                    };
+
+                    Volley.newRequestQueue(getContext()).add(terminalRequest);
                 } else {
-                    recList.setVisibility(View.VISIBLE);
-                    fab.setVisibility(View.VISIBLE);
+
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -471,10 +513,53 @@ public class TerminalsFragment extends Fragment {
 
                 Object item = arg0.getItemAtPosition(arg2);
                 if(arg2 == 0){
-                    recList.setVisibility(View.GONE);
+                    //afficher tous les terminaux (peu importe la franchise et le restaurant)
+                    /**
+                     * show terminal's informations
+                     */
+                    JsonObjectRequest terminalRequest = new JsonObjectRequest
+                            (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    terminals = new JSONArray();
+                                    try {
+                                        JSONArray values = response.getJSONArray("data");
+                                        for (int i = 0; i < values.length(); i++) {
+
+                                            JSONObject object = values.getJSONObject(i);
+                                            terminals.put(object);
+                                        }
+                                        ta = new TerminalAdapter(createList(terminals));
+                                        recList.setAdapter(ta);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            }, new Response.ErrorListener() {
+
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+
+                                    error.printStackTrace();
+                                }
+                            }) {
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> params = new HashMap<String, String>();
+
+                            params.put("Api-User", Globales.API_USER);
+                            params.put("Api-Hash", Globales.API_HASH);
+
+                            return params;
+                        }
+                    };
+
+                    Volley.newRequestQueue(getContext()).add(terminalRequest);
                     restSpinner.setVisibility(View.GONE);
                 }else{
-                    recList.setVisibility(View.VISIBLE);
                     restSpinner.setVisibility(View.VISIBLE);
                 }
                 if (item != null) {
@@ -486,7 +571,7 @@ public class TerminalsFragment extends Fragment {
 
                                 final JSONArray entities = new JSONArray();
                                 JsonObjectRequest entityRequest = new JsonObjectRequest
-                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/"+selectedID+"/user/"+myuserID, null, new Response.Listener<JSONObject>() {
+                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/" + selectedID + "/user/" + myuserID, null, new Response.Listener<JSONObject>() {
                                             @Override
                                             public void onResponse(JSONObject response) {
 
@@ -524,8 +609,6 @@ public class TerminalsFragment extends Fragment {
                                 };
 
                                 Volley.newRequestQueue(getContext()).add(entityRequest);
-
-
                             }
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block

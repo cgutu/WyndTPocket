@@ -92,7 +92,7 @@
             android:textColor="@android:color/white"
             android:layout_marginLeft="20dp"
             android:gravity="right"
-            android:text="Terminals"/>
+            android:text="Terminaux"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout4"

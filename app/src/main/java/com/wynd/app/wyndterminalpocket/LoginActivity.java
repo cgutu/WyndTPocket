@@ -317,6 +317,7 @@ public class LoginActivity extends AppCompatActivity {
                                             editor = pref.edit();
                                             editor.putString("EntityInfo", EntityInfo.toString());
                                             editor.apply();
+                                            editor.commit();
 
                                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                                             startActivity(intent);

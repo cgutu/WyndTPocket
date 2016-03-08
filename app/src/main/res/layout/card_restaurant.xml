@@ -157,7 +157,7 @@
             android:background="@drawable/buttons_chape"
             android:textColor="@drawable/text_color"
             android:id="@+id/btnTerminals"
-            android:text="Terminals"/>
+            android:text="Terminaux"/>
 
     </LinearLayout>
     </RelativeLayout>

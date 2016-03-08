@@ -29,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
+                MainActivity.class));
         /**
          * Set the API HASH
          */
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             Log.e("Error sha1 API_HASH", e.toString());
         }
-
         /**
          * @main go to login after 5s
          */

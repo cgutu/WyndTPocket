@@ -53,7 +53,7 @@
     <string name="title_activity_terminal_position">Localisation</string>
     <string name="title_activity_add_entity">Ajouter une entité</string>
     <string name="title_activity_mdp_oublie">Mot de passe oublié</string>
-    <string name="title_activity_historique">Historique</string>
+    <string name="title_activity_historique">Historique status</string>
     <string name="title_activity_info_of_terminal">Détails</string>
     <string name="title_activity_edit_terminal">Modifier</string>
     <string name="title_activity_add_parent">Ajouter</string>
