@@ -23,5 +23,6 @@ public class TerminalInfo {
     protected String email;
     protected String channel_id;
     protected String terminalActive;
+    protected String nb_orders;
 }
 

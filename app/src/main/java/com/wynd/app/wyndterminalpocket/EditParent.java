@@ -1,15 +1,20 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -41,6 +46,8 @@ import org.json.JSONTokener;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +60,7 @@ public class EditParent extends AppCompatActivity {
     private JSONArray entities = new JSONArray();
     private TextView vName, vAddress, vEmail, vPhone;
     private Button deleteBtn;
+    private View mProgressView, mFormView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +85,10 @@ public class EditParent extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(getApplicationContext(),
                 Parents.class));
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
+
+
+        mProgressView = findViewById(R.id.progress);
+        mFormView = findViewById(R.id.edit_form);
 
         myuserID = pref.getString("myuserID", "");
         Intent i = getIntent();
@@ -197,11 +209,48 @@ public class EditParent extends AppCompatActivity {
     }
 
     private void checkForm(){
+
+        boolean cancel = false;
+        View focusView = null;
+
+        vName.setError(null);
+        vEmail.setError(null);
+        vPhone.setError(null);
+        vAddress.setError(null);
+
         name = vName.getText().toString();
         email = vEmail.getText().toString();
         phone = vPhone.getText().toString();
         address = vAddress.getText().toString();
-        new EditTask().execute();
+
+        if (TextUtils.isEmpty(name) ) {
+            vName.setError(getString(R.string.error_field_required));
+            focusView = vName;
+            cancel = true;
+        }else if (TextUtils.isEmpty(email) ) {
+            vEmail.setError(getString(R.string.error_field_required));
+            focusView = vEmail;
+            cancel = true;
+        }else if (TextUtils.isEmpty(phone) ) {
+            vPhone.setError(getString(R.string.error_field_required));
+            focusView = vPhone;
+            cancel = true;
+        }else if (TextUtils.isEmpty(address) ) {
+            vAddress.setError(getString(R.string.error_field_required));
+            focusView = vAddress;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            showProgress(true);
+
+            new EditTask().execute();
+        }
+
     }
     //edit task to do
     private class EditTask extends AsyncTask<Void, Void, InputStream> {
@@ -234,7 +283,7 @@ public class EditParent extends AppCompatActivity {
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
                 // httpPut.setEntity(se);
-                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPut);
@@ -272,15 +321,16 @@ public class EditParent extends AppCompatActivity {
                 JSONTokener tokener = new JSONTokener(json);
                 JSONObject finalResult = new JSONObject(tokener);
                 String result = finalResult.getString("result");
-
+                showProgress(false);
                 if (!result.isEmpty() && result.equals("success")) {
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditParent.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
 
+                }else{
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
-
 
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
@@ -328,7 +378,7 @@ public class EditParent extends AppCompatActivity {
                 httpDelete.setHeader("Api-User", Globales.API_USER);
                 httpDelete.setHeader("Api-Hash", Globales.API_HASH);
 
-                httpDelete.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpDelete.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpDelete);
@@ -374,6 +424,8 @@ public class EditParent extends AppCompatActivity {
                     startActivity(intent);
                     finish();
 
+                }else{
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
 
 
@@ -411,7 +463,7 @@ public class EditParent extends AppCompatActivity {
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
                 // httpPut.setEntity(se);
-                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPut);
@@ -458,6 +510,8 @@ public class EditParent extends AppCompatActivity {
                     startActivity(intent);
                     finish();
 
+                }else{
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
 
 
@@ -469,5 +523,41 @@ public class EditParent extends AppCompatActivity {
 
         }
     }
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mFormView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
 
 }

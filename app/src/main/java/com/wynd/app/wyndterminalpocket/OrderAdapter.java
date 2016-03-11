@@ -52,13 +52,26 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         orderViewHolder.vStatus.setText(ri.order_status);
         //orderViewHolder.vDeliveryTime.setText(ri.order_desired_delivery);
         orderViewHolder.vTerminal.setText(ri.reporting_terminal_id);
+        orderViewHolder.vTimeStamp.setText(ri.status_report_timestamp);
 
-        if(ri.order_status.equals("Accepted")){
-            orderViewHolder.vStatus.setTextColor(Color.GREEN);
+        if(ri.order_status.equalsIgnoreCase("Acceptée")){
+            orderViewHolder.vStatus.setTextColor(Color.rgb(47, 118, 34));
             orderViewHolder.vCircle.setBackgroundResource(R.drawable.circle_shape_accepted);
-        }else{
-            orderViewHolder.vStatus.setTextColor(Color.RED);
+        }else if(ri.order_status.equalsIgnoreCase("Refusée")){
+            orderViewHolder.vStatus.setTextColor(Color.rgb(240, 122, 127));
             orderViewHolder.vCircle.setBackgroundResource(R.drawable.circle_shape_refused);
+        }else if(ri.order_status.equalsIgnoreCase("Préparée")){
+            orderViewHolder.vStatus.setTextColor(Color.rgb(19, 180, 240));
+            orderViewHolder.vCircle.setBackgroundResource(R.drawable.circle_shape_prepare);
+        }else if(ri.order_status.equalsIgnoreCase("Prête")){
+            orderViewHolder.vStatus.setTextColor(Color.rgb(252, 151, 0));
+            orderViewHolder.vCircle.setBackgroundResource(R.drawable.circle_shape_ready);
+        }else if(ri.order_status.equalsIgnoreCase("Délivrée")){
+            orderViewHolder.vStatus.setTextColor(Color.rgb(243, 174, 27));
+            orderViewHolder.vCircle.setBackgroundResource(R.drawable.circle_shape_delivered);
+        }else if(ri.order_status.equalsIgnoreCase("Reçue")){
+            orderViewHolder.vStatus.setTextColor(Color.rgb(221, 221, 221));
+            orderViewHolder.vCircle.setBackgroundResource(R.drawable.circle_shape_received);
         }
 
 
@@ -82,6 +95,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         protected CardView vCard;
         protected ImageView vCircle;
         protected TextView vTerminal;
+        protected TextView vTimeStamp;
 
         public OrderViewHolder(View v) {
             super(v);
@@ -91,6 +105,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             vCard= (CardView) v.findViewById(R.id.card_view);
             vCircle = (ImageView) v.findViewById(R.id.circleShape);
             vTerminal = (TextView) v.findViewById(R.id.terminal);
+            vTimeStamp= (TextView) v.findViewById(R.id.status_report_timestamp);
         }
     }
 

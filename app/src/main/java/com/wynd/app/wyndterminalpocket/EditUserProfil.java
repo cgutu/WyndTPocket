@@ -321,7 +321,7 @@ public class EditUserProfil extends AppCompatActivity {
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
                // httpPut.setEntity(se);
-                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPut);
@@ -415,7 +415,7 @@ public class EditUserProfil extends AppCompatActivity {
                 httpDelete.setHeader("Api-User", Globales.API_USER);
                 httpDelete.setHeader("Api-Hash", Globales.API_HASH);
 
-                httpDelete.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpDelete.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpDelete);
@@ -462,7 +462,7 @@ public class EditUserProfil extends AppCompatActivity {
                     finish();
 
                 }else{
-                    Toast.makeText(getApplicationContext(), "Erreur "+result, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());

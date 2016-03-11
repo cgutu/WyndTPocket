@@ -353,16 +353,18 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         showProgress(false);
-                        mPasswordView.setError(getString(R.string.error_invalid_user_pwd));
+                        mPasswordView.setError(result);
                         mPasswordView.requestFocus();
                     }
 
+                    Log.i("LOGIN", ""+total);
                 } catch (Exception e) {
                     Log.i("tagconvertstr", "" + e.toString());
                     showProgress(false);
                     mUserView.setError(getString(R.string.error_connexion));
                     mUserView.requestFocus();
                 }
+
         }
     }
 

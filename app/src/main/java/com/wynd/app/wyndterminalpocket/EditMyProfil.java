@@ -207,7 +207,7 @@ public class EditMyProfil extends AppCompatActivity {
 
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
-                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPut);
@@ -253,7 +253,7 @@ public class EditMyProfil extends AppCompatActivity {
                     finish();
 
                 }else{
-                    Toast.makeText(getApplication(), "Permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
 
             } catch (Exception e) {

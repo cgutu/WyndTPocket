@@ -78,6 +78,43 @@
                         android:text="Channel"
                         android:layout_gravity="center_vertical" />
                 </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/lOrders"
+                    android:layout_below="@id/lChannel"
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <RelativeLayout
+                        android:layout_width="40dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_centerVertical="true"
+                        android:layout_height="40dp">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:background="@drawable/circle_shape_accepted"
+                            android:id="@+id/circleShape"/>
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="30dp"
+                            android:layout_centerInParent="true"
+                            android:background="@drawable/icon_order_emporter"
+                            android:contentDescription="@string/exki_logo"
+                            android:id="@+id/iconStatut"/>
+                    </RelativeLayout>
+                    <TextView
+                        android:id="@+id/orders"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Commandes"
+                        android:layout_gravity="center_vertical" />
+                </LinearLayout>
 
             </RelativeLayout>
 
@@ -264,7 +301,7 @@
                     android:background="@drawable/buttons_chape"
                     android:textColor="@drawable/text_color"
                     android:id="@+id/btnHistory"
-                    android:text="Historique"/>
+                    android:text="Historique status"/>
             </LinearLayout>
             </LinearLayout>
 

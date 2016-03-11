@@ -27,7 +27,17 @@ tools:showIn="@layout/activity_edit_parent">
         android:paddingTop="10dp"
         android:text="Parent info" />
 </LinearLayout>
-
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_below="@id/l2"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_gravity="center_vertical"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 <ScrollView
     android:id="@+id/edit_form"
     android:layout_below="@id/l2"
@@ -116,6 +126,7 @@ tools:showIn="@layout/activity_edit_parent">
 
         <Button
             android:id="@+id/delete"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/delete_button"

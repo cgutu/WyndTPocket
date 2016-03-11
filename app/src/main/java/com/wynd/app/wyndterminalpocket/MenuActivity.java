@@ -267,7 +267,7 @@ public class MenuActivity extends AppCompatActivity
         switch (viewId) {
             case R.id.nav_gallery:
                 fragment = new HomeFragment();
-                title  = "Home";
+                title  = "Accueil";
                 viewIsAtHome = true;
 
                 break;
@@ -286,7 +286,7 @@ public class MenuActivity extends AppCompatActivity
                 break;
             default:
                 fragment = new HomeFragment();
-                title = "Home";
+                title = "Accueil";
                 viewIsAtHome = true;
                 break;
 

@@ -370,6 +370,8 @@ public class EditTerminal extends AppCompatActivity {
                     Intent intent = new Intent(EditTerminal.this, Terminals.class);
                     startActivity(intent);
                     finish();
+                }else{
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
@@ -460,6 +462,8 @@ public class EditTerminal extends AppCompatActivity {
                     Intent intent = new Intent(EditTerminal.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
+                }else{
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());
@@ -540,6 +544,8 @@ public class EditTerminal extends AppCompatActivity {
                     Intent intent = new Intent(EditTerminal.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
+                }else{
+                    Toast.makeText(getApplicationContext(), "ERROR "+total, Toast.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
                 Log.i("tagconvertstr", "" + e.toString());

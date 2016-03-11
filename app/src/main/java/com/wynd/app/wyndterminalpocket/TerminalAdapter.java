@@ -61,6 +61,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         terminalViewHolder.vPhone.setText(ti.phone);
         terminalViewHolder.vApk.setText(ti.apk_version);
         terminalViewHolder.vInfos.setText(ti.entity_parent + " / " + ti.entity_label + " / " + ti.entity_id);
+        terminalViewHolder.vOrders.setText(ti.nb_orders);
 
         if(!ti.terminalStatus.isEmpty() && ti.terminalStatus.equalsIgnoreCase("1")){
             terminalViewHolder.vOn.setVisibility(View.VISIBLE);
@@ -228,6 +229,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         protected LinearLayout lApk, lEmail, lPhone, lUser;
         protected Button vHistory;
         protected ImageView getInfo;
+        protected TextView vOrders;
 
         public TerminalViewHolder(View v) {
             super(v);
@@ -251,6 +253,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             lUser = (LinearLayout) v.findViewById(R.id.lUsername);
             vHistory = (Button) v.findViewById(R.id.btnHistory);
             getInfo = (ImageView) v.findViewById(R.id.info);
+            vOrders = (TextView) v.findViewById(R.id.orders);
         }
 
     }

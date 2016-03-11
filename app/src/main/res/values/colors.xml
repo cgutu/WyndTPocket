@@ -15,4 +15,7 @@
     <color name="black">#000000</color>
     <color name="gray">#dddddd</color>
     <color name="green">#2f7622</color>
+    <color name="blue">#13b4f0</color>
+    <color name="orange">#FC9700</color>
+    <color name="yellow">#F3AE1B</color>
 </resources>
