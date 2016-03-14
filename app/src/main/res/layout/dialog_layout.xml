@@ -1,27 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
+
     <RelativeLayout
+        android:id="@+id/choice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true">
+        <CheckBox
+            android:id="@+id/bydate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Par date"/>
+        <CheckBox
+            android:id="@+id/byperiod"
+            android:layout_below="@+id/bydate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Par période"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_below="@id/choice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:id="@+id/period">
+        <LinearLayout
+            android:padding="10dp"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/onlyonedate">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textStyle="bold"
+                android:id="@+id/onedate"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textStyle="bold"
+                android:layout_marginStart="10sp"
+                android:id="@+id/onetime"
+                />
+        </LinearLayout>
     <LinearLayout
-        android:id="@+id/period1"
+        android:visibility="gone"
+        android:id="@+id/period1"    android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal">
 
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Date"
-            android:background="@drawable/shape_button"
-            android:textColor="@color/white"
-            android:padding="10dp"
             android:textStyle="bold"
             android:id="@+id/date1"
             />
@@ -29,11 +72,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Time"
-            android:background="@drawable/circle_shape"
             android:textStyle="bold"
-            android:textColor="@color/white"
-            android:padding="10dp"
-            android:layout_marginStart="20sp"
+            android:layout_marginStart="10sp"
             android:id="@+id/time1"
             />
 
@@ -41,7 +81,6 @@
     <LinearLayout
         android:layout_below="@id/period1"
         android:id="@+id/between"
-        android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_height="wrap_content">
@@ -52,20 +91,17 @@
     </LinearLayout>
     <LinearLayout
         android:id="@+id/period2"
+        android:visibility="gone"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:layout_below="@id/between"
+        android:layout_below="@id/period1"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="wrap_content"    android:padding="10dp"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Date"
-            android:padding="10dp"
-            android:background="@drawable/shape_button"
-            android:textColor="@color/white"
             android:textStyle="bold"
             android:id="@+id/date2"
             />
@@ -73,15 +109,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Time"
-            android:background="@drawable/circle_shape"
             android:textStyle="bold"
-            android:textColor="@color/white"
-            android:padding="10dp"
-            android:layout_marginStart="20sp"
+            android:layout_marginStart="10sp"
             android:id="@+id/time2"
             />
 
     </LinearLayout>
+
     </RelativeLayout>
     <android.support.design.widget.TextInputLayout
         android:layout_below="@id/period"
@@ -110,4 +144,4 @@
             android:prompt="@string/rest_prompt" />
     </android.support.design.widget.TextInputLayout>
 
-</LinearLayout>
+</RelativeLayout>

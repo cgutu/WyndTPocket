@@ -25,9 +25,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -68,9 +72,11 @@ public class Orders extends AppCompatActivity {
     private TextView total;
     private JSONArray orders = new JSONArray();
     private String terminalIMEI = "", selectedStatus="";
-    private TextView vDate1, vDate2, vTime1, vTime2;
+    private TextView vDate1, vDate2, vTime1, vTime2, vDateOne, vDateTwo, vTimeOne, vTimeTwo;
     private RelativeLayout rl;
     private Button btnPeriods;
+    private View promptView;
+    private CheckBox bydate, byperiod;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +99,6 @@ public class Orders extends AppCompatActivity {
         recList.setAdapter(ra);
         rl = (RelativeLayout) findViewById(R.id.period);
         btnPeriods = (Button) findViewById(R.id.btnPeriods);
-        initViews();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -142,31 +147,66 @@ public class Orders extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.search:
+
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(Orders.this);
                 LayoutInflater inflater = Orders.this.getLayoutInflater();
-
+                promptView = inflater.inflate(R.layout.dialog_layout, null);
+                initViews();
+                getTerminals();
+                byStatus();
                 // Inflate and set the layout for the dialog
                 // Pass null as the parent view because its going in the dialog layout
                 builder1.setView(inflater.inflate(R.layout.dialog_layout, null));
                 builder1.setCancelable(true);
 
-                builder1.setPositiveButton(
-                        "Valider",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                            }
-                        });
+                bydate = (CheckBox) promptView.findViewById(R.id.bydate);
+                byperiod = (CheckBox) promptView.findViewById(R.id.byperiod);
+                final LinearLayout period1 = (LinearLayout) promptView.findViewById(R.id.period1);
+                final LinearLayout period2 = (LinearLayout) promptView.findViewById(R.id.period2);
+                final LinearLayout onedate = (LinearLayout) promptView.findViewById(R.id.onlyonedate);
 
-                builder1.setNegativeButton(
-                        "Annuler",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
-                            }
-                        });
+                byperiod.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(byperiod.isChecked()){
+                            period1.setVisibility(View.VISIBLE);
+                            period2.setVisibility(View.VISIBLE);
+                        }else{
+                            period1.setVisibility(View.GONE);
+                            period2.setVisibility(View.GONE);
+                        }
+                    }
+                });
+                bydate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(bydate.isChecked()){
+                            onedate.setVisibility(View.VISIBLE);
+                        }else{
+                            onedate.setVisibility(View.GONE);
+                        }
+                    }
+                });
+
+//                builder1.setPositiveButton(
+//                        "Valider",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                dialog.dismiss();
+//                            }
+//                        });
+//
+//                builder1.setNegativeButton(
+//                        "Annuler",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                dialog.dismiss();
+//                            }
+//                        });
 
                 AlertDialog alert11 = builder1.create();
+
+                alert11.setView(promptView);
                 alert11.show();
 //                Intent intent = new Intent(this, SettingsActivity.class);
 //                startActivity(intent);
@@ -264,7 +304,7 @@ public class Orders extends AppCompatActivity {
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Terminal");
+        list.add(0, "Par terminal");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 String name = jsonArray.getJSONObject(i).getString("terminalMacadd");
@@ -500,7 +540,7 @@ public class Orders extends AppCompatActivity {
 
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Status");
+        list.add(0, "Par status");
         list.add(1, "Reçue");
         list.add(2, "Acceptée");
         list.add(3, "Préparée");
@@ -842,15 +882,27 @@ public class Orders extends AppCompatActivity {
         String time = stm.format(new Date());
         String data = sdf.format(new Date());
 
-        vDate1 = (TextView) findViewById(R.id.date1);
-        vTime1 = (TextView) findViewById(R.id.time1);
-        vDate2 = (TextView) findViewById(R.id.date2);
-        vTime2 = (TextView) findViewById(R.id.time2);
+        vDate1 = (TextView) promptView.findViewById(R.id.date1);
+        vTime1 = (TextView) promptView.findViewById(R.id.time1);
+        vDate2 = (TextView) promptView.findViewById(R.id.date2);
+        vTime2 = (TextView) promptView.findViewById(R.id.time2);
 
-        vDate1.setText(data);
-        vTime1.setText(time);
-        vDate2.setText(data);
-        vTime2.setText(time);
+        deviceSpinner = (Spinner) promptView.findViewById(R.id.device);
+        statusSpinner = (Spinner) promptView.findViewById(R.id.status);
+
+        vDate1.setText("Date de début");
+        vTime1.setText("");
+        vDate2.setText("Date de fin");
+        vTime2.setText("");
+
+//        vDateOne = (TextView) promptView.findViewById(R.id.date1);
+//        vTimeOne = (TextView) promptView.findViewById(R.id.time1);
+//        vDateTwo = (TextView) promptView.findViewById(R.id.date2);
+//        vTimeTwo = (TextView) promptView.findViewById(R.id.time2);
+//        vDateOne.setText(data);
+//        vTimeOne.setText(time);
+//        vDateTwo.setText(data);
+//        vTimeTwo.setText(time);
 
         vDate1.setOnClickListener(new View.OnClickListener() {
 
@@ -898,6 +950,7 @@ public class Orders extends AppCompatActivity {
                 dte.show(getSupportFragmentManager().beginTransaction(), "TimePickerFragment");
             }
         });
+
 
     }
 
