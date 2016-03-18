@@ -105,8 +105,14 @@ public class Historique extends AppCompatActivity {
     }
     private void loadMap(){
 
+
+        rlChart.setVisibility(View.VISIBLE);
+
         final String date1 = vDate1.getText().toString();
         final String date2 = vDate2.getText().toString();
+
+        final String time1 = vTime1.getText().toString();
+        final String time2 = vTime2.getText().toString();
 
         JsonObjectRequest request = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+id+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
@@ -115,28 +121,82 @@ public class Historique extends AppCompatActivity {
 
                         try {
                             JSONArray values = response.getJSONArray("data");
-
+/*
                             ArrayList<String> xValues = new ArrayList<String>();
-                            ArrayList<Entry> entries = new ArrayList<>();
+                            ArrayList<BarEntry> entries = new ArrayList<>();
 
                             for(int i=0; i<values.length(); i++){
                                 String status = values.getJSONObject(i).getString("t_status");
                                 String date = values.getJSONObject(i).getString("t_last_seen");
-                                System.out.println("date " + date);
+                                System.out.println("date "+date);
                                 Float f= Float.parseFloat(status);
-                                entries.add(new Entry(f, i));
+                                entries.add(new BarEntry(f, i));
                                 xValues.add(date);
                             }
 
-                            LineDataSet dataset = new LineDataSet(entries, "1 = ON / 0 = OFF");
+                            BarDataSet dataset = new BarDataSet(entries, "1 = ON / 0 = OFF");
 
+                            BarData data = new BarData(xValues, dataset);
+
+                            chart.setData(data);
+                            chart.setDescription("Device status");
+                            chart.setMinimumWidth(1300);
+                            chart.setMinimumHeight(1200);
+
+                            YAxis mYAxis = chart.getAxisLeft();
+                            mYAxis.setDrawAxisLine(false);
+                            mYAxis.setDrawGridLines(false);
+                            mYAxis.setStartAtZero(false);
+
+                            XAxis xAxis = chart.getXAxis();
+                            xAxis.setTextColor(Color.RED);
+
+                            chart.animateXY(3000, 3000);
+
+                            if(chart.getParent()!=null)
+                                ((ViewGroup)chart.getParent()).removeView(chart); // <- fix
+                            rlChart.addView(chart);*/
+                            ArrayList<String> xValues = new ArrayList<String>();
+                            ArrayList<Entry> entries = new ArrayList<>();
+                            XAxis xAxis = lineChart.getXAxis();
+//                            try{
+//                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.FRANCE);
+//                                Date startDate = formatter.parse(date1 + " " + time1);
+//                                Date endDate = formatter.parse(date2 + " " + time2);
+//
+//                                    GregorianCalendar gcal = new GregorianCalendar();
+//                                    gcal.setTime(startDate);
+//                                    while (gcal.getTime().before(endDate)) {
+//                                        gcal.add(Calendar.HOUR_OF_DAY, 2);
+//                                        String hours = gcal.getTime().toString();
+//                                        System.out.println(gcal.getTime().toString());
+//
+//                                        xValues.add(hours);
+//                                    }
+//                            }catch (ParseException e){
+//
+//                            }
+
+                            for(int j=0; j<values.length(); j++){
+                                String status = values.getJSONObject(j).getString("t_status");
+                                String date = values.getJSONObject(j).getString("t_last_seen");
+                                Float f= Float.parseFloat(status);
+                                entries.add(new Entry(f, j));
+                                xValues.add(j, date);
+                            }
+                            LineDataSet dataset = new LineDataSet(entries, "1 = ON / 0 = OFF");
+                            dataset.setDrawCubic(true);
                             LineData data = new LineData(xValues, dataset);
+                            data.setDrawValues(true);
 
                             lineChart.setData(data);
                             lineChart.setDescription("Device status");
                             lineChart.setMinimumWidth(1200);
                             lineChart.setMinimumHeight(1200);
-
+                            lineChart.setDragEnabled(true);
+                            lineChart.setScaleEnabled(true);
+//                            lineChart.setMinimumWidth(500);
+//                            lineChart.setMinimumHeight(500);
 
                             YAxis mYAxis = lineChart.getAxisLeft();
                             mYAxis.setShowOnlyMinMax(true);
@@ -148,18 +208,18 @@ public class Historique extends AppCompatActivity {
                             rAxis.setAxisMaxValue(1f);
                             rAxis.setAxisMinValue(0f);
 
-                            XAxis xAxis = lineChart.getXAxis();
+
                             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
                             xAxis.setTextColor(Color.RED);
-                          //  xAxis.setSpaceBetweenLabels(4);
                             xAxis.setTextSize(3f);
+                            xAxis.setDrawAxisLine(true);
+                            xAxis.setDrawGridLines(true);
                             dataset.setColors(new int[]{R.color.red}, getApplicationContext());
 
                             lineChart.animateXY(3000, 3000);
                             data.setHighlightEnabled(true);
 
                             lineChart.setTouchEnabled(true);
-
 
                             if(lineChart.getParent()!=null)
                                 ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
@@ -192,18 +252,24 @@ public class Historique extends AppCompatActivity {
 
         Volley.newRequestQueue(getApplicationContext()).add(request);
     }
-
     private void initViews(){
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        SimpleDateFormat stm = new SimpleDateFormat("HH:mm", Locale.FRANCE);
+        String time = stm.format(new Date());
         String data = sdf.format(new Date());
 
         vDate1 = (TextView) findViewById(R.id.date1);
+        vTime1 = (TextView) findViewById(R.id.time1);
         vDate2 = (TextView) findViewById(R.id.date2);
+        vTime2 = (TextView) findViewById(R.id.time2);
 
         vDate1.setText(data);
+        vTime1.setText(time);
         vDate2.setText(data);
+        vTime2.setText(time);
 
         vDate1.setOnClickListener(new View.OnClickListener() {
 
@@ -216,6 +282,7 @@ public class Historique extends AppCompatActivity {
                 dte.show(getSupportFragmentManager().beginTransaction(), "DatePickerFragment");
             }
         });
+
         vDate2.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -227,6 +294,30 @@ public class Historique extends AppCompatActivity {
                 dte.show(getSupportFragmentManager().beginTransaction(), "DatePickerFragment");
             }
         });
+        vTime1.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                new DatePickerFragment();
+                // TODO Auto-generated method stub
+                TimePickerFragment dte = TimePickerFragment.newInstance();
+                dte.setCallBack(onTime);
+                dte.show(getSupportFragmentManager().beginTransaction(), "TimePickerFragment");
+            }
+        });
+
+        vTime2.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                new DatePickerFragment();
+                // TODO Auto-generated method stub
+                TimePickerFragment dte = TimePickerFragment.newInstance();
+                dte.setCallBack(onTime2);
+                dte.show(getSupportFragmentManager().beginTransaction(), "TimePickerFragment");
+            }
+        });
+
     }
     DatePickerDialog.OnDateSetListener onDate = new DatePickerDialog.OnDateSetListener() {
         @Override
@@ -248,6 +339,19 @@ public class Historique extends AppCompatActivity {
             Calendar newDate = Calendar.getInstance();
             newDate.set(year, monthOfYear, dayOfMonth);
             vDate2.setText(sdf.format(newDate.getTime()));
+        }
+    };
+    TimePickerDialog.OnTimeSetListener onTime = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            vTime1.setText(hourOfDay+":"+minute);
+        }
+    };
+
+    TimePickerDialog.OnTimeSetListener onTime2 = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            vTime2.setText(hourOfDay+":"+minute);
         }
     };
 }

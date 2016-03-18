@@ -26,11 +26,16 @@
                 android:layout_centerHorizontal="true"
                 android:orientation="vertical">
 
-                <TextView
+                <ProgressBar
+                    android:id="@+id/progress"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_below="@id/header"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:layout_gravity="center_horizontal"
-                    android:text="Filter"/>
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" />
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_marginTop="20dp"

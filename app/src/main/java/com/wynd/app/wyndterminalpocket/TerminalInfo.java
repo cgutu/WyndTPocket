@@ -24,5 +24,6 @@ public class TerminalInfo {
     protected String channel_id;
     protected String terminalActive;
     protected String nb_orders;
+    protected String battery_status;
 }
 

@@ -29,12 +29,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/period">
         <LinearLayout
-            android:padding="10dp"
             android:visibility="gone"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/onlyonedate">
             <TextView
                 android:layout_width="wrap_content"
@@ -42,15 +42,7 @@
                 android:text="Date"
                 android:textStyle="bold"
                 android:id="@+id/onedate"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Time"
-                android:textStyle="bold"
-                android:layout_marginStart="10sp"
-                android:id="@+id/onetime"
-                />
+                android:gravity="center_horizontal" />
         </LinearLayout>
     <LinearLayout
         android:visibility="gone"
@@ -79,6 +71,7 @@
 
     </LinearLayout>
     <LinearLayout
+        android:visibility="gone"
         android:layout_below="@id/period1"
         android:id="@+id/between"
         android:layout_width="wrap_content"
@@ -93,7 +86,7 @@
         android:id="@+id/period2"
         android:visibility="gone"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/period1"
+        android:layout_below="@id/between"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"    android:padding="10dp"
         android:orientation="horizontal">

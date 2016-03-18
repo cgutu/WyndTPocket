@@ -72,7 +72,7 @@ public class Orders extends AppCompatActivity {
     private TextView total;
     private JSONArray orders = new JSONArray();
     private String terminalIMEI = "", selectedStatus="";
-    private TextView vDate1, vDate2, vTime1, vTime2, vDateOne, vDateTwo, vTimeOne, vTimeTwo;
+    private TextView vDate1, vDate2, vTime1, vTime2, vDateOne, vTimeOne;
     private RelativeLayout rl;
     private Button btnPeriods;
     private View promptView;
@@ -98,7 +98,6 @@ public class Orders extends AppCompatActivity {
         ra = new OrderAdapter(order);
         recList.setAdapter(ra);
         rl = (RelativeLayout) findViewById(R.id.period);
-        btnPeriods = (Button) findViewById(R.id.btnPeriods);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -130,12 +129,6 @@ public class Orders extends AppCompatActivity {
 
         checkOrders();
 
-        btnPeriods.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getPeriodOrders();
-            }
-        });
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -158,22 +151,32 @@ public class Orders extends AppCompatActivity {
                 // Pass null as the parent view because its going in the dialog layout
                 builder1.setView(inflater.inflate(R.layout.dialog_layout, null));
                 builder1.setCancelable(true);
+                builder1.setTitle("Trier les commandes");
 
                 bydate = (CheckBox) promptView.findViewById(R.id.bydate);
                 byperiod = (CheckBox) promptView.findViewById(R.id.byperiod);
                 final LinearLayout period1 = (LinearLayout) promptView.findViewById(R.id.period1);
                 final LinearLayout period2 = (LinearLayout) promptView.findViewById(R.id.period2);
                 final LinearLayout onedate = (LinearLayout) promptView.findViewById(R.id.onlyonedate);
+                final LinearLayout between = (LinearLayout) promptView.findViewById(R.id.between);
 
                 byperiod.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if(byperiod.isChecked()){
+                            bydate.setEnabled(false);
+                            deviceSpinner.setEnabled(false);
+                            statusSpinner.setEnabled(false);
                             period1.setVisibility(View.VISIBLE);
                             period2.setVisibility(View.VISIBLE);
+                            between.setVisibility(View.VISIBLE);
                         }else{
+                            deviceSpinner.setEnabled(true);
+                            statusSpinner.setEnabled(true);
+                            bydate.setEnabled(true);
                             period1.setVisibility(View.GONE);
                             period2.setVisibility(View.GONE);
+                            between.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -181,20 +184,31 @@ public class Orders extends AppCompatActivity {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if(bydate.isChecked()){
+                            deviceSpinner.setEnabled(false);
+                            statusSpinner.setEnabled(false);
+                            byperiod.setEnabled(false);
                             onedate.setVisibility(View.VISIBLE);
                         }else{
+                            deviceSpinner.setEnabled(true);
+                            statusSpinner.setEnabled(true);
+                            byperiod.setEnabled(true);
                             onedate.setVisibility(View.GONE);
                         }
                     }
                 });
 
-//                builder1.setPositiveButton(
-//                        "Valider",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                dialog.dismiss();
-//                            }
-//                        });
+                builder1.setPositiveButton(
+                        "Voir",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if(byperiod.isChecked()){
+                                    getPeriodOrders();
+                                }else if(bydate.isChecked()){
+                                    getOrdersbyDate();
+                                }
+                                dialog.dismiss();
+                            }
+                        });
 //
 //                builder1.setNegativeButton(
 //                        "Annuler",
@@ -208,8 +222,6 @@ public class Orders extends AppCompatActivity {
 
                 alert11.setView(promptView);
                 alert11.show();
-//                Intent intent = new Intent(this, SettingsActivity.class);
-//                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -260,6 +272,32 @@ public class Orders extends AppCompatActivity {
 
         Volley.newRequestQueue(getApplicationContext()).add(deviceRequest);
     }
+    public static JSONArray sortJsonArray(JSONArray array) {
+        List<JSONObject> jsons = new ArrayList<JSONObject>();
+        try{
+            for (int i = 0; i < array.length(); i++) {
+                jsons.add(array.getJSONObject(i));
+            }
+        }catch (JSONException e){
+
+        }
+
+        Collections.sort(jsons, new Comparator<JSONObject>() {
+            @Override
+            public int compare(JSONObject lhs, JSONObject rhs) {
+                try {
+                    String lid = lhs.getString("order_status");
+                    String rid = rhs.getString("order_status");
+                    // Here you could parse string id to integer and then compare.
+                    return lid.compareTo(rid);
+                } catch (JSONException e) {
+
+                }
+                return 0;
+            }
+        });
+        return new JSONArray(jsons);
+    }
     private List<OrderInfo> createList(JSONArray jsonArray) {
 
         final List<OrderInfo> result = new ArrayList<OrderInfo>();
@@ -269,6 +307,17 @@ public class Orders extends AppCompatActivity {
                 final OrderInfo ui = new OrderInfo();
 
                 JSONObject json_data = jsonArray.getJSONObject(i);
+
+//                if(jsonArray.toString().contains("\"order_ref\":\""+ json_data.getString("order_ref")+"\"")){
+//                    //System.out.println("same orders " + json_data.getString("order_ref") + " status " + json_data.getString("order_status"));
+//                    if(Integer.parseInt(json_data.getString("order_status")) > 0){
+//                        System.out.println("Commande Acceptée");
+//                    }else{
+//                        System.out.println("Commande refusée");
+//                    }
+//                }else{
+//
+//                }
 
                 ui.order_reference = (json_data.isNull("order_ref") ? "" : json_data.getString("order_ref"));
                 ui.order_status = (json_data.isNull("order_status") ? "" : json_data.getString("order_status"));
@@ -882,6 +931,7 @@ public class Orders extends AppCompatActivity {
         String time = stm.format(new Date());
         String data = sdf.format(new Date());
 
+        vDateOne = (TextView) promptView.findViewById(R.id.onedate);
         vDate1 = (TextView) promptView.findViewById(R.id.date1);
         vTime1 = (TextView) promptView.findViewById(R.id.time1);
         vDate2 = (TextView) promptView.findViewById(R.id.date2);
@@ -890,20 +940,23 @@ public class Orders extends AppCompatActivity {
         deviceSpinner = (Spinner) promptView.findViewById(R.id.device);
         statusSpinner = (Spinner) promptView.findViewById(R.id.status);
 
-        vDate1.setText("Date de début");
-        vTime1.setText("");
-        vDate2.setText("Date de fin");
-        vTime2.setText("");
+        vDateOne.setText(data);
+        vDate1.setText(data);
+        vTime1.setText(time);
+        vDate2.setText(data);
+        vTime2.setText(time);
 
-//        vDateOne = (TextView) promptView.findViewById(R.id.date1);
-//        vTimeOne = (TextView) promptView.findViewById(R.id.time1);
-//        vDateTwo = (TextView) promptView.findViewById(R.id.date2);
-//        vTimeTwo = (TextView) promptView.findViewById(R.id.time2);
-//        vDateOne.setText(data);
-//        vTimeOne.setText(time);
-//        vDateTwo.setText(data);
-//        vTimeTwo.setText(time);
+        vDateOne.setOnClickListener(new View.OnClickListener() {
 
+            @Override
+            public void onClick(View v) {
+                new DatePickerFragment();
+                // TODO Auto-generated method stub
+                DatePickerFragment dte = DatePickerFragment.newInstance();
+                dte.setCallBack(onDateOne);
+                dte.show(getSupportFragmentManager().beginTransaction(), "DatePickerFragment");
+            }
+        });
         vDate1.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -953,7 +1006,17 @@ public class Orders extends AppCompatActivity {
 
 
     }
+    DatePickerDialog.OnDateSetListener onDateOne = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear,
+                              int dayOfMonth) {
 
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
+            Calendar newDate = Calendar.getInstance();
+            newDate.set(year, monthOfYear, dayOfMonth);
+            vDateOne.setText(sdf.format(newDate.getTime()));
+        }
+    };
     DatePickerDialog.OnDateSetListener onDate = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear,
@@ -1034,6 +1097,81 @@ public class Orders extends AppCompatActivity {
 
                                         orders.put(obj);
                                     }
+                            }
+                            if(orders.length() == 0){
+                                total.setText("Aucune commande");
+                            }else{
+                                total.setText("TOTAL : " + orders.length() + " commandes");
+                            }
+                            ra = new OrderAdapter(createList(orders));
+                            recList.setAdapter(ra);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Api-User", Globales.API_USER);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+    }
+    private void getOrdersbyDate(){
+        final String date1 = vDateOne.getText().toString();
+        /**
+         * get all orders by entity
+         */
+        JsonObjectRequest orderRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/5", null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        orders = new JSONArray();
+                        try {
+                            JSONArray values = response.getJSONArray("data");
+                            for(int i=0; i<values.length();i++){
+                                JSONObject obj = values.getJSONObject(i);
+
+                                String datetime1 = date1;
+
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+                                Date first = sdf.parse(datetime1);
+
+                                String order_date = obj.getString("status_report_timestamp");
+                                Date orderDate = sdf.parse(order_date);
+
+                                System.out.println("order dates " + first + " "+orderDate);
+
+                                //afficher toutes les commandes passées ce jour
+                                if(first.getTime()==orderDate.getTime())
+                                {
+                                    System.out.println("order dates " + orderDate);
+                                    obj.put("order_ref", obj.getString("order_ref"));
+                                    obj.put("order_status", obj.getString("order_status"));
+                                    obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                    obj.put("terminal", obj.getString("macadress"));
+                                    obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+
+                                    orders.put(obj);
+                                }
                             }
                             if(orders.length() == 0){
                                 total.setText("Aucune commande");

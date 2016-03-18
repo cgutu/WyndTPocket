@@ -1,12 +1,17 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
@@ -33,11 +38,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class TerminalsFragment extends Fragment {
@@ -58,6 +66,7 @@ public class TerminalsFragment extends Fragment {
     private JSONArray infosArray = new JSONArray();
     private JSONArray parents = new JSONArray();
     private NotificationManager mNotificationManager= null;
+    private View mProgressView, mListView;
 
     public TerminalsFragment() {
         // Required empty public constructor
@@ -142,6 +151,8 @@ public class TerminalsFragment extends Fragment {
         /**
          * init the views
          */
+        mListView = rootView.findViewById(R.id.cardList);
+        mProgressView = rootView.findViewById(R.id.progress);
         restSpinner = (Spinner) rootView.findViewById(R.id.rest_channel_id);
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         recList = (RecyclerView) rootView.findViewById(R.id.cardList);
@@ -239,49 +250,7 @@ public class TerminalsFragment extends Fragment {
                     /**
                      * show terminal's informations
                      */
-                    JsonObjectRequest terminalRequest = new JsonObjectRequest
-                            (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-
-                                    terminals = new JSONArray();
-                                    try {
-                                        JSONArray values = response.getJSONArray("data");
-                                        for (int i = 0; i < values.length(); i++) {
-
-                                            JSONObject object = values.getJSONObject(i);
-                                            terminals.put(object);
-                                        }
-                                        ta = new TerminalAdapter(createList(terminals));
-                                        recList.setAdapter(ta);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            }, new Response.ErrorListener() {
-
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-
-                                    error.printStackTrace();
-                                }
-                            }) {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> params = new HashMap<String, String>();
-
-                            params.put("Api-User", Globales.API_USER);
-                            params.put("Api-Hash", Globales.API_HASH);
-
-                            return params;
-                        }
-                    };
-
-                    Volley.newRequestQueue(getContext()).add(terminalRequest);
-                } else {
-
+                  //  getTerminalTask();
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
@@ -289,53 +258,10 @@ public class TerminalsFragment extends Fragment {
                             String name = jsonArray.getJSONObject(i).getString("name");
                             if (item.equals(name)) {
                                 selectedID = jsonArray.getJSONObject(i).getString("id");
-                                terminals = new JSONArray();
-
                                 /**
                                  * show terminal's selected informations
                                  */
-                                JsonObjectRequest userRequest = new JsonObjectRequest
-                                        (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
-                                            @Override
-                                            public void onResponse(JSONObject response) {
-
-                                                try {
-                                                    JSONArray values = response.getJSONArray("data");
-                                                    for (int i = 0; i < values.length(); i++) {
-
-                                                        JSONObject object = values.getJSONObject(i);
-                                                        if(selectedID.equals(object.getString("channelID"))){
-                                                            terminals.put(object);
-                                                        }
-                                                    }
-                                                    ta = new TerminalAdapter(createList(terminals));
-                                                    recList.setAdapter(ta);
-
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                }
-
-                                            }
-                                        }, new Response.ErrorListener() {
-
-                                            @Override
-                                            public void onErrorResponse(VolleyError error) {
-
-                                                error.printStackTrace();
-                                            }
-                                        }) {
-                                    @Override
-                                    public Map<String, String> getHeaders() throws AuthFailureError {
-                                        Map<String, String> params = new HashMap<String, String>();
-
-                                        params.put("Api-User", Globales.API_USER);
-                                        params.put("Api-Hash", Globales.API_HASH);
-
-                                        return params;
-                                    }
-                                };
-
-                                Volley.newRequestQueue(getContext()).add(userRequest);
+                                getTerminalTaskByChannel();
                             }
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block
@@ -360,6 +286,8 @@ public class TerminalsFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentDateandTime = sdf.format(new Date());
 
+        Log.i("INFO", jsonArray.toString());
+
         try{
             for (int i = 0; i < jsonArray.length(); i++) {
                 TerminalInfo ti = new TerminalInfo();
@@ -374,11 +302,14 @@ public class TerminalsFragment extends Fragment {
                     ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
                 }
 
-
+                ti.nb_orders = (json_data.isNull("nb_orders") ? "" :  json_data.getString("nb_orders") + " commandes");
+                System.out.println("count orders " + ti.nb_orders);
                 ti.restaurant = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
                 ti.terminalStatus = (json_data.isNull("terminalStatus") ? "" : json_data.getString("terminalStatus"));
                 ti.terminalStatusUpdateTime = (json_data.isNull("terminalLastUpdated") ? "" : json_data.getString("terminalLastUpdated"));
                 ti.channel_id = (json_data.isNull("channelID") ? "" : json_data.getString("channelID"));
+
+                ti.channel = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
 
                 if(!json_data.getString("terminalInfo").isEmpty() && json_data.getString("terminalInfo") != null){
                     String terminalInfo = json_data.isNull("terminalInfo") ? "" : json_data.getString("terminalInfo");
@@ -401,11 +332,16 @@ public class TerminalsFragment extends Fragment {
                     ti.apk_version = "";
                 }
 
-                //time configuration
+                /**
+                 * configure a time laps for getting ON/OFF
+                 */
                 try{
 
                     Date date1 = sdf.parse(currentDateandTime);
                     Date date2 = sdf.parse(ti.terminalStatusUpdateTime);
+
+                    System.out.println("date 1"+date1);
+                    System.out.println("date 2"+date2);
 
                     long diffInMs = date1.getTime() - date2.getTime();
                     long secondsInMilli = 1000;
@@ -424,30 +360,33 @@ public class TerminalsFragment extends Fragment {
 
                     long elapsedSeconds = diffInMs / secondsInMilli;
 
-//                    mNotificationManager =
-//                            (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-//                    if(ti.terminalStatus.equalsIgnoreCase("0")) {
-//                        NotificationCompat.Builder mBuilder =
-//                                new NotificationCompat.Builder(getActivity())
-//                                        .setSmallIcon(R.drawable.ic_terminal)
-//                                        .setContentTitle(ti.restaurant +" HS! "+ti.uuid)
-//                                        .setContentText("OFF depuis " +elapsedDays+"j "+elapsedHours+"h "+ elapsedMinutes + "min" + elapsedSeconds + "s");
-//                        Intent resultIntent = new Intent(getActivity(), TerminalsFragment.class);
-//
-//                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getActivity());
-//                        stackBuilder.addParentStack(TerminalsFragment.class);
-//                        stackBuilder.addNextIntent(resultIntent);
-//                        PendingIntent resultPendingIntent =
-//                                stackBuilder.getPendingIntent(
-//                                        0,
-//                                        PendingIntent.FLAG_UPDATE_CURRENT
-//                                );
-//                        mBuilder.setContentIntent(resultPendingIntent);
-//
-//                        mNotificationManager.notify(i, mBuilder.build());
-//                    }else{
-//                        mNotificationManager.cancel(i);
-//                    }
+                    mNotificationManager =
+                            (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                    System.out.println("elapsedHours "+elapsedHours+" elapsedMinutes "+elapsedMinutes+ " elapsedSeconds "+elapsedSeconds);
+                    /*if(ti.terminalStatus.equalsIgnoreCase("0")) {
+                        NotificationCompat.Builder mBuilder =
+                                new NotificationCompat.Builder(this)
+                                        .setSmallIcon(R.drawable.ic_terminal)
+                                        .setContentTitle(ti.restaurant +" HS! "+ti.uuid)
+                                        .setContentText("OFF depuis " +elapsedDays+"j "+elapsedHours+"h "+ elapsedMinutes + "min" + elapsedSeconds + "s");
+                        Intent resultIntent = new Intent(this, Terminals.class);
+
+                        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+                        stackBuilder.addParentStack(Terminals.class);
+                        stackBuilder.addNextIntent(resultIntent);
+                        PendingIntent resultPendingIntent =
+                                stackBuilder.getPendingIntent(
+                                        0,
+                                        PendingIntent.FLAG_UPDATE_CURRENT
+                                );
+                        mBuilder.setContentIntent(resultPendingIntent);
+
+                        mNotificationManager.notify(i, mBuilder.build());
+                    }else{
+                        mNotificationManager.cancel(i);
+                    }*/
                     if(elapsedDays>0) {
                         ti.terminalStatusUpdateTime = elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min "+elapsedSeconds+"s";
                     }else{
@@ -464,14 +403,14 @@ public class TerminalsFragment extends Fragment {
 
 
                 }catch (Exception e){
-                    Log.e("Time error", e.toString());
+                    Log.e("Date parsing error", e.toString());
                 }
 
                 result.add(ti);
             }
 
         }catch (JSONException e){
-            Log.e("JSON parsing error", e.toString());
+            Log.e("JSON Parsing error", e.toString());
         }
 
         return result;
@@ -517,47 +456,7 @@ public class TerminalsFragment extends Fragment {
                     /**
                      * show terminal's informations
                      */
-                    JsonObjectRequest terminalRequest = new JsonObjectRequest
-                            (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-
-                                    terminals = new JSONArray();
-                                    try {
-                                        JSONArray values = response.getJSONArray("data");
-                                        for (int i = 0; i < values.length(); i++) {
-
-                                            JSONObject object = values.getJSONObject(i);
-                                            terminals.put(object);
-                                        }
-                                        ta = new TerminalAdapter(createList(terminals));
-                                        recList.setAdapter(ta);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            }, new Response.ErrorListener() {
-
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-
-                                    error.printStackTrace();
-                                }
-                            }) {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String> params = new HashMap<String, String>();
-
-                            params.put("Api-User", Globales.API_USER);
-                            params.put("Api-Hash", Globales.API_HASH);
-
-                            return params;
-                        }
-                    };
-
-                    Volley.newRequestQueue(getContext()).add(terminalRequest);
+                  //  getTerminalTask();
                     restSpinner.setVisibility(View.GONE);
                 }else{
                     restSpinner.setVisibility(View.VISIBLE);
@@ -629,4 +528,370 @@ public class TerminalsFragment extends Fragment {
 
 
     }
+    private void getTerminalTask(){
+
+        terminals = new JSONArray();
+
+        /**
+         * get all terminals request
+         */
+        final JsonObjectRequest terminalRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/all", null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray values = response.getJSONArray("data");
+                            for (int i = 0; i < values.length(); i++) {
+
+                                final JSONObject terminalObject = values.getJSONObject(i);
+                                final String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
+
+                                Handler handler = new Handler();
+                                handler.postDelayed(new Runnable() {
+                                    public void run() {
+
+                                        try{
+                                            /**
+                                             * get orders informations by entity
+                                             */
+                                            JsonObjectRequest orderRequest = new JsonObjectRequest
+                                                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
+                                                        @Override
+                                                        public void onResponse(JSONObject response) {
+
+                                                            try {
+                                                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
+
+                                                                //date1
+                                                                Calendar date1Cal = Calendar.getInstance();
+                                                                date1Cal.setTime(new Date());
+
+                                                                int dayDate1Cal = date1Cal.get(Calendar.DAY_OF_MONTH);
+                                                                int monthDate1Cal = date1Cal.get(Calendar.MONTH);
+                                                                int yearDate1Cal = date1Cal.get(Calendar.YEAR);
+
+                                                                String dayDate1String = String.valueOf(dayDate1Cal);
+                                                                String monthDate1String = String.valueOf(monthDate1Cal + 1);
+                                                                String yearDate1String = String.valueOf(yearDate1Cal);
+
+                                                                System.out.println("currentdate 1 "+yearDate1String+"-"+monthDate1String+"-"+dayDate1String+"");
+                                                                JSONArray orders = new JSONArray();
+                                                                JSONArray values = response.getJSONArray("data");
+                                                                for(int i=0; i<values.length();i++){
+                                                                    JSONObject obj = values.getJSONObject(i);
+
+                                                                    try{
+                                                                        // Date date1 = sdf.parse(yearDate1String+"-"+monthDate1String+"-"+dayDate1String);
+                                                                        Date date2 = sdf.parse(obj.getString("status_report_timestamp"));
+                                                                        Calendar date2Cal = Calendar.getInstance();
+                                                                        date2Cal.setTime(date2);
+
+                                                                        int dayDate2Cal = date2Cal.get(Calendar.DAY_OF_MONTH);
+                                                                        int monthDate2Cal = date2Cal.get(Calendar.MONTH);
+                                                                        int yearDate2Cal = date2Cal.get(Calendar.YEAR);
+
+                                                                        String dayDate2String = String.valueOf(dayDate2Cal);
+                                                                        String monthDate2String = String.valueOf(monthDate2Cal + 1);
+                                                                        String yearDate2String = String.valueOf(yearDate2Cal);
+
+                                                                        //  date2 = sdf.parse(yearDate2String+"-"+monthDate2String+"-"+dayDate2String);
+                                                                        System.out.println("currentdate 2 "+yearDate2String+"-"+monthDate2String+"-"+dayDate2String+"");
+
+                                                                        String firstdate = yearDate1String+"-"+monthDate1String+"-"+dayDate1String;
+                                                                        String seconddate = yearDate2String+"-"+monthDate2String+"-"+dayDate2String;
+                                                                        System.out.println("date1 "+firstdate);
+                                                                        System.out.println("date2 "+seconddate);
+
+                                                                        if(firstdate.equals(seconddate)){
+                                                                            Log.i("DATE", "dates are equals");
+
+                                                                            obj.put("order_ref", obj.getString("order_ref"));
+                                                                            obj.put("order_status", obj.getString("order_status"));
+                                                                            obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                                            obj.put("terminal", obj.getString("macadress"));
+                                                                            obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+
+                                                                            orders.put(obj);
+                                                                        }
+                                                                    }catch (ParseException e){
+
+                                                                    }
+
+                                                                }
+                                                                Integer count = orders.length();
+                                                                Log.i("ORDER_INFO", count.toString() + " commandes");
+                                                                terminalObject.put("nb_orders", count);
+
+                                                                terminals.put(terminalObject);
+
+                                                                ta = new TerminalAdapter(createList(terminals));
+                                                                recList.setAdapter(ta);
+
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
+                                                            }
+
+                                                        }
+                                                    }, new Response.ErrorListener() {
+
+                                                        @Override
+                                                        public void onErrorResponse(VolleyError error) {
+
+                                                            error.printStackTrace();
+                                                        }
+                                                    }) {
+                                                @Override
+                                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                                    Map<String, String> params = new HashMap<String, String>();
+                                                    params.put("Api-User", Globales.API_USER);
+                                                    params.put("Api-Hash", Globales.API_HASH);
+
+                                                    return params;
+                                                }
+                                            };
+
+                                            Volley.newRequestQueue(getActivity()).add(orderRequest);
+
+                                        }catch (JSONException e){
+
+                                        }
+
+                                    }
+                                }, 3000);
+
+
+
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Api-User", Globales.API_USER);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getActivity()).add(terminalRequest);
+    }
+
+    private void getTerminalTaskByChannel(){
+        terminals = new JSONArray();
+
+        /**
+         * get all terminals request
+         */
+        final JsonObjectRequest terminalRequest = new JsonObjectRequest
+                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/all", null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            JSONArray values = response.getJSONArray("data");
+                            for (int i = 0; i < values.length(); i++) {
+
+                                final JSONObject terminalObject = values.getJSONObject(i);
+                                final String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
+                                final String idchannel = terminalObject.isNull("channelID") ? "" : terminalObject.getString("channelID");
+
+                                Handler handler = new Handler();
+                                handler.postDelayed(new Runnable() {
+                                    public void run() {
+
+                                        try{
+                                            /**
+                                             * get orders informations by entity
+                                             */
+                                            JsonObjectRequest orderRequest = new JsonObjectRequest
+                                                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
+                                                        @Override
+                                                        public void onResponse(JSONObject response) {
+
+                                                            try {
+                                                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
+
+                                                                //date1
+                                                                Calendar date1Cal = Calendar.getInstance();
+                                                                date1Cal.setTime(new Date());
+
+                                                                int dayDate1Cal = date1Cal.get(Calendar.DAY_OF_MONTH);
+                                                                int monthDate1Cal = date1Cal.get(Calendar.MONTH);
+                                                                int yearDate1Cal = date1Cal.get(Calendar.YEAR);
+
+                                                                String dayDate1String = String.valueOf(dayDate1Cal);
+                                                                String monthDate1String = String.valueOf(monthDate1Cal + 1);
+                                                                String yearDate1String = String.valueOf(yearDate1Cal);
+
+                                                                System.out.println("currentdate 1 "+yearDate1String+"-"+monthDate1String+"-"+dayDate1String+"");
+                                                                JSONArray orders = new JSONArray();
+                                                                JSONArray values = response.getJSONArray("data");
+                                                                for(int i=0; i<values.length();i++){
+                                                                    JSONObject obj = values.getJSONObject(i);
+
+                                                                    try{
+                                                                        // Date date1 = sdf.parse(yearDate1String+"-"+monthDate1String+"-"+dayDate1String);
+                                                                        Date date2 = sdf.parse(obj.getString("status_report_timestamp"));
+                                                                        Calendar date2Cal = Calendar.getInstance();
+                                                                        date2Cal.setTime(date2);
+
+                                                                        int dayDate2Cal = date2Cal.get(Calendar.DAY_OF_MONTH);
+                                                                        int monthDate2Cal = date2Cal.get(Calendar.MONTH);
+                                                                        int yearDate2Cal = date2Cal.get(Calendar.YEAR);
+
+                                                                        String dayDate2String = String.valueOf(dayDate2Cal);
+                                                                        String monthDate2String = String.valueOf(monthDate2Cal + 1);
+                                                                        String yearDate2String = String.valueOf(yearDate2Cal);
+
+                                                                        //  date2 = sdf.parse(yearDate2String+"-"+monthDate2String+"-"+dayDate2String);
+                                                                        System.out.println("currentdate 2 "+yearDate2String+"-"+monthDate2String+"-"+dayDate2String+"");
+
+                                                                        String firstdate = yearDate1String+"-"+monthDate1String+"-"+dayDate1String;
+                                                                        String seconddate = yearDate2String+"-"+monthDate2String+"-"+dayDate2String;
+                                                                        System.out.println("date1 "+firstdate);
+                                                                        System.out.println("date2 "+seconddate);
+
+                                                                        if(firstdate.equals(seconddate)){
+                                                                            Log.i("DATE", "dates are equals");
+
+                                                                            obj.put("order_ref", obj.getString("order_ref"));
+                                                                            obj.put("order_status", obj.getString("order_status"));
+                                                                            obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                                            obj.put("terminal", obj.getString("macadress"));
+                                                                            obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+
+                                                                            orders.put(obj);
+                                                                        }
+                                                                    }catch (ParseException e){
+
+                                                                    }
+
+                                                                }
+                                                                Integer count = orders.length();
+                                                                Log.i("ORDER_INFO", count.toString() + " commandes");
+                                                                terminalObject.put("nb_orders", count);
+
+                                                                if(!idchannel.isEmpty() && idchannel.equalsIgnoreCase(selectedID)){
+                                                                    terminals.put(terminalObject);
+                                                                }
+
+                                                                showProgress(false);
+                                                                ta = new TerminalAdapter(createList(terminals));
+                                                                recList.setAdapter(ta);
+
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
+                                                            }
+
+                                                        }
+                                                    }, new Response.ErrorListener() {
+
+                                                        @Override
+                                                        public void onErrorResponse(VolleyError error) {
+
+                                                            error.printStackTrace();
+                                                        }
+                                                    }) {
+                                                @Override
+                                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                                    Map<String, String> params = new HashMap<String, String>();
+                                                    params.put("Api-User", Globales.API_USER);
+                                                    params.put("Api-Hash", Globales.API_HASH);
+
+                                                    return params;
+                                                }
+                                            };
+
+                                            Volley.newRequestQueue(getActivity()).add(orderRequest);
+
+                                        }catch (JSONException e){
+
+                                        }
+
+                                    }
+                                }, 3000);
+
+
+
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        error.printStackTrace();
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Api-User", Globales.API_USER);
+                params.put("Api-Hash", Globales.API_HASH);
+
+                return params;
+            }
+        };
+
+        Volley.newRequestQueue(getActivity()).add(terminalRequest);
+    }
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mListView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
 }

@@ -517,7 +517,7 @@ public class HistoriqueFragment extends Fragment {
         list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                String name = jsonArray.getJSONObject(i).getString("parent_name");
                 if(!list.contains(name)){
                     list.add("" + name);
                 }
@@ -552,7 +552,7 @@ public class HistoriqueFragment extends Fragment {
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
-                            String name = jsonArray.getJSONObject(i).getString("resturant_name");
+                            String name = jsonArray.getJSONObject(i).getString("parent_name");
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
                                 //autocompleter la liste des restaurants après avoir sélctionner le parent

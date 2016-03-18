@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.wynd.app.wyndterminalpocket">
+    package="com.wynd.app.wyndterminalpocket" >
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -18,16 +18,17 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoTitleBar">
+            android:theme="@style/AppTheme.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -46,7 +47,7 @@
             android:name=".UsersActivity"
             android:label="@string/title_activity_users"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -55,7 +56,7 @@
             android:name=".AddUser"
             android:label="@string/title_activity_add_user"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -64,7 +65,7 @@
             android:name=".AddUserByID"
             android:label="@string/title_activity_add_user"
             android:parentActivityName=".UsersActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.UsersActivity" />
@@ -73,7 +74,7 @@
             android:name=".ProfilActivity"
             android:label="@string/title_activity_profil"
             android:parentActivityName=".UsersActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.UsersActivity" />
@@ -82,7 +83,7 @@
             android:name=".EditUserProfil"
             android:label="@string/title_activity_edit_user_profil"
             android:parentActivityName=".ProfilActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.ProfilActivity" />
@@ -91,7 +92,7 @@
             android:name=".EditMyProfil"
             android:label="@string/title_activity_edit_my_profil"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -100,7 +101,7 @@
             android:name=".AskAccount"
             android:label="@string/title_activity_ask_account"
             android:parentActivityName=".LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.LoginActivity" />
@@ -109,7 +110,7 @@
             android:name=".Terminals"
             android:label="@string/title_activity_terminals"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -118,7 +119,7 @@
             android:name=".InfoOfRestaurant"
             android:label="@string/title_activity_info_of_restaurant"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -127,7 +128,7 @@
             android:name=".EditRestaurant"
             android:label="@string/title_activity_edit_restaurant"
             android:parentActivityName=".InfoOfRestaurant"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.InfoOfRestaurant" />
@@ -136,7 +137,7 @@
             android:name=".AddTerminal"
             android:label="@string/title_activity_add_terminal"
             android:parentActivityName=".Terminals"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.Terminals" />
@@ -150,7 +151,7 @@
             android:name=".TerminalPosition"
             android:label="@string/title_activity_terminal_position"
             android:parentActivityName=".Terminals"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.Terminals" />
@@ -159,7 +160,7 @@
             android:name=".AddEntity"
             android:label="@string/title_activity_add_entity"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -168,7 +169,7 @@
             android:name=".MdpOublie"
             android:label="@string/title_activity_mdp_oublie"
             android:parentActivityName=".LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.LoginActivity" />
@@ -177,7 +178,7 @@
             android:name=".Historique"
             android:label="@string/title_activity_historique"
             android:parentActivityName=".Terminals"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.Terminals" />
@@ -186,7 +187,7 @@
             android:name=".InfoOfTerminal"
             android:label="@string/title_activity_info_of_terminal"
             android:parentActivityName=".Terminals"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.Terminals" />
@@ -195,7 +196,7 @@
             android:name=".EditTerminal"
             android:label="@string/title_activity_edit_terminal"
             android:parentActivityName=".InfoOfTerminal"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.InfoOfTerminal" />
@@ -204,7 +205,7 @@
             android:name=".AddParent"
             android:label="@string/title_activity_add_parent"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -213,7 +214,7 @@
             android:name=".EditParent"
             android:label="@string/title_activity_edit_parent"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -223,7 +224,7 @@
 
         <receiver
             android:name=".MyReceiver"
-            android:enabled="true">
+            android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -233,7 +234,7 @@
             android:name=".Orders"
             android:label="@string/title_activity_orders"
             android:parentActivityName=".MenuActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
@@ -241,10 +242,19 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MenuActivity">
+            android:parentActivityName=".MenuActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wynd.app.wyndterminalpocket.MenuActivity" />
+        </activity>
+        <activity
+            android:name=".InfoOrder"
+            android:label="@string/title_activity_info_order"
+            android:parentActivityName=".Orders"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wynd.app.wyndterminalpocket.Orders" />
         </activity>
     </application>
 

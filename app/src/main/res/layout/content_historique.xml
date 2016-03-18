@@ -40,6 +40,18 @@
                         android:textStyle="bold"
                         android:id="@+id/date1"
                         />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time"
+                        android:background="@drawable/circle_shape"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:padding="10dp"
+                        android:layout_marginStart="20sp"
+                        android:id="@+id/time1"
+                        />
+
                 </LinearLayout>
                 <LinearLayout
                     android:layout_below="@id/period1"
@@ -72,15 +84,27 @@
                         android:textStyle="bold"
                         android:id="@+id/date2"
                         />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time"
+                        android:background="@drawable/circle_shape"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:padding="10dp"
+                        android:layout_marginStart="20sp"
+                        android:id="@+id/time2"
+                        />
+
                 </LinearLayout>
 
             </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/layoutChart"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_below="@id/period"
                 android:layout_height="wrap_content">
-
             </RelativeLayout>
 
         </RelativeLayout>

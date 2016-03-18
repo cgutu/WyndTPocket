@@ -115,6 +115,28 @@
                         android:text="Commandes"
                         android:layout_gravity="center_vertical" />
                 </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/lBattery"
+                    android:layout_below="@id/lOrders"
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/battery_alert_black"
+                            android:contentDescription="@string/exki_logo"
+                            android:id="@+id/iconBattery"/>
+
+                    <TextView
+                        android:id="@+id/battery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Battery"
+                        android:layout_gravity="center_vertical" />
+                </LinearLayout>
 
             </RelativeLayout>
 

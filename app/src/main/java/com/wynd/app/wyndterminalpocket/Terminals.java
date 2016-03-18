@@ -369,6 +369,8 @@ public class Terminals extends AppCompatActivity {
                     ti.email = (infoObject.isNull("email") ? "" : infoObject.getString("email"));
                     ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
                     ti.apk_version = (infoObject.isNull("apk_version") ? "" : infoObject.getString("apk_version"));
+                    ti.battery_status = (infoObject.isNull("battery") ? "" : infoObject.getString("battery") +" %");
+                    System.out.println("battery status "+ti.battery_status);
                 }else{
                     ti.terminalUser = "";
                     ti.entity_parent = "";

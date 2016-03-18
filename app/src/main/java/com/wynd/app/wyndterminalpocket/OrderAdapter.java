@@ -73,6 +73,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
             orderViewHolder.vStatus.setTextColor(Color.rgb(221, 221, 221));
             orderViewHolder.vCircle.setBackgroundResource(R.drawable.circle_shape_received);
         }
+        orderViewHolder.vCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), InfoOrder.class);
+                intent.putExtra("order_ref",ri.order_reference);
+                intent.putExtra("order_delivery",ri.order_desired_delivery);
+                v.getContext().startActivity(intent);
+            }
+        });
 
 
     }

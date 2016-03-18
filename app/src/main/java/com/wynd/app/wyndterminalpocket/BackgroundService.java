@@ -71,140 +71,123 @@ public class BackgroundService extends Service {
 
         SharedPreferences pref = context.getSharedPreferences("Infos", 0);
         String EntityInfo = pref.getString("EntityInfo", "");
-        System.out.println("EntityInfo saved "+EntityInfo);
 
         boolean authorized = false;
         try{
             JSONArray infosArray = new JSONArray(EntityInfo);
 
             for (int j = 0; j < infosArray.length(); j++) {
-                JSONObject info = infosArray.getJSONObject(j);
-                if(info.getString("permissionID").equals("3")){
-                    authorized = true;
-                }
+                final JSONObject info = infosArray.getJSONObject(j);
+
+                Intent intent01 = new Intent(context, MenuActivity.class);
+                final PendingIntent pendingIntent01 = PendingIntent.getActivity(c, 1, intent01, 0);
+                final NotificationManager notificationManager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                JsonObjectRequest terminalRequest = new JsonObjectRequest
+                        (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                                try {
+                                    JSONArray values = response.getJSONArray("data");
+                                    for (int i = 0; i < values.length(); i++) {
+
+                                        JSONObject terminalObject = values.getJSONObject(i);
+                                        System.out.println("repeating notification");
+
+                                        if(terminalObject.getString("channelID").equals(info.getString("resaturantChainID"))){
+                                            if (terminalObject.getString("terminalStatus").equals("0")) {
+                                                String uuid = terminalObject.isNull("terminalMacadd") ? "" : terminalObject.getString("terminalMacadd");
+                                                String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
+                                                String terminalStatusUpdateTime = (terminalObject.isNull("terminalLastUpdated") ? "" : terminalObject.getString("terminalLastUpdated"));
+
+                                                /**
+                                                 * configure a time laps for getting ON/OFF
+                                                 */
+                                                try {
+
+                                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                                    String currentDateandTime = sdf.format(new Date());
+                                                    Date date1 = sdf.parse(currentDateandTime);
+                                                    Date date2 = sdf.parse(terminalStatusUpdateTime);
+
+                                                    System.out.println("date 1" + date1);
+                                                    System.out.println("date 2" + date2);
+
+                                                    long diffInMs = date1.getTime() - date2.getTime();
+                                                    long secondsInMilli = 1000;
+                                                    long minutesInMilli = secondsInMilli * 60;
+                                                    long hoursInMilli = minutesInMilli * 60;
+                                                    long daysInMilli = hoursInMilli * 24;
+
+                                                    long elapsedDays = diffInMs / daysInMilli;
+                                                    diffInMs = diffInMs % daysInMilli;
+
+                                                    long elapsedHours = diffInMs / hoursInMilli;
+                                                    diffInMs = diffInMs % hoursInMilli;
+
+                                                    long elapsedMinutes = diffInMs / minutesInMilli;
+                                                    diffInMs = diffInMs % minutesInMilli;
+
+                                                    long elapsedSeconds = diffInMs / secondsInMilli;
+                                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
+                                                    builder.setSmallIcon(R.drawable.ic_terminal);
+                                                    builder.setContentIntent(pendingIntent01);
+                                                    builder.setAutoCancel(true);
+                                                    builder.setContentTitle(channel + " HS ! " + uuid);
+                                                    builder.setContentText("OFF depuis " + elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min " + elapsedSeconds + "s");
+                                                    //builder.setSubText("click here");
+
+                                                    notificationManager.notify(i, builder.build());
+                                                    try {
+                                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                                        Ringtone r = RingtoneManager.getRingtone(c, notification);
+                                                        r.play();
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                } catch (Exception e) {
+                                                    Log.e("Date parsing error", e.toString());
+                                                }
+                                            } else {
+                                                notificationManager.cancel(i);
+                                            }
+                                        }else{
+                                            System.out.println("Terminal not available for this user "+terminalObject.getString("channelID")+ " "+terminalObject.getString("resaturantChainID") );
+                                        }
+
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                                error.printStackTrace();
+                            }
+                        }) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("Api-User", "admin");
+                        params.put("Api-Hash", "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4");
+
+                        return params;
+                    }
+                };
+
+                Volley.newRequestQueue(c).add(terminalRequest);
+
             }
         }catch (JSONException e){
 
         }
 
-        Intent intent01 = new Intent(context, MenuActivity.class);
-        final PendingIntent pendingIntent01 = PendingIntent.getActivity(c, 1, intent01, 0);
-        final NotificationManager notificationManager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
-
-        if(authorized) {
-            JsonObjectRequest terminalRequest = new JsonObjectRequest
-                    (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-                            try {
-                                JSONArray values = response.getJSONArray("data");
-                                for (int i = 0; i < values.length(); i++) {
-
-                                    JSONObject terminalObject = values.getJSONObject(i);
-                                    System.out.println("repeating notification");
-
-                                    if (terminalObject.getString("terminalStatus").equals("0")) {
-                                        String uuid = terminalObject.isNull("terminalMacadd") ? "" : terminalObject.getString("terminalMacadd");
-                                        String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
-                                        String terminalStatusUpdateTime = (terminalObject.isNull("terminalLastUpdated") ? "" : terminalObject.getString("terminalLastUpdated"));
-
-                                        /**
-                                         * configure a time laps for getting ON/OFF
-                                         */
-                                        try {
-
-                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                                            String currentDateandTime = sdf.format(new Date());
-                                            Date date1 = sdf.parse(currentDateandTime);
-                                            Date date2 = sdf.parse(terminalStatusUpdateTime);
-
-                                            System.out.println("date 1" + date1);
-                                            System.out.println("date 2" + date2);
-
-                                            long diffInMs = date1.getTime() - date2.getTime();
-                                            long secondsInMilli = 1000;
-                                            long minutesInMilli = secondsInMilli * 60;
-                                            long hoursInMilli = minutesInMilli * 60;
-                                            long daysInMilli = hoursInMilli * 24;
-
-                                            long elapsedDays = diffInMs / daysInMilli;
-                                            diffInMs = diffInMs % daysInMilli;
-
-                                            long elapsedHours = diffInMs / hoursInMilli;
-                                            diffInMs = diffInMs % hoursInMilli;
-
-                                            long elapsedMinutes = diffInMs / minutesInMilli;
-                                            diffInMs = diffInMs % minutesInMilli;
-
-                                            long elapsedSeconds = diffInMs / secondsInMilli;
-                                            NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
-                                            builder.setSmallIcon(R.drawable.ic_terminal);
-                                            builder.setContentIntent(pendingIntent01);
-                                            builder.setAutoCancel(true);
-                                            builder.setContentTitle(channel + " HS ! " + uuid);
-                                            builder.setContentText("OFF depuis " + elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min " + elapsedSeconds + "s");
-                                            //builder.setSubText("click here");
-
-                                            notificationManager.notify(i, builder.build());
-                                            try {
-                                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                                Ringtone r = RingtoneManager.getRingtone(c, notification);
-                                                r.play();
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-
-                                        } catch (Exception e) {
-                                            Log.e("Date parsing error", e.toString());
-                                        }
-                                    } else {
-                                        notificationManager.cancel(i);
-                                    }
-
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                            error.printStackTrace();
-                        }
-                    }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("Api-User", "admin");
-                    params.put("Api-Hash", "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4");
-
-                    return params;
-                }
-            };
-
-            Volley.newRequestQueue(c).add(terminalRequest);
-        }else{
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
-            builder.setSmallIcon(R.drawable.ic_terminal);
-            builder.setContentIntent(pendingIntent01);
-            builder.setAutoCancel(true);
-            builder.setContentTitle("ERROOORRR");
-            builder.setContentText("ERRORRR");
-            //builder.setSubText("click here");
-
-            notificationManager.notify(1, builder.build());
-            try {
-                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                Ringtone r = RingtoneManager.getRingtone(c, notification);
-                r.play();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
     }
 
