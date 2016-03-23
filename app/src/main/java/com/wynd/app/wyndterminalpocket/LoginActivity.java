@@ -88,6 +88,17 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.class));
 
         /**
+         * Set the API HASH
+         */
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
+
+        /**
          * get stored user infos
          */
         pref = getApplicationContext().getSharedPreferences("Infos", 0); // 0 - for private mode

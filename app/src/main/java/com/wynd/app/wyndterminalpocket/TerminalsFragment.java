@@ -151,7 +151,7 @@ public class TerminalsFragment extends Fragment {
         /**
          * init the views
          */
-        mListView = rootView.findViewById(R.id.cardList);
+        mListView = rootView.findViewById(R.id.footer);
         mProgressView = rootView.findViewById(R.id.progress);
         restSpinner = (Spinner) rootView.findViewById(R.id.rest_channel_id);
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
@@ -167,6 +167,7 @@ public class TerminalsFragment extends Fragment {
         terminal = new ArrayList<>();
         ta = new TerminalAdapter(terminal);
         recList.setAdapter(ta);
+
 
         /**
          * create a new user
@@ -246,28 +247,29 @@ public class TerminalsFragment extends Fragment {
                 // TODO Auto-generated method stub
                 Object item = arg0.getItemAtPosition(arg2);
                 if (arg2 == 0) {
-                    //afficher tous les terminaux de cette franchise
                     /**
-                     * show terminal's informations
+                     * show terminal's selected informations
                      */
-                  //  getTerminalTask();
-                }
-                if (item != null) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        try {
-                            String name = jsonArray.getJSONObject(i).getString("name");
-                            if (item.equals(name)) {
-                                selectedID = jsonArray.getJSONObject(i).getString("id");
-                                /**
-                                 * show terminal's selected informations
-                                 */
-                                getTerminalTaskByChannel();
+                   //getTerminalByParent();
+                }else{
+                    if (item != null) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            try {
+                                String name = jsonArray.getJSONObject(i).getString("name");
+                                if (item.equals(name)) {
+                                    selectedID = jsonArray.getJSONObject(i).getString("id");
+                                    /**
+                                     * show terminal's selected informations
+                                     */
+                                    getTerminalTaskByChannel();
+                                }
+                            } catch (JSONException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                         }
                     }
+
                 }
 
             }
@@ -322,6 +324,7 @@ public class TerminalsFragment extends Fragment {
                     ti.email = (infoObject.isNull("email") ? "" : infoObject.getString("email"));
                     ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
                     ti.apk_version = (infoObject.isNull("apk_version") ? "" : infoObject.getString("apk_version"));
+                    ti.battery_status = (infoObject.isNull("battery") ? "" : infoObject.getString("battery") +" %");
                 }else{
                     ti.terminalUser = "";
                     ti.entity_parent = "";
@@ -452,69 +455,71 @@ public class TerminalsFragment extends Fragment {
 
                 Object item = arg0.getItemAtPosition(arg2);
                 if(arg2 == 0){
-                    //afficher tous les terminaux (peu importe la franchise et le restaurant)
+                    restSpinner.setVisibility(View.GONE);
+                    //afficher tous les terminaux auxquels l'utilisateur est autorisé
                     /**
                      * show terminal's informations
                      */
-                  //  getTerminalTask();
-                    restSpinner.setVisibility(View.GONE);
+                   getTerminalTask();
                 }else{
                     restSpinner.setVisibility(View.VISIBLE);
-                }
-                if (item != null) {
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        try {
-                            String name = jsonArray.getJSONObject(i).getString("parent_name");
-                            if(item.equals(name)){
-                                final String selectedID = jsonArray.getJSONObject(i).getString("id");
+                    if (item != null) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            try {
+                                // complete entities list
+                                String name = jsonArray.getJSONObject(i).getString("parent_name");
+                                if(item.equals(name)){
+                                    final String selectedID = jsonArray.getJSONObject(i).getString("id");
 
-                                final JSONArray entities = new JSONArray();
-                                JsonObjectRequest entityRequest = new JsonObjectRequest
-                                        (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/" + selectedID + "/user/" + myuserID, null, new Response.Listener<JSONObject>() {
-                                            @Override
-                                            public void onResponse(JSONObject response) {
+                                    final JSONArray entities = new JSONArray();
+                                    JsonObjectRequest entityRequest = new JsonObjectRequest
+                                            (Request.Method.GET, Globales.baseUrl + "api/restaurant/get/by/parent/" + selectedID + "/user/" + myuserID, null, new Response.Listener<JSONObject>() {
+                                                @Override
+                                                public void onResponse(JSONObject response) {
 
-                                                try {
-                                                    JSONArray values = response.getJSONArray("data");
-                                                    for (int i = 0; i < values.length(); i++) {
-                                                        JSONObject restaurants = values.getJSONObject(i);
-                                                        entities.put(restaurants);
+                                                    try {
+                                                        JSONArray values = response.getJSONArray("data");
+                                                        for (int i = 0; i < values.length(); i++) {
+                                                            JSONObject restaurants = values.getJSONObject(i);
+                                                            entities.put(restaurants);
 
+                                                        }
+                                                        addList(entities);
+
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
                                                     }
-                                                    addList(entities);
 
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
                                                 }
+                                            }, new Response.ErrorListener() {
 
-                                            }
-                                        }, new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
 
-                                            @Override
-                                            public void onErrorResponse(VolleyError error) {
+                                                    error.printStackTrace();
+                                                }
+                                            }) {
+                                        @Override
+                                        public Map<String, String> getHeaders() throws AuthFailureError {
+                                            Map<String, String> params = new HashMap<String, String>();
 
-                                                error.printStackTrace();
-                                            }
-                                        }) {
-                                    @Override
-                                    public Map<String, String> getHeaders() throws AuthFailureError {
-                                        Map<String, String> params = new HashMap<String, String>();
+                                            params.put("Api-User", Globales.API_USER);
+                                            params.put("Api-Hash", Globales.API_HASH);
 
-                                        params.put("Api-User", Globales.API_USER);
-                                        params.put("Api-Hash", Globales.API_HASH);
+                                            return params;
+                                        }
+                                    };
 
-                                        return params;
-                                    }
-                                };
-
-                                Volley.newRequestQueue(getContext()).add(entityRequest);
+                                    Volley.newRequestQueue(getContext()).add(entityRequest);
+                                }
+                            } catch (JSONException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                         }
                     }
                 }
+
 
             }
 
@@ -530,8 +535,7 @@ public class TerminalsFragment extends Fragment {
     }
     private void getTerminalTask(){
 
-        terminals = new JSONArray();
-
+        showProgress(true);
         /**
          * get all terminals request
          */
@@ -541,11 +545,11 @@ public class TerminalsFragment extends Fragment {
                     public void onResponse(JSONObject response) {
 
                         try {
+                            terminals = new JSONArray();
                             JSONArray values = response.getJSONArray("data");
                             for (int i = 0; i < values.length(); i++) {
 
                                 final JSONObject terminalObject = values.getJSONObject(i);
-                                final String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
 
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
@@ -575,14 +579,13 @@ public class TerminalsFragment extends Fragment {
                                                                 String monthDate1String = String.valueOf(monthDate1Cal + 1);
                                                                 String yearDate1String = String.valueOf(yearDate1Cal);
 
-                                                                System.out.println("currentdate 1 "+yearDate1String+"-"+monthDate1String+"-"+dayDate1String+"");
                                                                 JSONArray orders = new JSONArray();
                                                                 JSONArray values = response.getJSONArray("data");
+
                                                                 for(int i=0; i<values.length();i++){
                                                                     JSONObject obj = values.getJSONObject(i);
-
+                                                                    JSONObject newobj = new JSONObject();
                                                                     try{
-                                                                        // Date date1 = sdf.parse(yearDate1String+"-"+monthDate1String+"-"+dayDate1String);
                                                                         Date date2 = sdf.parse(obj.getString("status_report_timestamp"));
                                                                         Calendar date2Cal = Calendar.getInstance();
                                                                         date2Cal.setTime(date2);
@@ -595,24 +598,17 @@ public class TerminalsFragment extends Fragment {
                                                                         String monthDate2String = String.valueOf(monthDate2Cal + 1);
                                                                         String yearDate2String = String.valueOf(yearDate2Cal);
 
-                                                                        //  date2 = sdf.parse(yearDate2String+"-"+monthDate2String+"-"+dayDate2String);
-                                                                        System.out.println("currentdate 2 "+yearDate2String+"-"+monthDate2String+"-"+dayDate2String+"");
-
                                                                         String firstdate = yearDate1String+"-"+monthDate1String+"-"+dayDate1String;
                                                                         String seconddate = yearDate2String+"-"+monthDate2String+"-"+dayDate2String;
-                                                                        System.out.println("date1 "+firstdate);
-                                                                        System.out.println("date2 "+seconddate);
 
                                                                         if(firstdate.equals(seconddate)){
-                                                                            Log.i("DATE", "dates are equals");
+                                                                            newobj.put("order_ref", obj.getString("order_ref"));
+                                                                            newobj.put("order_status", obj.getString("order_status"));
+                                                                            newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                                            newobj.put("terminal", obj.getString("macadress"));
+                                                                            newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                            obj.put("order_ref", obj.getString("order_ref"));
-                                                                            obj.put("order_status", obj.getString("order_status"));
-                                                                            obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                                            obj.put("terminal", obj.getString("macadress"));
-                                                                            obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
-
-                                                                            orders.put(obj);
+                                                                            orders.put(newobj);
                                                                         }
                                                                     }catch (ParseException e){
 
@@ -625,6 +621,7 @@ public class TerminalsFragment extends Fragment {
 
                                                                 terminals.put(terminalObject);
 
+                                                                showProgress(false);
                                                                 ta = new TerminalAdapter(createList(terminals));
                                                                 recList.setAdapter(ta);
 
@@ -791,7 +788,6 @@ public class TerminalsFragment extends Fragment {
                                                                     terminals.put(terminalObject);
                                                                 }
 
-                                                                showProgress(false);
                                                                 ta = new TerminalAdapter(createList(terminals));
                                                                 recList.setAdapter(ta);
 
@@ -892,6 +888,12 @@ public class TerminalsFragment extends Fragment {
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mListView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+    private void getTerminalByParent() {
+        terminals = new JSONArray();
+
+        ta = new TerminalAdapter(createList(terminals));
+        recList.setAdapter(ta);
     }
 
 }

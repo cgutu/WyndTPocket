@@ -52,9 +52,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="restaurant"
+                    android:visibility="gone"
                     android:layout_below="@id/uuid" />
                 <TextView
                     android:id="@+id/txtInfos"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Entity Parent/ID/Label"
@@ -120,6 +122,7 @@
                     android:layout_below="@id/lOrders"
                     android:layout_width="wrap_content"
                     android:orientation="horizontal"
+                    android:visibility="gone"
                     android:layout_height="wrap_content">
 
 

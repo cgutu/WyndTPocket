@@ -77,7 +77,7 @@ public class InfoOrder extends AppCompatActivity {
                                 JSONObject info = values.getJSONObject(i);
                                 list.add(info.getString("macadress") + " status: " + info.getString("order_status") + " " + info.getString("status_report_timestamp"));
                             }
-                            Collections.sort(list);
+                            //Collections.sort(list);
                             final ArrayAdapter adapter = new ArrayAdapter(InfoOrder.this,
                                     android.R.layout.simple_list_item_1, list);
                             listview.setAdapter(adapter);

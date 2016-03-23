@@ -44,7 +44,7 @@
     <string name="title_activity_edit_my_profil">Modifier mon profil</string>
     <string name="title_activity_mon_restaurant">Mon Restaurant</string>
     <string name="title_activity_ask_account">Demander un compte</string>
-    <string name="title_activity_terminals">Terminals</string>
+    <string name="title_activity_terminals">Terminaux</string>
     <string name="title_activity_info_of_restaurant">Informations</string>
     <string name="title_activity_edit_restaurant">Modifier</string>
     <string name="title_activity_add_terminal">Ajouter terminal</string>

@@ -195,7 +195,13 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         if(ti.entity_parent.isEmpty() && ti.entity_id.isEmpty() && ti.entity_label.isEmpty()){
             terminalViewHolder.vInfos.setVisibility(View.GONE);
         }
-        terminalViewHolder.vBattery.setText(ti.battery_status);
+        if(ti.battery_status.isEmpty()){
+            terminalViewHolder.lBattery.setVisibility(View.GONE);
+        }else{
+            terminalViewHolder.lBattery.setVisibility(View.VISIBLE);
+            terminalViewHolder.vBattery.setText(ti.battery_status);
+        }
+
 
 
     }
@@ -232,6 +238,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         protected ImageView getInfo;
         protected TextView vOrders;
         protected TextView vBattery;
+        protected LinearLayout lBattery;
 
         public TerminalViewHolder(View v) {
             super(v);
@@ -257,6 +264,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             getInfo = (ImageView) v.findViewById(R.id.info);
             vOrders = (TextView) v.findViewById(R.id.orders);
             vBattery = (TextView) v.findViewById(R.id.battery);
+            lBattery = (LinearLayout) v.findViewById(R.id.lBattery);
         }
 
     }

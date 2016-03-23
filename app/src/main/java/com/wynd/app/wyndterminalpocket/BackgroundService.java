@@ -72,7 +72,6 @@ public class BackgroundService extends Service {
         SharedPreferences pref = context.getSharedPreferences("Infos", 0);
         String EntityInfo = pref.getString("EntityInfo", "");
 
-        boolean authorized = false;
         try{
             JSONArray infosArray = new JSONArray(EntityInfo);
 
@@ -154,7 +153,6 @@ public class BackgroundService extends Service {
                                                 notificationManager.cancel(i);
                                             }
                                         }else{
-                                            System.out.println("Terminal not available for this user "+terminalObject.getString("channelID")+ " "+terminalObject.getString("resaturantChainID") );
                                         }
 
                                     }

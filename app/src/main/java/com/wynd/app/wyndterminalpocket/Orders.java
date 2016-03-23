@@ -272,32 +272,6 @@ public class Orders extends AppCompatActivity {
 
         Volley.newRequestQueue(getApplicationContext()).add(deviceRequest);
     }
-    public static JSONArray sortJsonArray(JSONArray array) {
-        List<JSONObject> jsons = new ArrayList<JSONObject>();
-        try{
-            for (int i = 0; i < array.length(); i++) {
-                jsons.add(array.getJSONObject(i));
-            }
-        }catch (JSONException e){
-
-        }
-
-        Collections.sort(jsons, new Comparator<JSONObject>() {
-            @Override
-            public int compare(JSONObject lhs, JSONObject rhs) {
-                try {
-                    String lid = lhs.getString("order_status");
-                    String rid = rhs.getString("order_status");
-                    // Here you could parse string id to integer and then compare.
-                    return lid.compareTo(rid);
-                } catch (JSONException e) {
-
-                }
-                return 0;
-            }
-        });
-        return new JSONArray(jsons);
-    }
     private List<OrderInfo> createList(JSONArray jsonArray) {
 
         final List<OrderInfo> result = new ArrayList<OrderInfo>();
@@ -307,17 +281,6 @@ public class Orders extends AppCompatActivity {
                 final OrderInfo ui = new OrderInfo();
 
                 JSONObject json_data = jsonArray.getJSONObject(i);
-
-//                if(jsonArray.toString().contains("\"order_ref\":\""+ json_data.getString("order_ref")+"\"")){
-//                    //System.out.println("same orders " + json_data.getString("order_ref") + " status " + json_data.getString("order_status"));
-//                    if(Integer.parseInt(json_data.getString("order_status")) > 0){
-//                        System.out.println("Commande Acceptée");
-//                    }else{
-//                        System.out.println("Commande refusée");
-//                    }
-//                }else{
-//
-//                }
 
                 ui.order_reference = (json_data.isNull("order_ref") ? "" : json_data.getString("order_ref"));
                 ui.order_status = (json_data.isNull("order_status") ? "" : json_data.getString("order_status"));
@@ -381,7 +344,6 @@ public class Orders extends AppCompatActivity {
                     terminalIMEI = "";
 
                    if(!selectedStatus.isEmpty()) {
-                       orders = new JSONArray();
                        /**
                         * get orders informations by status
                         */
@@ -391,18 +353,22 @@ public class Orders extends AppCompatActivity {
                                    public void onResponse(JSONObject response) {
 
                                        try {
+                                           orders = new JSONArray();
                                            JSONArray values = response.getJSONArray("data");
                                            Log.i("ORDER_INFO", values.toString());
 
                                            for (int i = 0; i < values.length(); i++) {
                                                JSONObject obj = values.getJSONObject(i);
-                                               obj.put("order_ref", obj.getString("order_ref"));
-                                               obj.put("order_status", obj.getString("order_status"));
-                                               obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                               obj.put("terminal", obj.getString("macadress"));
-                                               obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                               JSONObject newobj = new JSONObject();
+                                               newobj.put("order_ref", obj.getString("order_ref"));
+                                               newobj.put("order_status", obj.getString("order_status"));
+                                               newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                               newobj.put("terminal", obj.getString("macadress"));
+                                               newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                               orders.put(obj);
+                                               if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                   orders.put(newobj);
+                                               }
                                            }
                                            if (orders.length() == 0) {
                                                total.setText("Aucune commande");
@@ -450,7 +416,6 @@ public class Orders extends AppCompatActivity {
                                     System.out.println("selected selectedStatus "+selectedStatus);
                                     if(!selectedStatus.isEmpty()){
                                         System.out.println("selected by status & by terminal devicespinner "+selectedStatus+terminalIMEI);
-                                        orders = new JSONArray();
                                         /**
                                          * get orders informations by terminal and by status
                                          */
@@ -460,18 +425,22 @@ public class Orders extends AppCompatActivity {
                                                     public void onResponse(JSONObject response) {
 
                                                         try {
+                                                            orders = new JSONArray();
                                                             JSONArray values = response.getJSONArray("data");
                                                             Log.i("ORDER_INFO", values.toString());
 
                                                             for(int i=0; i<values.length();i++){
                                                                 JSONObject obj = values.getJSONObject(i);
-                                                                obj.put("order_ref", obj.getString("order_ref"));
-                                                                obj.put("order_status", obj.getString("order_status"));
-                                                                obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                                obj.put("terminal", obj.getString("macadress"));
-                                                                obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                                JSONObject newobj = new JSONObject();
+                                                                newobj.put("order_ref", obj.getString("order_ref"));
+                                                                newobj.put("order_status", obj.getString("order_status"));
+                                                                newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                                newobj.put("terminal", obj.getString("macadress"));
+                                                                newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                orders.put(obj);
+                                                                if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                    orders.put(newobj);
+                                                                }
 
                                                             }
                                                             if(orders.length() == 0){
@@ -509,7 +478,6 @@ public class Orders extends AppCompatActivity {
                                     }else{
                                         selectedStatus = "";
                                         System.out.println("selected by terminal "+terminalIMEI);
-                                        orders = new JSONArray();
                                         /**
                                          * get orders informations by terminal
                                          */
@@ -519,18 +487,23 @@ public class Orders extends AppCompatActivity {
                                                     public void onResponse(JSONObject response) {
 
                                                         try {
+                                                            orders = new JSONArray();
+
                                                             JSONArray values = response.getJSONArray("data");
                                                             Log.i("ORDER_INFO", values.toString());
 
                                                             for(int i=0; i<values.length();i++){
                                                                 JSONObject obj = values.getJSONObject(i);
-                                                                obj.put("order_ref", obj.getString("order_ref"));
-                                                                obj.put("order_status", obj.getString("order_status"));
-                                                                obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                                obj.put("terminal", obj.getString("macadress"));
-                                                                obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                                JSONObject newobj = new JSONObject();
+                                                                newobj.put("order_ref", obj.getString("order_ref"));
+                                                                newobj.put("order_status", obj.getString("order_status"));
+                                                                newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                                newobj.put("terminal", obj.getString("macadress"));
+                                                                newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                orders.put(obj);
+                                                                if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                    orders.put(newobj);
+                                                                }
 
                                                             }
                                                             if(orders.length() == 0){
@@ -615,7 +588,6 @@ public class Orders extends AppCompatActivity {
                     selectedStatus = "";
 
                     if(!terminalIMEI.isEmpty()){
-                        orders = new JSONArray();
                         /**
                          * get orders informations by terminal
                          */
@@ -625,18 +597,22 @@ public class Orders extends AppCompatActivity {
                                     public void onResponse(JSONObject response) {
 
                                         try {
+                                            orders = new JSONArray();
                                             JSONArray values = response.getJSONArray("data");
                                             Log.i("ORDER_INFO", values.toString());
 
                                             for(int i=0; i<values.length();i++){
                                                 JSONObject obj = values.getJSONObject(i);
-                                                obj.put("order_ref", obj.getString("order_ref"));
-                                                obj.put("order_status", obj.getString("order_status"));
-                                                obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                obj.put("terminal", obj.getString("macadress"));
-                                                obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                JSONObject newobj = new JSONObject();
+                                                newobj.put("order_ref", obj.getString("order_ref"));
+                                                newobj.put("order_status", obj.getString("order_status"));
+                                                newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                newobj.put("terminal", obj.getString("macadress"));
+                                                newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                orders.put(obj);
+                                                if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                    orders.put(newobj);
+                                                }
 
                                             }
                                             if(orders.length() == 0){
@@ -694,7 +670,6 @@ public class Orders extends AppCompatActivity {
                         }
                         if(!terminalIMEI.isEmpty()){
                             System.out.println("selected by status & by terminal statusspinner "+selectedStatus+terminalIMEI);
-                            orders = new JSONArray();
                             /**
                              * get orders informations by terminal and by status
                              */
@@ -704,18 +679,22 @@ public class Orders extends AppCompatActivity {
                                         public void onResponse(JSONObject response) {
 
                                             try {
+                                                orders = new JSONArray();
                                                 JSONArray values = response.getJSONArray("data");
                                                 Log.i("ORDER_INFO", values.toString());
 
                                                 for(int i=0; i<values.length();i++){
                                                     JSONObject obj = values.getJSONObject(i);
-                                                    obj.put("order_ref", obj.getString("order_ref"));
-                                                    obj.put("order_status", obj.getString("order_status"));
-                                                    obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                    obj.put("terminal", obj.getString("macadress"));
-                                                    obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                    JSONObject newobj = new JSONObject();
+                                                    newobj.put("order_ref", obj.getString("order_ref"));
+                                                    newobj.put("order_status", obj.getString("order_status"));
+                                                    newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                    newobj.put("terminal", obj.getString("macadress"));
+                                                    newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                    orders.put(obj);
+                                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                        orders.put(newobj);
+                                                    }
 
                                                 }
                                                 if(orders.length() == 0){
@@ -752,7 +731,6 @@ public class Orders extends AppCompatActivity {
                         }else{
                             terminalIMEI = "";
                             System.out.println("selected by status "+selectedStatus);
-                            orders = new JSONArray();
                             /**
                              * get orders informations by status
                              */
@@ -762,18 +740,22 @@ public class Orders extends AppCompatActivity {
                                         public void onResponse(JSONObject response) {
 
                                             try {
+                                                orders = new JSONArray();
                                                 JSONArray values = response.getJSONArray("data");
                                                 Log.i("ORDER_INFO", values.toString());
 
                                                 for(int i=0; i<values.length();i++){
                                                     JSONObject obj = values.getJSONObject(i);
-                                                    obj.put("order_ref", obj.getString("order_ref"));
-                                                    obj.put("order_status", obj.getString("order_status"));
-                                                    obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                    obj.put("terminal", obj.getString("macadress"));
-                                                    obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                    JSONObject newobj = new JSONObject();
+                                                    newobj.put("order_ref", obj.getString("order_ref"));
+                                                    newobj.put("order_status", obj.getString("order_status"));
+                                                    newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                    newobj.put("terminal", obj.getString("macadress"));
+                                                    newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                    orders.put(obj);
+                                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                        orders.put(newobj);
+                                                    }
                                                 }
                                                 if(orders.length() == 0){
                                                     total.setText("Aucune commande");
@@ -833,23 +815,28 @@ public class Orders extends AppCompatActivity {
                     (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/5", null, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            orders = new JSONArray();
+
                             try {
+                                orders = new JSONArray();
                                 JSONArray values = response.getJSONArray("data");
                                 Log.i("ORDER_INFO", values.toString());
 
                                 for(int i=0; i<values.length();i++){
                                     JSONObject obj = values.getJSONObject(i);
-                                    obj.put("order_ref", obj.getString("order_ref"));
-                                    obj.put("order_status", obj.getString("order_status"));
-                                    obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                    obj.put("terminal", obj.getString("macadress"));
-                                    obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                    JSONObject newobj = new JSONObject();
+                                    newobj.put("order_ref", obj.getString("order_ref"));
+                                    newobj.put("terminal", obj.getString("macadress"));
+                                    newobj.put("order_status", obj.getString("order_status"));
+                                    newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                    newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
 
-                                    orders.put(obj);
+                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                        orders.put(newobj);
+                                    }
+
                                 }
-                               // getSortedList(orders);
 
+                                System.out.println("orders "+orders.toString());
                                 if(orders.length() == 0){
                                     total.setText("Aucune commande");
                                 }else{
@@ -1074,6 +1061,8 @@ public class Orders extends AppCompatActivity {
                             for(int i=0; i<values.length();i++){
                                     JSONObject obj = values.getJSONObject(i);
 
+                                JSONObject newobj = new JSONObject();
+
                                     String datetime1 = date1+" "+time1;
                                     String datetime2 = date2+" "+time2;
 
@@ -1088,14 +1077,15 @@ public class Orders extends AppCompatActivity {
                                     //afficher toutes les commandes reçues entre first et last
                                     if(orderDate.getTime()>=first.getTime() && orderDate.getTime()<=last.getTime() && first.getTime()<last.getTime())
                                     {
-                                        System.out.println("order dates " + orderDate);
-                                        obj.put("order_ref", obj.getString("order_ref"));
-                                        obj.put("order_status", obj.getString("order_status"));
-                                        obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                        obj.put("terminal", obj.getString("macadress"));
-                                        obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                        newobj.put("order_ref", obj.getString("order_ref"));
+                                        newobj.put("order_status", obj.getString("order_status"));
+                                        newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                        newobj.put("terminal", obj.getString("macadress"));
+                                        newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                        orders.put(obj);
+                                        if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                            orders.put(newobj);
+                                        }
                                     }
                             }
                             if(orders.length() == 0){
@@ -1148,6 +1138,7 @@ public class Orders extends AppCompatActivity {
                             JSONArray values = response.getJSONArray("data");
                             for(int i=0; i<values.length();i++){
                                 JSONObject obj = values.getJSONObject(i);
+                                JSONObject newobj = new JSONObject();
 
                                 String datetime1 = date1;
 
@@ -1158,19 +1149,18 @@ public class Orders extends AppCompatActivity {
                                 String order_date = obj.getString("status_report_timestamp");
                                 Date orderDate = sdf.parse(order_date);
 
-                                System.out.println("order dates " + first + " "+orderDate);
-
                                 //afficher toutes les commandes passées ce jour
                                 if(first.getTime()==orderDate.getTime())
                                 {
-                                    System.out.println("order dates " + orderDate);
-                                    obj.put("order_ref", obj.getString("order_ref"));
-                                    obj.put("order_status", obj.getString("order_status"));
-                                    obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                    obj.put("terminal", obj.getString("macadress"));
-                                    obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                    newobj.put("order_ref", obj.getString("order_ref"));
+                                    newobj.put("order_status", obj.getString("order_status"));
+                                    newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                    newobj.put("terminal", obj.getString("macadress"));
+                                    newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                    orders.put(obj);
+                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                        orders.put(newobj);
+                                    }
                                 }
                             }
                             if(orders.length() == 0){

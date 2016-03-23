@@ -151,7 +151,7 @@ public class Terminals extends AppCompatActivity {
             getTerminalTask();
 
             handler = new Handler();
-            handler.postDelayed(getList, 60000);
+            handler.postDelayed(getList, 90000);
         }
     };
     private void getTerminalTask(){
@@ -208,6 +208,7 @@ public class Terminals extends AppCompatActivity {
                                                                 JSONArray values = response.getJSONArray("data");
                                                                 for(int i=0; i<values.length();i++){
                                                                     JSONObject obj = values.getJSONObject(i);
+                                                                    JSONObject newobj = new JSONObject();
 
                                                                     try{
                                                                        // Date date1 = sdf.parse(yearDate1String+"-"+monthDate1String+"-"+dayDate1String);
@@ -223,24 +224,17 @@ public class Terminals extends AppCompatActivity {
                                                                         String monthDate2String = String.valueOf(monthDate2Cal + 1);
                                                                         String yearDate2String = String.valueOf(yearDate2Cal);
 
-                                                                      //  date2 = sdf.parse(yearDate2String+"-"+monthDate2String+"-"+dayDate2String);
-                                                                        System.out.println("currentdate 2 "+yearDate2String+"-"+monthDate2String+"-"+dayDate2String+"");
-
                                                                         String firstdate = yearDate1String+"-"+monthDate1String+"-"+dayDate1String;
                                                                         String seconddate = yearDate2String+"-"+monthDate2String+"-"+dayDate2String;
-                                                                        System.out.println("date1 "+firstdate);
-                                                                        System.out.println("date2 "+seconddate);
 
                                                                         if(firstdate.equals(seconddate)){
-                                                                            Log.i("DATE", "dates are equals");
+                                                                            newobj.put("order_ref", obj.getString("order_ref"));
+                                                                            newobj.put("order_status", obj.getString("order_status"));
+                                                                            newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                                            newobj.put("terminal", obj.getString("macadress"));
+                                                                            newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                            obj.put("order_ref", obj.getString("order_ref"));
-                                                                            obj.put("order_status", obj.getString("order_status"));
-                                                                            obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                                            obj.put("terminal", obj.getString("macadress"));
-                                                                            obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
-
-                                                                            orders.put(obj);
+                                                                            orders.put(newobj);
                                                                         }
                                                                     }catch (ParseException e){
 
@@ -370,7 +364,6 @@ public class Terminals extends AppCompatActivity {
                     ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
                     ti.apk_version = (infoObject.isNull("apk_version") ? "" : infoObject.getString("apk_version"));
                     ti.battery_status = (infoObject.isNull("battery") ? "" : infoObject.getString("battery") +" %");
-                    System.out.println("battery status "+ti.battery_status);
                 }else{
                     ti.terminalUser = "";
                     ti.entity_parent = "";

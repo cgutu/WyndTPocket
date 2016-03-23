@@ -32,16 +32,6 @@ public class MainActivity extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
                 MainActivity.class));
         /**
-         * Set the API HASH
-         */
-        try {
-
-            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
-
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            Log.e("Error sha1 API_HASH", e.toString());
-        }
-        /**
          * @main go to login after 5s
          */
         new Handler().postDelayed(new Runnable() {
@@ -61,6 +51,18 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("userID stored " + userID);
                 System.out.println("EntityInfo stored " + EntityInfo);
                 if(!userID.isEmpty() && !EntityInfo.isEmpty()){
+
+                    /**
+                     * Set the API HASH
+                     */
+                    try {
+
+                        Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+                    } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+                        Log.e("Error sha1 API_HASH", e.toString());
+                    }
+
                     Intent intent = new Intent(MainActivity.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
