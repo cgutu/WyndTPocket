@@ -120,4 +120,28 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_info_order">InfoOrder</string>
 
+    <string name="email_template">Bonjour administrateur,
+        \n\nL\'utilisateur suivant %1$s a perdu son mot de passe et souhaiterais recevoir un nouveau.
+        \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
+    </string>
+     <string name="new_account">Bonjour administrateur,
+        \n\nUn nouveau utilisateur souhaite la création d\'un compte sur l\'app. Voici ses informations:
+         \n\n Username: %1$s,Email: %2$s, Phone: %3$s, Restaurant: %4$s
+        \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
+    </string>
+     <string name="user_created">Bonjour %1$s,
+        \n\nVotre compte a bien été créé.
+         \n\nPour accéder à l\'application, veuillez utiliser votre email : %2$s et votre mot de passe: %3$s
+        \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
+    </string>
+    <string name="user_deleted">Bonjour %1$s,
+        \n\nVotre compte a été supprimé. Vous pouvez demander un nouveau compte sur l\'app.
+        \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
+    </string>
+     <string name="edit_user">Bonjour %1$s,
+        \n\nVotre compte a été modifié.
+         \n\nPour accéder à l\'application, veuillez utiliser toujours votre email : %2$s et votre mot de passe: %3$s
+        \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
+    </string>
+
 </resources>

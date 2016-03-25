@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -426,6 +427,10 @@ public class AddUser extends AppCompatActivity{
                     Toast.makeText(getApplicationContext(), "Utilisateur ajouté", Toast.LENGTH_LONG).show();
 
                     showProgress(false);
+                    Resources res = getResources();
+
+                    String msgTemplate = String.format(res.getString(R.string.user_created), username, email, password);
+                    sendEmail(msgTemplate);
                     Intent intent = new Intent(AddUser.this, MenuActivity.class);
                     startActivity(intent);
                     finish();
@@ -441,6 +446,19 @@ public class AddUser extends AppCompatActivity{
                 mUsernameView.setError(getString(R.string.error_connexion));
                 mUsernameView.requestFocus();
             }
+        }
+    }
+    public void sendEmail(String msgTemplate){
+
+        try {
+            GmailSender sender = new GmailSender("peestashgirls", "peestash2015");
+            sender.sendMail("Demande de nouveau compte",
+                    msgTemplate,
+                    "peestashgirls@gmail.com",
+                    email);
+
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
         }
     }
 

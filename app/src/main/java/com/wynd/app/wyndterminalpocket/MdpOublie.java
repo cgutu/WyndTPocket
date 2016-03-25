@@ -3,6 +3,8 @@ package com.wynd.app.wyndterminalpocket;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,9 +12,11 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -78,12 +82,36 @@ public class MdpOublie extends AppCompatActivity {
 
             showProgress(true);
 
-            //send notification
-            System.out.println("email "+email);
+            sendEmail();
 
         }
 
 
+    }
+    public void sendEmail(){
+        //send notification
+        System.out.println("email "+email);
+        Resources res = getResources();
+
+        String msgTemplate = String.format(res.getString(R.string.email_template), email);
+
+        try {
+            GmailSender sender = new GmailSender("peestashgirls", "peestash2015");
+            sender.sendMail("Merci de m'envoyer un nouveau mot de passe",
+                    msgTemplate,
+                    "peestashgirls@gmail.com",
+                    "cgutu@wynd.eu");
+
+            showProgress(false);
+            Intent i = new Intent(MdpOublie.this, LoginActivity.class);
+            startActivity(i);
+            String msg="Votre demande a bien été prise en compte !";
+            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+            finish();
+
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
+        }
     }
     /**
      * Shows the progress UI and hides the login form.

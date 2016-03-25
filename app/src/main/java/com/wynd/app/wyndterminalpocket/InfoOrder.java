@@ -75,7 +75,7 @@ public class InfoOrder extends AppCompatActivity {
                             final ArrayList<String> list = new ArrayList<String>();
                             for (int i = 0; i < values.length(); i++) {
                                 JSONObject info = values.getJSONObject(i);
-                                list.add(info.getString("macadress") + " status: " + info.getString("order_status") + " " + info.getString("status_report_timestamp"));
+                                list.add(info.getString("macadress") + " status " + info.getString("order_status") + " " + info.getString("status_report_timestamp"));
                             }
                             //Collections.sort(list);
                             final ArrayAdapter adapter = new ArrayAdapter(InfoOrder.this,

@@ -143,7 +143,8 @@ public class Restaurants extends Fragment{
             };
 
             Volley.newRequestQueue(getContext()).add(parentRequest);
-            parentRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
+            parentRequest.setRetryPolicy(new DefaultRetryPolicy(
+                    5000,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         }
@@ -344,9 +345,6 @@ public class Restaurants extends Fragment{
                                 };
 
                                 Volley.newRequestQueue(getContext()).add(entityRequest);
-                                entityRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
-                                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
                             }
                         } catch (JSONException e) {

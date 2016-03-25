@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -72,6 +73,7 @@ public class EditUserProfil extends AppCompatActivity {
     private String Username, Password, Email, Permission, Phone, Rest_channel, message;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private String obj;
 
     protected CharSequence[] restaurants;
 
@@ -362,6 +364,11 @@ public class EditUserProfil extends AppCompatActivity {
                 String result = finalResult.getString("result");
                 if (!result.isEmpty() && result.equals("success")) {
 
+                    String pwd = password.getText().toString();
+
+                    Resources res = getResources();
+                    String msgTemplate = String.format(res.getString(R.string.edit_user), Username, Email, pwd);
+                    sendEmail("Votre compte a été modifié", msgTemplate);
                     Toast.makeText(getApplicationContext(), "Mise à jour effectuée", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditUserProfil.this, MenuActivity.class);
                     startActivity(intent);
@@ -376,6 +383,19 @@ public class EditUserProfil extends AppCompatActivity {
 
 
 
+        }
+    }
+    public void sendEmail(String obj, String msgTemplate){
+
+        try {
+            String address = email.getText().toString();
+            GmailSender sender = new GmailSender("peestashgirls", "peestash2015");
+            sender.sendMail(obj,
+                    msgTemplate,
+                    "peestashgirls@gmail.com",
+                    address);
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
         }
     }
     class MyDelete extends HttpPost{
@@ -455,7 +475,11 @@ public class EditUserProfil extends AppCompatActivity {
 
                 String result = finalResult.getString("result");
                 if (!result.isEmpty() && result.equals("success")) {
-
+                    Username = username.getText().toString();
+                    System.out.println("username of user which was deleted "+Username);
+                    Resources res = getResources();
+                    String msgTemplate = String.format(res.getString(R.string.user_deleted), Username);
+                    sendEmail("Votre compte a été supprimé", msgTemplate);
                     Toast.makeText(getApplicationContext(), "L'utilisateur a bien été supprimé", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditUserProfil.this, MenuActivity.class);
                     startActivity(intent);

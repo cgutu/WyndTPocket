@@ -84,16 +84,15 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         private int counter = 0;
 
         public void run() {
-            handler.post(new Runnable() {
-                public void run() {
-                    getMarkers();
-                    // new ReadMarkers().execute();
-                    //Toast.makeText(TerminalPosition.this, "GPS INFO "+LAT + " "+LNG, Toast.LENGTH_SHORT).show();
-                }
-            });
+            handler.post(locate);
             if (++counter == 6) {
                 timer.cancel();
             }
+        }
+    };
+    Runnable locate = new Runnable() {
+        public void run() {
+            getMarkers();
         }
     };
 
@@ -235,7 +234,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
     }
     private void getMarkers() {
-
+        Log.i("LOCATE", "get location runnable");
         //get all restaurant
         JsonObjectRequest positionRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/location/by/channel/"+channel_id, null, new Response.Listener<JSONObject>() {

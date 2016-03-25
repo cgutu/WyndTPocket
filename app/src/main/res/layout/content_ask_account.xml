@@ -19,7 +19,15 @@
             android:layout_height="wrap_content"
             android:src="@drawable/aboutyou"/>
     </LinearLayout>
-
+    <ProgressBar
+        android:id="@+id/login_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_below="@id/header"
+        android:layout_gravity="center_vertical" />
     <ScrollView
         android:id="@+id/add_form"
         android:paddingLeft="@dimen/activity_horizontal_margin"

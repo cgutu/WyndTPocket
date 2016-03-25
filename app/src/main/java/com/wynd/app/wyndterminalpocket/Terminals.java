@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,9 +23,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -151,11 +154,11 @@ public class Terminals extends AppCompatActivity {
             getTerminalTask();
 
             handler = new Handler();
-            handler.postDelayed(getList, 90000);
+            handler.postDelayed(getList, 60000);
         }
     };
     private void getTerminalTask(){
-
+        System.out.println("Total RX "+(TrafficStats.getTotalRxBytes()/1024)*0.001+" Mb " +" Total TX "+(TrafficStats.getTotalTxBytes()/1024)*0.001+" Mb");
         terminals = new JSONArray();
 
         /**
@@ -318,6 +321,10 @@ public class Terminals extends AppCompatActivity {
         };
 
         Volley.newRequestQueue(getApplicationContext()).add(terminalRequest);
+        terminalRequest.setRetryPolicy(new DefaultRetryPolicy(
+                5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
 

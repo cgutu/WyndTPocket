@@ -3,6 +3,8 @@ package com.wynd.app.wyndterminalpocket;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,9 +12,14 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -23,6 +30,8 @@ public class AskAccount extends AppCompatActivity {
 
     private View mProgressView;
     private View mFormview;
+    private EditText username, email, phone, restaurant;
+    private String sUsername, sEmail, sPhone, sRest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,40 +44,61 @@ public class AskAccount extends AppCompatActivity {
                 AskAccount.class));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        mFormview = findViewById(R.id.login_form);
-//        mProgressView = findViewById(R.id.login_progress);
+        mFormview = findViewById(R.id.add_form);
+        mProgressView = findViewById(R.id.login_progress);
 
-        //get all franchise
-        //get all restaurants
+        username = (EditText) findViewById(R.id.username);
+        email = (EditText) findViewById(R.id.email);
+        phone = (EditText) findViewById(R.id.phone);
+        restaurant = (EditText) findViewById(R.id.rest);
 
+        Button send = (Button) findViewById(R.id.submit);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkForm();
+            }
+        });
 
     }
     private void checkForm() {
 
         // Reset errors.
-//        mUserView.setError(null);
-//        mPasswordView.setError(null);
+        username.setError(null);
+        email.setError(null);
+        phone.setError(null);
+        restaurant.setError(null);
 
         // Store values at the time of the login attempt.
-//        username = mUserView.getText().toString();
-//        password = mPasswordView.getText().toString();
+        sUsername = username.getText().toString();
+        sEmail = email.getText().toString();
+        sPhone = phone.getText().toString();
+        sRest = restaurant.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-//        if (TextUtils.isEmpty(password)) {
-//            mPasswordView.setError(getString(R.string.error_invalid_password));
-//            focusView = mPasswordView;
-//            cancel = true;
-//        }
-//
-//        // Check for a valid username.
-//        if (TextUtils.isEmpty(username)) {
-//            mUserView.setError(getString(R.string.error_field_required));
-//            focusView = mUserView;
-//            cancel = true;
-//        }
+        if (TextUtils.isEmpty(sUsername)) {
+            username.setError(getString(R.string.error_field_required));
+            focusView = username;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(sEmail)){
+            email.setError(getString(R.string.error_field_required));
+            focusView = email;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(sPhone)){
+            phone.setError(getString(R.string.error_field_required));
+            focusView = phone;
+            cancel = true;
+        }
+        if(TextUtils.isEmpty(sRest)){
+            restaurant.setError(getString(R.string.error_field_required));
+            focusView = restaurant;
+            cancel = true;
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -79,10 +109,35 @@ public class AskAccount extends AppCompatActivity {
             // perform the user login attempt.
 
             showProgress(true);
+            sendEmail();
 
         }
 
 
+    }
+    public void sendEmail(){
+        System.out.println("demande compte "+sUsername+sEmail+sPhone+sRest);
+        Resources res = getResources();
+
+        String msgTemplate = String.format(res.getString(R.string.new_account), sUsername, sEmail, sPhone, sRest);
+
+        try {
+            GmailSender sender = new GmailSender("peestashgirls", "peestash2015");
+            sender.sendMail("Demande de nouveau compte",
+                    msgTemplate,
+                    "peestashgirls@gmail.com",
+                    "cgutu@wynd.eu");
+
+            showProgress(false);
+            Intent i = new Intent(AskAccount.this, LoginActivity.class);
+            startActivity(i);
+            String msg="Votre demande a bien été prise en compte !";
+            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+            finish();
+
+        } catch (Exception e) {
+            Log.e("SendMail", e.getMessage(), e);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)

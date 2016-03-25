@@ -7,6 +7,7 @@ import android.app.*;
 import android.content.*;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.*;
 import android.support.v7.app.NotificationCompat;
@@ -71,7 +72,6 @@ public class BackgroundService extends Service {
 
         SharedPreferences pref = context.getSharedPreferences("Infos", 0);
         String EntityInfo = pref.getString("EntityInfo", "");
-
         try{
             JSONArray infosArray = new JSONArray(EntityInfo);
 

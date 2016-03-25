@@ -1029,7 +1029,8 @@ public class Orders extends AppCompatActivity {
     TimePickerDialog.OnTimeSetListener onTime = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            vTime1.setText(hourOfDay+":"+minute);
+            int hour = hourOfDay-1;
+            vTime1.setText(hour+":"+minute);
         }
     };
 
