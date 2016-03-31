@@ -15,11 +15,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -158,6 +160,20 @@ public class Restaurants extends Fragment{
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         spinnerLayout = (LinearLayout) rootView.findViewById(R.id.bodyspinner);
         empty = (TextView) rootView.findViewById(R.id.empty);
+        LinearLayout back = (LinearLayout) rootView.findViewById(R.id.lback);
+
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editor = pref.edit();
+                editor.putString("Check", "0");
+                editor.apply();
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.content_frame, new HomeFragment());
+                ft.commit();
+            }
+        });
 
         resto = new ArrayList<>();
         ra = new RestaurantAdapter(resto);

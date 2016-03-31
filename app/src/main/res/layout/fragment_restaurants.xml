@@ -8,7 +8,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <LinearLayout
+            android:id="@+id/lback"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_back"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Retour home"/>
+        </LinearLayout>
+        <LinearLayout
             android:id="@+id/header"
+            android:layout_below="@id/lback"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -24,12 +41,6 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="Filter"/>
-
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"

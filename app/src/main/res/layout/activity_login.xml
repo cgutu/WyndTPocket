@@ -111,7 +111,8 @@
                 android:id="@+id/print"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="TEST PRINT" />
+                android:text="Envoyer sms" />
+
 
         </LinearLayout>
     </ScrollView>

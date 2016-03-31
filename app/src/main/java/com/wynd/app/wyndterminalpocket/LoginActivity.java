@@ -1,5 +1,6 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -8,11 +9,14 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -23,6 +27,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -160,13 +165,24 @@ public class LoginActivity extends AppCompatActivity {
 
         Button print = (Button) findViewById(R.id.print);
         print.setVisibility(View.GONE);
-//        print.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
+        print.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
 //                Intent i = new Intent(LoginActivity.this, BlueToothPrinterApp.class);
 //                startActivity(i);
-//            }
-//        });
+
+                    try{
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage("+33612491829", null, "hello", null, null);
+                        Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+
+                    }catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "SMS failed, please try again.", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                    }
+
+            }
+        });
     }
 
     /**
@@ -306,6 +322,7 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject finalResult = new JSONObject(tokener);
 
                     String result = finalResult.getString("result");
+                    String message = finalResult.getString("message");
 
                     if (!result.isEmpty() && result.equals("success")) {
                         JSONObject jsonObject = finalResult.getJSONObject("data");
@@ -374,7 +391,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     } else {
                         showProgress(false);
-                        mPasswordView.setError(result);
+                        mPasswordView.setError(message);
                         mPasswordView.requestFocus();
                     }
 

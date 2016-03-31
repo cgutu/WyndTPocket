@@ -11,10 +11,10 @@
     <string name="error_email_not_exist">This login is not exist</string>
     <string name="error_invalid_login">This login is invalid</string>
     <string name="error_invalid_user_pwd">No user found</string>
-    <string name="error_invalid_password">Please enter a password</string>
+    <string name="error_invalid_password">Merci de rentrer un mot de passe</string>
     <string name="error_incorrect_password">Please enter a password</string>
     <string name="error_connexion">Erreur de connexion. Veuillez ressayer !</string>
-    <string name="error_field_required">This field is required</string>
+    <string name="error_field_required">Champ requis</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
@@ -141,6 +141,11 @@
      <string name="edit_user">Bonjour %1$s,
         \n\nVotre compte a été modifié.
          \n\nPour accéder à l\'application, veuillez utiliser toujours votre email : %2$s et votre mot de passe: %3$s
+        \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
+    </string>
+     <string name="device_off">Bonjour %1$s,
+        \n\nLe terminal %2$s de votre restaurant %3$s est OFF.
+         \n\nSi vous avez un problème, veuillez nous appeler au 01.76.44.03.53 ou nous envoyer un email à support@wynd.eu.
         \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
     </string>
 

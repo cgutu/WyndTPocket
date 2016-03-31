@@ -1,5 +1,6 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -9,12 +10,15 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -22,11 +26,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -60,7 +66,7 @@ public class Terminals extends AppCompatActivity {
     private RecyclerView recList;
     private TerminalAdapter ta;
     private List<TerminalInfo> terminal;
-    private String channelName, clickedChannelID, EntityInfo, restID;
+    private String channelName, clickedChannelID, EntityInfo, restID, username;
     private NotificationManager mNotificationManager= null;
     private JSONArray infosArray = new JSONArray();
     private Handler handler;
@@ -97,6 +103,7 @@ public class Terminals extends AppCompatActivity {
         pref = getApplicationContext().getSharedPreferences("Infos", 0);
         userID = pref.getString("userID", "");
         String savedChannel = pref.getString("clickedchannel", "");
+        username = pref.getString("username", "");
 
         editor = pref.edit();
         editor.putString("Check", "exitterminals");
@@ -430,8 +437,31 @@ public class Terminals extends AppCompatActivity {
 
 
                     System.out.println("elapsedHours "+elapsedHours+" elapsedMinutes "+elapsedMinutes+ " elapsedSeconds "+elapsedSeconds);
-                    /*if(ti.terminalStatus.equalsIgnoreCase("0")) {
-                        NotificationCompat.Builder mBuilder =
+                 /*   if(ti.terminalStatus.equalsIgnoreCase("0")) {*/
+//                        //send email
+//                        Resources res = getResources();
+//
+//                        String msgTemplate = String.format(res.getString(R.string.device_off), username, ti.uuid, ti.channel);
+//
+//                        try {
+//                            GmailSender sender = new GmailSender("peestashgirls", "peestash2015");
+//                            sender.sendMail(ti.channel + ": Terminal "+ti.uuid + " déconnecté",
+//                                    msgTemplate,
+//                                    "peestashgirls@gmail.com",
+//                                    "cgutu@wynd.eu");
+//
+//                        } catch (Exception e) {
+//                            Log.e("SendMail", e.getMessage(), e);
+//                        }
+//
+//                        //send sms
+//                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+//                            SmsManager smsManager = SmsManager.getDefault();
+//                            smsManager.sendTextMessage("+33612491829", null, ""+ti.channel +" : Terminal "+ti.uuid+" déconnecté", null, null);
+//                            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+//                        }
+
+                      /*  NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(this)
                                         .setSmallIcon(R.drawable.ic_terminal)
                                         .setContentTitle(ti.restaurant +" HS! "+ti.uuid)
@@ -448,8 +478,8 @@ public class Terminals extends AppCompatActivity {
                                 );
                         mBuilder.setContentIntent(resultPendingIntent);
 
-                        mNotificationManager.notify(i, mBuilder.build());
-                    }else{
+                        mNotificationManager.notify(i, mBuilder.build());*/
+                   /* }else{
                         mNotificationManager.cancel(i);
                     }*/
                     if(elapsedDays>0) {

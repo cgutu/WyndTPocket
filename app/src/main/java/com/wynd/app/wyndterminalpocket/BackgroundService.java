@@ -5,13 +5,16 @@ package com.wynd.app.wyndterminalpocket;
  */
 import android.app.*;
 import android.content.*;
+import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.*;
 import android.support.v7.app.NotificationCompat;
+import android.telephony.SmsManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -68,10 +71,13 @@ public class BackgroundService extends Service {
         return START_STICKY;
     }
     public void postNotification(final Context c) {
+
+        System.out.println("notificate the user on background");
         Context context = c.getApplicationContext();
 
         SharedPreferences pref = context.getSharedPreferences("Infos", 0);
         String EntityInfo = pref.getString("EntityInfo", "");
+        final String username = pref.getString("username", "");
         try{
             JSONArray infosArray = new JSONArray(EntityInfo);
 
@@ -81,6 +87,9 @@ public class BackgroundService extends Service {
                 Intent intent01 = new Intent(context, MenuActivity.class);
                 final PendingIntent pendingIntent01 = PendingIntent.getActivity(c, 1, intent01, 0);
                 final NotificationManager notificationManager = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
+                builder.setSmallIcon(R.drawable.ic_terminal);
+                builder.setContentIntent(pendingIntent01);
 
                 JsonObjectRequest terminalRequest = new JsonObjectRequest
                         (Request.Method.GET, Globales.baseUrl + "api/terminal/get/all", null, new Response.Listener<JSONObject>() {
@@ -129,13 +138,10 @@ public class BackgroundService extends Service {
                                                     diffInMs = diffInMs % minutesInMilli;
 
                                                     long elapsedSeconds = diffInMs / secondsInMilli;
-                                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(c);
-                                                    builder.setSmallIcon(R.drawable.ic_terminal);
-                                                    builder.setContentIntent(pendingIntent01);
-                                                    builder.setAutoCancel(true);
+
+                                                  //  builder.setAutoCancel(true);
                                                     builder.setContentTitle(channel + " HS ! " + uuid);
                                                     builder.setContentText("OFF depuis " + elapsedDays + "j " + elapsedHours + "h " + elapsedMinutes + "min " + elapsedSeconds + "s");
-                                                    //builder.setSubText("click here");
 
                                                     notificationManager.notify(i, builder.build());
                                                     try {
@@ -145,6 +151,28 @@ public class BackgroundService extends Service {
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
+
+//                                                   //send email
+//                                                    Resources res = getResources();
+//
+//                                                    String msgTemplate = String.format(res.getString(R.string.device_off), username, uuid, channel);
+//
+//                                                    try {
+//                                                        GmailSender sender = new GmailSender("peestashgirls", "peestash2015");
+//                                                        sender.sendMail(channel + ": Terminal "+uuid + " déconnecté",
+//                                                                msgTemplate,
+//                                                                "peestashgirls@gmail.com",
+//                                                                "cgutu@wynd.eu");
+//
+//                                                    } catch (Exception e) {
+//                                                        Log.e("SendMail", e.getMessage(), e);
+//                                                    }
+//
+//                                                    //send sms
+//
+//                                                    SmsManager smsManager = SmsManager.getDefault();
+//                                                    smsManager.sendTextMessage("+33612491829", null, ""+channel +" : Terminal "+uuid+" déconnecté", null, null);
+//                                                    Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
 
                                                 } catch (Exception e) {
                                                     Log.e("Date parsing error", e.toString());
@@ -188,5 +216,6 @@ public class BackgroundService extends Service {
 
 
     }
+
 
 }

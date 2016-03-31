@@ -115,7 +115,7 @@
             android:textColor="@android:color/white"
             android:layout_marginLeft="20dp"
             android:gravity="right"
-            android:text="Historique"/>
+            android:text="Historique status"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout5"
