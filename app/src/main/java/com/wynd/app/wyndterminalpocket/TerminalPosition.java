@@ -17,9 +17,11 @@ import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
@@ -84,15 +86,14 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         private int counter = 0;
 
         public void run() {
-            handler.post(locate);
+            handler.post(new Runnable() {
+                public void run() {
+                    getMarkers();
+                }
+            });
             if (++counter == 6) {
                 timer.cancel();
             }
-        }
-    };
-    Runnable locate = new Runnable() {
-        public void run() {
-            getMarkers();
         }
     };
 
@@ -115,6 +116,17 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        Intent intent = getIntent();
+        uuid = intent.getStringExtra("terminalUuid");
+        id = intent.getStringExtra("terminalID");
+        channel = intent.getStringExtra("terminalChannel");
+        channel_id = intent.getStringExtra("channelID");
+        phone = intent.getStringExtra("phone");
+
+        System.out.println("channelid getting location "+channel_id+ " "+channel+" "+phone+ " "+uuid);
+        //  getMarkers();
+        timer.schedule(task, DELAY, DELAY);
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -127,16 +139,6 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
-
-        Intent intent = getIntent();
-        uuid = intent.getStringExtra("terminalUuid");
-        id = intent.getStringExtra("terminalID");
-        channel = intent.getStringExtra("terminalChannel");
-        channel_id = intent.getStringExtra("channelID");
-        phone = intent.getStringExtra("phone");
-
-      //  getMarkers();
-        timer.schedule(task, DELAY, DELAY);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,7 +161,6 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         });
 
     }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -234,7 +235,7 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
     }
     private void getMarkers() {
-        Log.i("LOCATE", "get location runnable");
+
         //get all restaurant
         JsonObjectRequest positionRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/location/by/channel/"+channel_id, null, new Response.Listener<JSONObject>() {

@@ -63,6 +63,10 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         terminalViewHolder.vInfos.setText(ti.entity_parent + " / " + ti.entity_label + " / " + ti.entity_id);
         terminalViewHolder.vOrders.setText(ti.nb_orders);
 
+        if(ti.terminalActive.equals("0")){
+            terminalViewHolder.vType.setVisibility(View.VISIBLE);
+        }
+
         if(!ti.terminalStatus.isEmpty() && ti.terminalStatus.equalsIgnoreCase("1")){
             terminalViewHolder.vOn.setVisibility(View.VISIBLE);
             terminalViewHolder.vOff.setVisibility(View.GONE);
@@ -91,6 +95,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         terminalViewHolder.vLocalise.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("channelid "+ti.channel_id);
                 Intent intent = new Intent(v.getContext(), TerminalPosition.class);
                 intent.putExtra("terminalID", ti.id);
                 intent.putExtra("terminalUuid", ti.uuid);
@@ -237,7 +242,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         protected Button vHistory;
         protected ImageView getInfo;
         protected TextView vOrders;
-        protected TextView vBattery;
+        protected TextView vBattery, vType;
         protected LinearLayout lBattery;
 
         public TerminalViewHolder(View v) {
@@ -265,6 +270,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             vOrders = (TextView) v.findViewById(R.id.orders);
             vBattery = (TextView) v.findViewById(R.id.battery);
             lBattery = (LinearLayout) v.findViewById(R.id.lBattery);
+            vType = (TextView) v.findViewById(R.id.txtType);
         }
 
     }

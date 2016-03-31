@@ -157,6 +157,16 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        Button print = (Button) findViewById(R.id.print);
+        print.setVisibility(View.GONE);
+//        print.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent i = new Intent(LoginActivity.this, BlueToothPrinterApp.class);
+//                startActivity(i);
+//            }
+//        });
     }
 
     /**
@@ -245,7 +255,7 @@ public class LoginActivity extends AppCompatActivity {
                     nameValuePairs.add(new BasicNameValuePair("secret", password));
                     httpPost.setHeader("Api-User", Globales.API_USER);
                     httpPost.setHeader("Api-Hash", Globales.API_HASH);
-                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                    httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                     //getting the response
                     HttpResponse response = httpClient.execute(httpPost);

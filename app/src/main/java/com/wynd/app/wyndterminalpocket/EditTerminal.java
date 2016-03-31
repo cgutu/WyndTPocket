@@ -144,8 +144,10 @@ public class EditTerminal extends AppCompatActivity {
         deleteBtn = (Button) findViewById(R.id.delete);
         if(status.equals("0")){
             deleteBtn.setText("Activer");
+            deleteBtn.setBackground(getResources().getDrawable(R.drawable.active_button));
         }else{
             deleteBtn.setText("Désactiver");
+            deleteBtn.setBackground(getResources().getDrawable(R.drawable.delete_button));
         }
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -324,7 +326,7 @@ public class EditTerminal extends AppCompatActivity {
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
                 // httpPut.setEntity(se);
-                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPut);
@@ -418,7 +420,7 @@ public class EditTerminal extends AppCompatActivity {
                 httpDelete.setHeader("Api-User", Globales.API_USER);
                 httpDelete.setHeader("Api-Hash", Globales.API_HASH);
 
-                httpDelete.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpDelete.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpDelete);
@@ -500,7 +502,7 @@ public class EditTerminal extends AppCompatActivity {
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
                 // httpPut.setEntity(se);
-                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPut);

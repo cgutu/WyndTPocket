@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NavUtils;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.android.volley.AuthFailureError;
@@ -146,7 +148,6 @@ public class Terminals extends AppCompatActivity {
 
         getList.run();
 
-
     }
     Runnable getList = new Runnable() {
         @Override
@@ -188,6 +189,7 @@ public class Terminals extends AppCompatActivity {
                                              */
                                             JsonObjectRequest orderRequest = new JsonObjectRequest
                                                     (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
+                                                        @TargetApi(Build.VERSION_CODES.KITKAT)
                                                         @Override
                                                         public void onResponse(JSONObject response) {
 
@@ -237,7 +239,30 @@ public class Terminals extends AppCompatActivity {
                                                                             newobj.put("terminal", obj.getString("macadress"));
                                                                             newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                            orders.put(newobj);
+                                                                            if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                                Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                                                String  ref = obj.getString("order_ref");
+                                                                                for(int j=0; j<orders.length(); j++){
+                                                                                    JSONObject oneorder = orders.getJSONObject(j);
+                                                                                    Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                                                    String oldRef = oneorder.getString("order_ref");
+                                                                                    if(status > oldStatus && oldRef.equals(ref)){
+                                                                                        orders.remove(j);
+                                                                                        orders.put(newobj);
+                                                                                        System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                                    }else if(status == -1 && oldRef.equals(ref)){
+                                                                                        orders.remove(j);
+                                                                                        orders.put(newobj);
+                                                                                        System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                                    }else if(status == 3 && oldRef.equals(ref)){
+                                                                                        orders.remove(j);
+                                                                                        orders.put(newobj);
+                                                                                        System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                                    }
+                                                                                }
+                                                                            }else{
+                                                                                orders.put(newobj);
+                                                                            }
                                                                         }
                                                                     }catch (ParseException e){
 
@@ -321,10 +346,6 @@ public class Terminals extends AppCompatActivity {
         };
 
         Volley.newRequestQueue(getApplicationContext()).add(terminalRequest);
-        terminalRequest.setRetryPolicy(new DefaultRetryPolicy(
-                5000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
     }
 
 
@@ -344,12 +365,7 @@ public class Terminals extends AppCompatActivity {
                 ti.terminalActive = (json_data.isNull("terminalActive") ? "" : json_data.getString("terminalActive"));
                 ti.id = (json_data.isNull("terminalID") ? "" : json_data.getString("terminalID"));
                 ti.registerTimestamp = (json_data.isNull("registerTimestamp") ? "" : json_data.getString("registerTimestamp"));
-                if( ti.terminalActive.equals("0")){
-                    ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd")+" (inactive)");
-                }else{
-                    ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
-                }
-
+                ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
                 ti.nb_orders = (json_data.isNull("nb_orders") ? "" :  json_data.getString("nb_orders") + " commandes");
                 System.out.println("count orders " + ti.nb_orders);
                 ti.restaurant = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));

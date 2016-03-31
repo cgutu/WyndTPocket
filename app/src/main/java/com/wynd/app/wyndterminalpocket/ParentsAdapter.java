@@ -78,6 +78,15 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
         }else{
             restaurantViewHolder.vName.setText(ri.name);
         }
+        if(ri.email.equals("null") || ri.email.isEmpty()){
+            restaurantViewHolder.vLemail.setVisibility(View.GONE);
+        }
+        if(ri.phone.equals("null") || ri.phone.isEmpty()){
+            restaurantViewHolder.vLphone.setVisibility(View.GONE);
+        }
+        if(ri.address.equals("null") || ri.address.isEmpty()){
+            restaurantViewHolder.vLadd.setVisibility(View.GONE);
+        }
 
     }
 
@@ -98,6 +107,7 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
         protected TextView vPhone;
         protected TextView vAddress;
         protected ImageView vInfo;
+        protected LinearLayout vLadd, vLemail, vLphone;
 
         public ParentsViewHolder(View v) {
             super(v);
@@ -106,6 +116,9 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
             vPhone = (TextView) v.findViewById(R.id.txtPhone);
             vAddress = (TextView) v.findViewById(R.id.txtAdd);
             vInfo = (ImageView) v.findViewById(R.id.info);
+            vLadd = (LinearLayout) v.findViewById(R.id.lAdd);
+            vLemail = (LinearLayout) v.findViewById(R.id.lEmail);
+            vLphone = (LinearLayout) v.findViewById(R.id.lPhone);
         }
 
 

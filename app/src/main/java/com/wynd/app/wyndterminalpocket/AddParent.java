@@ -154,7 +154,7 @@ public class AddParent extends AppCompatActivity {
 
                 httpPost.setHeader("Api-User", Globales.API_USER);
                 httpPost.setHeader("Api-Hash", Globales.API_HASH);
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPost);

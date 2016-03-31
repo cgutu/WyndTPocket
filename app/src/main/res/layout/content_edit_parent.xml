@@ -119,8 +119,7 @@ tools:showIn="@layout/activity_edit_parent">
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionUnspecified"
                 android:inputType="text"
-                android:maxLines="2"
-                android:singleLine="true" />
+                android:maxLines="3" />
 
         </android.support.design.widget.TextInputLayout>
 

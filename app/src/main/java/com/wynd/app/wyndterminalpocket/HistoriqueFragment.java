@@ -397,6 +397,9 @@ public class HistoriqueFragment extends Fragment {
         vDate2.setText(data);
         vTime2.setText(time);
 
+        vTime1.setVisibility(View.GONE);
+        vTime2.setVisibility(View.GONE);
+
         vDate1.setOnClickListener(new View.OnClickListener() {
 
             @Override

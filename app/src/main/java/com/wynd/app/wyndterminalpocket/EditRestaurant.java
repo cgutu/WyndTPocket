@@ -96,8 +96,10 @@ public class EditRestaurant extends AppCompatActivity {
                             parent_id = response.isNull("ChannelParentID") ? "" : response.getString("ChannelParentID");
                             if(response.getString("active").equals("0")){
                                 deleteBtn.setText("Activer");
+                                deleteBtn.setBackground(getResources().getDrawable(R.drawable.active_button));
                             }else{
                                 deleteBtn.setText("Désactiver");
+                                deleteBtn.setBackground(getResources().getDrawable(R.drawable.delete_button));
                             }
 
                         } catch (JSONException e) {
@@ -230,7 +232,7 @@ public class EditRestaurant extends AppCompatActivity {
                 httpPut.setHeader("Api-User", Globales.API_USER);
                 httpPut.setHeader("Api-Hash", Globales.API_HASH);
                 // httpPut.setEntity(se);
-                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                httpPut.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPut);
@@ -369,7 +371,7 @@ public class EditRestaurant extends AppCompatActivity {
                 String result = finalResult.getString("result");
 
                 if (!result.isEmpty() && result.equals("success")) {
-                    Toast.makeText(getApplicationContext(), "Le restaurant a bien été supprimé", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Le restaurant a été désactivé", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(EditRestaurant.this, MenuActivity.class);
                     startActivity(intent);
                     finish();

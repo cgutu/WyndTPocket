@@ -75,9 +75,20 @@ public class InfoOrder extends AppCompatActivity {
                             final ArrayList<String> list = new ArrayList<String>();
                             for (int i = 0; i < values.length(); i++) {
                                 JSONObject info = values.getJSONObject(i);
-                                list.add(info.getString("macadress") + " status " + info.getString("order_status") + " " + info.getString("status_report_timestamp"));
+                                if(info.getString("order_status").equals("0")){
+                                    list.add("Reçue par "+info.getString("macadress") + "       "+info.getString("status_report_timestamp"));
+                                }else if(info.getString("order_status").equals("1")){
+                                    list.add("Acceptée par "+info.getString("macadress") + "       "+info.getString("status_report_timestamp"));
+                                }else if(info.getString("order_status").equals("2")){
+                                    list.add("Préparée par "+info.getString("macadress") + "       "+info.getString("status_report_timestamp"));
+                                }else if(info.getString("order_status").equals("3")){
+                                    list.add("Délivrée par "+info.getString("macadress") + "       "+info.getString("status_report_timestamp"));
+                                }else if(info.getString("order_status").equals("4")){
+                                    list.add("Prête par "+info.getString("macadress") + "       "+info.getString("status_report_timestamp"));
+                                }else if(info.getString("order_status").equals("-1")){
+                                    list.add("Refusée par "+info.getString("macadress") + "       "+info.getString("status_report_timestamp"));
+                                }
                             }
-                            //Collections.sort(list);
                             final ArrayAdapter adapter = new ArrayAdapter(InfoOrder.this,
                                     android.R.layout.simple_list_item_1, list);
                             listview.setAdapter(adapter);

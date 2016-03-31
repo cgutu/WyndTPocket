@@ -107,6 +107,12 @@
                 style="?android:textAppearanceSmall"
                 android:text="@string/ask_count"/>
 
+            <Button
+                android:id="@+id/print"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="TEST PRINT" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

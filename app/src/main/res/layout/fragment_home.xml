@@ -37,7 +37,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_devices_white"
+            android:src="@drawable/ic_restaurant_black"
             android:contentDescription="@string/desc_logo"/>
 
         <TextView
@@ -129,7 +129,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_library_books_white"
+            android:src="@drawable/ic_domain_white"
             android:contentDescription="@string/desc_logo"/>
 
         <TextView

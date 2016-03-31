@@ -48,6 +48,16 @@
                     android:textColor="@android:color/black"
                     android:textSize="14sp"/>
                 <TextView
+                    android:id="@+id/txtType"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(INACTIVE)"
+                    android:layout_below="@id/uuid"
+                    android:textStyle="italic"
+                    android:textColor="@color/red"
+                    android:textSize="14sp"/>
+                <TextView
                     android:id="@+id/restaurant"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -64,7 +74,7 @@
 
                 <LinearLayout
                     android:id="@+id/lChannel"
-                    android:layout_below="@id/txtInfos"
+                    android:layout_below="@id/txtType"
                     android:layout_width="wrap_content"
                     android:orientation="horizontal"
                     android:layout_height="wrap_content">
@@ -72,7 +82,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_settings_ethernet_black"/>
+                        android:src="@drawable/ic_blue_entity"/>
                     <TextView
                         android:id="@+id/txtChannel"
                         android:layout_width="wrap_content"

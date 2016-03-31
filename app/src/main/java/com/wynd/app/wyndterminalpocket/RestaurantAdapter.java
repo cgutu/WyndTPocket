@@ -74,6 +74,11 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         restaurantViewHolder.vName.setText(ri.name);
         restaurantViewHolder.vPhone.setText(ri.phone);
         restaurantViewHolder.vChannel.setText(ri.channel);
+        restaurantViewHolder.vAddress.setText(ri.address);
+
+        if(ri.status.equals("0")){
+            restaurantViewHolder.vType.setVisibility(View.VISIBLE);
+        }
 
         permission = ri.userPermission;
         if(permission.equalsIgnoreCase("2") || permission.equalsIgnoreCase("3")){
@@ -149,6 +154,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected LinearLayout vExpandable;
         protected CardView vCardView;
         protected ImageView vInfo;
+        protected TextView vAddress, vType;
         private boolean isViewExpanded = false;
 
         public RestaurantViewHolder(View v) {
@@ -166,6 +172,8 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             vCardView = (CardView) v.findViewById(R.id.card_view);
 
             vInfo = (ImageView) v.findViewById(R.id.info);
+            vAddress = (TextView) v.findViewById(R.id.txtAdd);
+            vType = (TextView) v.findViewById(R.id.txtType);
 
             vExpandable.setVisibility(View.GONE);
 

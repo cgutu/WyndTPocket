@@ -82,8 +82,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 v.getContext().startActivity(intent);
             }
         });
-
-
     }
 
     @Override

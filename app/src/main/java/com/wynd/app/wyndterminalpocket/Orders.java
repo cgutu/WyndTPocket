@@ -1,5 +1,6 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -7,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -62,7 +64,7 @@ import java.util.TimeZone;
 
 public class Orders extends AppCompatActivity {
 
-    private String myuserID, channelID;
+    private String myuserID, channelID, restId;
     private RecyclerView recList;
     private OrderAdapter ra;
     private List<OrderInfo> order;
@@ -77,6 +79,8 @@ public class Orders extends AppCompatActivity {
     private Button btnPeriods;
     private View promptView;
     private CheckBox bydate, byperiod;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,10 +117,11 @@ public class Orders extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        SharedPreferences pref = getApplicationContext().getSharedPreferences("Infos", 0);
+        pref = getApplicationContext().getSharedPreferences("Infos", 0);
         myuserID = pref.getString("myuserID", "");
+        String savedChannel = pref.getString("clickedchannel", "");
 
-        SharedPreferences.Editor editor = pref.edit();
+        editor = pref.edit();
         editor.putString("Check", "exitorders");
         editor.apply();
 
@@ -126,6 +131,12 @@ public class Orders extends AppCompatActivity {
 
         Intent intent = getIntent();
         channelID = intent.getStringExtra("restId");
+
+        if(channelID == null){
+            restId = savedChannel;
+        }else{
+            restId = channelID;
+        }
 
         checkOrders();
 
@@ -349,6 +360,7 @@ public class Orders extends AppCompatActivity {
                         */
                        JsonObjectRequest orderRequest = new JsonObjectRequest
                                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/status/" + selectedStatus, null, new Response.Listener<JSONObject>() {
+                                   @TargetApi(Build.VERSION_CODES.KITKAT)
                                    @Override
                                    public void onResponse(JSONObject response) {
 
@@ -366,9 +378,31 @@ public class Orders extends AppCompatActivity {
                                                newobj.put("terminal", obj.getString("macadress"));
                                                newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                               if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                               if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                   Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                   String  ref = obj.getString("order_ref");
+                                                   for(int j=0; j<orders.length(); j++){
+                                                       JSONObject oneorder = orders.getJSONObject(j);
+                                                       Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                       String oldRef = oneorder.getString("order_ref");
+                                                       if(status > oldStatus && oldRef.equals(ref)){
+                                                           orders.remove(j);
+                                                           orders.put(newobj);
+                                                           System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                       }else if(status == -1 && oldRef.equals(ref)){
+                                                           orders.remove(j);
+                                                           orders.put(newobj);
+                                                           System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                       }else if(status == 3 && oldRef.equals(ref)){
+                                                           orders.remove(j);
+                                                           orders.put(newobj);
+                                                           System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                       }
+                                                   }
+                                               }else{
                                                    orders.put(newobj);
                                                }
+
                                            }
                                            if (orders.length() == 0) {
                                                total.setText("Aucune commande");
@@ -438,10 +472,30 @@ public class Orders extends AppCompatActivity {
                                                                 newobj.put("terminal", obj.getString("macadress"));
                                                                 newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                    Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                                    String  ref = obj.getString("order_ref");
+                                                                    for(int j=0; j<orders.length(); j++){
+                                                                        JSONObject oneorder = orders.getJSONObject(j);
+                                                                        Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                                        String oldRef = oneorder.getString("order_ref");
+                                                                        if(status > oldStatus && oldRef.equals(ref)){
+                                                                            orders.remove(j);
+                                                                            orders.put(newobj);
+                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                        }else if(status == -1 && oldRef.equals(ref)){
+                                                                            orders.remove(j);
+                                                                            orders.put(newobj);
+                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                        }else if(status == 3 && oldRef.equals(ref)){
+                                                                            orders.remove(j);
+                                                                            orders.put(newobj);
+                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                        }
+                                                                    }
+                                                                }else{
                                                                     orders.put(newobj);
                                                                 }
-
                                                             }
                                                             if(orders.length() == 0){
                                                                 total.setText("Aucune commande");
@@ -501,7 +555,28 @@ public class Orders extends AppCompatActivity {
                                                                 newobj.put("terminal", obj.getString("macadress"));
                                                                 newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                    Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                                    String  ref = obj.getString("order_ref");
+                                                                    for(int j=0; j<orders.length(); j++){
+                                                                        JSONObject oneorder = orders.getJSONObject(j);
+                                                                        Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                                        String oldRef = oneorder.getString("order_ref");
+                                                                        if(status > oldStatus && oldRef.equals(ref)){
+                                                                            orders.remove(j);
+                                                                            orders.put(newobj);
+                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                        }else if(status == -1 && oldRef.equals(ref)){
+                                                                            orders.remove(j);
+                                                                            orders.put(newobj);
+                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                        }else if(status == 3 && oldRef.equals(ref)){
+                                                                            orders.remove(j);
+                                                                            orders.put(newobj);
+                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                        }
+                                                                    }
+                                                                }else{
                                                                     orders.put(newobj);
                                                                 }
 
@@ -593,6 +668,7 @@ public class Orders extends AppCompatActivity {
                          */
                         JsonObjectRequest orderRequest = new JsonObjectRequest
                                 (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalIMEI, null, new Response.Listener<JSONObject>() {
+                                    @TargetApi(Build.VERSION_CODES.KITKAT)
                                     @Override
                                     public void onResponse(JSONObject response) {
 
@@ -610,7 +686,28 @@ public class Orders extends AppCompatActivity {
                                                 newobj.put("terminal", obj.getString("macadress"));
                                                 newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                    Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                    String  ref = obj.getString("order_ref");
+                                                    for(int j=0; j<orders.length(); j++){
+                                                        JSONObject oneorder = orders.getJSONObject(j);
+                                                        Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                        String oldRef = oneorder.getString("order_ref");
+                                                        if(status > oldStatus && oldRef.equals(ref)){
+                                                            orders.remove(j);
+                                                            orders.put(newobj);
+                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                        }else if(status == -1 && oldRef.equals(ref)){
+                                                            orders.remove(j);
+                                                            orders.put(newobj);
+                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                        }else if(status == 3 && oldRef.equals(ref)){
+                                                            orders.remove(j);
+                                                            orders.put(newobj);
+                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                        }
+                                                    }
+                                                }else{
                                                     orders.put(newobj);
                                                 }
 
@@ -675,6 +772,7 @@ public class Orders extends AppCompatActivity {
                              */
                             JsonObjectRequest orderRequest = new JsonObjectRequest
                                     (Request.Method.GET, Globales.baseUrl + "api/order/get/by/mns/"+terminalIMEI+"/"+selectedStatus, null, new Response.Listener<JSONObject>() {
+                                        @TargetApi(Build.VERSION_CODES.KITKAT)
                                         @Override
                                         public void onResponse(JSONObject response) {
 
@@ -692,7 +790,28 @@ public class Orders extends AppCompatActivity {
                                                     newobj.put("terminal", obj.getString("macadress"));
                                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                        Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                        String  ref = obj.getString("order_ref");
+                                                        for(int j=0; j<orders.length(); j++){
+                                                            JSONObject oneorder = orders.getJSONObject(j);
+                                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                            String oldRef = oneorder.getString("order_ref");
+                                                            if(status > oldStatus && oldRef.equals(ref)){
+                                                                orders.remove(j);
+                                                                orders.put(newobj);
+                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                            }else if(status == -1 && oldRef.equals(ref)){
+                                                                orders.remove(j);
+                                                                orders.put(newobj);
+                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                            }else if(status == 3 && oldRef.equals(ref)){
+                                                                orders.remove(j);
+                                                                orders.put(newobj);
+                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                            }
+                                                        }
+                                                    }else{
                                                         orders.put(newobj);
                                                     }
 
@@ -736,6 +855,7 @@ public class Orders extends AppCompatActivity {
                              */
                             JsonObjectRequest orderRequest = new JsonObjectRequest
                                     (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/status/"+selectedStatus, null, new Response.Listener<JSONObject>() {
+                                        @TargetApi(Build.VERSION_CODES.KITKAT)
                                         @Override
                                         public void onResponse(JSONObject response) {
 
@@ -753,7 +873,28 @@ public class Orders extends AppCompatActivity {
                                                     newobj.put("terminal", obj.getString("macadress"));
                                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                        Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                        String  ref = obj.getString("order_ref");
+                                                        for(int j=0; j<orders.length(); j++){
+                                                            JSONObject oneorder = orders.getJSONObject(j);
+                                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                            String oldRef = oneorder.getString("order_ref");
+                                                            if(status > oldStatus && oldRef.equals(ref)){
+                                                                orders.remove(j);
+                                                                orders.put(newobj);
+                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                            }else if(status == -1 && oldRef.equals(ref)){
+                                                                orders.remove(j);
+                                                                orders.put(newobj);
+                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                            }else if(status == 3 && oldRef.equals(ref)){
+                                                                orders.remove(j);
+                                                                orders.put(newobj);
+                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                            }
+                                                        }
+                                                    }else{
                                                         orders.put(newobj);
                                                     }
                                                 }
@@ -812,7 +953,8 @@ public class Orders extends AppCompatActivity {
              * get all orders by entity
              */
             JsonObjectRequest orderRequest = new JsonObjectRequest
-                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/5", null, new Response.Listener<JSONObject>() {
+                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
+                        @TargetApi(Build.VERSION_CODES.KITKAT)
                         @Override
                         public void onResponse(JSONObject response) {
 
@@ -820,7 +962,9 @@ public class Orders extends AppCompatActivity {
                                 orders = new JSONArray();
                                 JSONArray values = response.getJSONArray("data");
                                 Log.i("ORDER_INFO", values.toString());
-
+                                editor = pref.edit();
+                                editor.putString("clickedchannel", restId);
+                                editor.apply();
                                 for(int i=0; i<values.length();i++){
                                     JSONObject obj = values.getJSONObject(i);
                                     JSONObject newobj = new JSONObject();
@@ -830,7 +974,28 @@ public class Orders extends AppCompatActivity {
                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
                                     newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
 
-                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                        Integer status = Integer.parseInt(obj.getString("order_status"));
+                                        String  ref = obj.getString("order_ref");
+                                        for(int j=0; j<orders.length(); j++){
+                                            JSONObject oneorder = orders.getJSONObject(j);
+                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                            String oldRef = oneorder.getString("order_ref");
+                                            if(status > oldStatus && oldRef.equals(ref)){
+                                                orders.remove(j);
+                                                orders.put(newobj);
+                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                            }else if(status == -1 && oldRef.equals(ref)){
+                                                orders.remove(j);
+                                                orders.put(newobj);
+                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                            }else if(status == 3 && oldRef.equals(ref)){
+                                                orders.remove(j);
+                                                orders.put(newobj);
+                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                            }
+                                        }
+                                    }else{
                                         orders.put(newobj);
                                     }
 
@@ -1052,7 +1217,8 @@ public class Orders extends AppCompatActivity {
          * get all orders by entity
          */
         JsonObjectRequest orderRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/5", null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
+                    @TargetApi(Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(JSONObject response) {
                         orders = new JSONArray();
@@ -1084,9 +1250,31 @@ public class Orders extends AppCompatActivity {
                                         newobj.put("terminal", obj.getString("macadress"));
                                         newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                        if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                        if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                            Integer status = Integer.parseInt(obj.getString("order_status"));
+                                            String  ref = obj.getString("order_ref");
+                                            for(int j=0; j<orders.length(); j++){
+                                                JSONObject oneorder = orders.getJSONObject(j);
+                                                Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                String oldRef = oneorder.getString("order_ref");
+                                                if(status > oldStatus && oldRef.equals(ref)){
+                                                    orders.remove(j);
+                                                    orders.put(newobj);
+                                                    System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                }else if(status == -1 && oldRef.equals(ref)){
+                                                    orders.remove(j);
+                                                    orders.put(newobj);
+                                                    System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                }else if(status == 3 && oldRef.equals(ref)){
+                                                    orders.remove(j);
+                                                    orders.put(newobj);
+                                                    System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                }
+                                            }
+                                        }else{
                                             orders.put(newobj);
                                         }
+
                                     }
                             }
                             if(orders.length() == 0){
@@ -1131,7 +1319,8 @@ public class Orders extends AppCompatActivity {
          * get all orders by entity
          */
         JsonObjectRequest orderRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/5", null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
+                    @TargetApi(Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(JSONObject response) {
                         orders = new JSONArray();
@@ -1159,9 +1348,31 @@ public class Orders extends AppCompatActivity {
                                     newobj.put("terminal", obj.getString("macadress"));
                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                    if (!orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                        Integer status = Integer.parseInt(obj.getString("order_status"));
+                                        String  ref = obj.getString("order_ref");
+                                        for(int j=0; j<orders.length(); j++){
+                                            JSONObject oneorder = orders.getJSONObject(j);
+                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                            String oldRef = oneorder.getString("order_ref");
+                                            if(status > oldStatus && oldRef.equals(ref)){
+                                                orders.remove(j);
+                                                orders.put(newobj);
+                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                            }else if(status == -1 && oldRef.equals(ref)){
+                                                orders.remove(j);
+                                                orders.put(newobj);
+                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                            }else if(status == 3 && oldRef.equals(ref)){
+                                                orders.remove(j);
+                                                orders.put(newobj);
+                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                            }
+                                        }
+                                    }else{
                                         orders.put(newobj);
                                     }
+
                                 }
                             }
                             if(orders.length() == 0){

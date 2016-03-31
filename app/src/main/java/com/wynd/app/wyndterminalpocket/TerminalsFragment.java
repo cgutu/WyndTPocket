@@ -250,10 +250,10 @@ public class TerminalsFragment extends Fragment {
                     /**
                      * show terminal's selected informations
                      */
-                   //getTerminalByParent();
+                   getTerminalByParent();
                 }else{
                     if (item != null) {
-                        for (int i = 0; i < jsonArray.length(); i++) {
+                        for (int i = 0; i < jsonArray.length(); i ++) {
                             try {
                                 String name = jsonArray.getJSONObject(i).getString("name");
                                 if (item.equals(name)) {
@@ -460,7 +460,7 @@ public class TerminalsFragment extends Fragment {
                     /**
                      * show terminal's informations
                      */
-                   getTerminalTask();
+                    getTerminalTask();
                 }else{
                     restSpinner.setVisibility(View.VISIBLE);
                     if (item != null) {

@@ -143,10 +143,7 @@ public class Restaurants extends Fragment{
             };
 
             Volley.newRequestQueue(getContext()).add(parentRequest);
-            parentRequest.setRetryPolicy(new DefaultRetryPolicy(
-                    5000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
         }
     }
 
@@ -384,16 +381,14 @@ public class Restaurants extends Fragment{
                 ri.email = (json_data.isNull("email") ? "" : RestaurantInfo.EMAIL_PREFIX +  json_data.getString("email"));
                 ri.phone = (json_data.isNull("phone") ? "" : RestaurantInfo.PHONE_PREFIX +  json_data.getString("phone"));
                 ri.channel = (json_data.isNull("channel") ? "" : RestaurantInfo.CHANNEL_PREFIX +  json_data.getString("channel"));
+                ri.address = (json_data.isNull("address") ? "" : json_data.getString("address"));
 
                 String restId = (json_data.isNull("id") ? "" : RestaurantInfo.ID_PREFIX +  json_data.getString("id"));
                 ri.userPermission = "2";
 
                 ri.status = (json_data.isNull("active") ? "" : RestaurantInfo.ID_PREFIX +  json_data.getString("active"));
-                if(ri.status.equals("0")){
-                    ri.name = (json_data.isNull("name") ? "" : RestaurantInfo.NAME_PREFIX +  json_data.getString("name")+" (inactive) ");
-                }else{
-                    ri.name = (json_data.isNull("name") ? "" : RestaurantInfo.NAME_PREFIX +  json_data.getString("name"));
-                }
+
+                ri.name = (json_data.isNull("name") ? "" : RestaurantInfo.NAME_PREFIX +  json_data.getString("name"));
                 try{
                     infosArray = new JSONArray(EntityInfo);
                     for (int j = 0; j < infosArray.length(); j++) {
