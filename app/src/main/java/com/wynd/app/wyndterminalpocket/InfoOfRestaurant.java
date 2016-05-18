@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lecho.lib.hellocharts.model.Line;
 
 public class InfoOfRestaurant extends AppCompatActivity {
 
@@ -90,6 +93,19 @@ public class InfoOfRestaurant extends AppCompatActivity {
                             Channel.setText(response.isNull("channel") ? "" : response.getString("channel"));
                             vAddress.setText(response.isNull("address") ? "" : response.getString("address"));
 
+                            if(response.getString("email").isEmpty()){
+                                LinearLayout l1 = (LinearLayout)findViewById(R.id.layout1);
+                                l1.setVisibility(View.GONE);
+                            }
+                            if(response.getString("phone").isEmpty()){
+                                LinearLayout l1 = (LinearLayout)findViewById(R.id.layout2);
+                                l1.setVisibility(View.GONE);
+                            }
+                            if(response.getString("address").isEmpty()){
+                                LinearLayout l1 = (LinearLayout)findViewById(R.id.layout4);
+                                l1.setVisibility(View.GONE);
+                            }
+
                             editor = pref.edit();
                             editor.putString("restId", response.getString("id"));
                             editor.apply();
@@ -118,7 +134,8 @@ public class InfoOfRestaurant extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
+        //Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
+        ApplicationController.getInstance().addToRequestQueue(getRestaurant, "getRestaurant");
 
 
         editor = pref.edit();

@@ -152,7 +152,8 @@ public class UsersActivity extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        ApplicationController.getInstance().addToRequestQueue(userRequest, "userRequest");
         editor = pref.edit();
         editor.putString("Check", "infouser");
         editor.putString("restId", ID);

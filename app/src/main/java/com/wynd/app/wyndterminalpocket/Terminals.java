@@ -5,9 +5,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,6 +21,7 @@ import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -46,6 +49,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -152,8 +157,8 @@ public class Terminals extends AppCompatActivity {
 
         }
 
-
         getList.run();
+
 
     }
     Runnable getList = new Runnable() {
@@ -165,8 +170,29 @@ public class Terminals extends AppCompatActivity {
             handler.postDelayed(getList, 60000);
         }
     };
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //Toast.makeText(getApplicationContext(), "Annuler terminaux", Toast.LENGTH_LONG).show();
+                handler.removeCallbacks(getList);
+                Intent i = new Intent(Terminals.this, MenuActivity.class);
+                startActivity(i);
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        //Toast.makeText(getApplicationContext(), "Annuler terminaux", Toast.LENGTH_LONG).show();
+        handler.removeCallbacks(getList);
+        Intent i = new Intent(Terminals.this, MenuActivity.class);
+        startActivity(i);
+        finish();
+    }
     private void getTerminalTask(){
-        System.out.println("Total RX "+(TrafficStats.getTotalRxBytes()/1024)*0.001+" Mb " +" Total TX "+(TrafficStats.getTotalTxBytes()/1024)*0.001+" Mb");
         terminals = new JSONArray();
 
         /**
@@ -195,7 +221,7 @@ public class Terminals extends AppCompatActivity {
                                              * get orders informations by entity
                                              */
                                             JsonObjectRequest orderRequest = new JsonObjectRequest
-                                                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
+                                                    (Request.Method.GET, Globales.baseUrl + "api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
                                                         @TargetApi(Build.VERSION_CODES.KITKAT)
                                                         @Override
                                                         public void onResponse(JSONObject response) {
@@ -215,7 +241,6 @@ public class Terminals extends AppCompatActivity {
                                                                 String monthDate1String = String.valueOf(monthDate1Cal + 1);
                                                                 String yearDate1String = String.valueOf(yearDate1Cal);
 
-                                                                System.out.println("currentdate 1 "+yearDate1String+"-"+monthDate1String+"-"+dayDate1String+"");
                                                                 JSONArray orders = new JSONArray();
                                                                 JSONArray values = response.getJSONArray("data");
                                                                 for(int i=0; i<values.length();i++){
@@ -314,7 +339,8 @@ public class Terminals extends AppCompatActivity {
                                                 }
                                             };
 
-                                            Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                                            //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                                            ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
 
                                         }catch (JSONException e){
 
@@ -352,9 +378,32 @@ public class Terminals extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(terminalRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(terminalRequest);
+        ApplicationController.getInstance().addToRequestQueue(terminalRequest, "terminalRequest");
+    }
+    @Override
+    public void onResume() {
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
+        super.onResume();
     }
 
+    @Override
+    public void onPause() {
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
+        super.onPause();
+    }
 
     private List<TerminalInfo> createList(JSONArray jsonArray) {
 
@@ -373,7 +422,12 @@ public class Terminals extends AppCompatActivity {
                 ti.id = (json_data.isNull("terminalID") ? "" : json_data.getString("terminalID"));
                 ti.registerTimestamp = (json_data.isNull("registerTimestamp") ? "" : json_data.getString("registerTimestamp"));
                 ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
-                ti.nb_orders = (json_data.isNull("nb_orders") ? "" :  json_data.getString("nb_orders") + " commandes");
+                ti.nb_orders = (json_data.isNull("nb_orders") ? "" :  json_data.getString("nb_orders"));
+                if(Integer.parseInt(ti.nb_orders) == 1){
+                    ti.nb_orders +=  " commande \r\ntraitée \r\naujourd'hui";
+                }else{
+                    ti.nb_orders +=  " commandes \r\ntraitées \r\naujourd'hui";
+                }
                 System.out.println("count orders " + ti.nb_orders);
                 ti.restaurant = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
                 ti.terminalStatus = (json_data.isNull("terminalStatus") ? "" : json_data.getString("terminalStatus"));
@@ -382,19 +436,7 @@ public class Terminals extends AppCompatActivity {
 
                 ti.channel = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
 
-                if(!json_data.getString("terminalInfo").isEmpty() && json_data.getString("terminalInfo") != null){
-                    String terminalInfo = json_data.isNull("terminalInfo") ? "" : json_data.getString("terminalInfo");
-                    JSONObject infoObject = new JSONObject(terminalInfo);
-
-                    ti.terminalUser = (infoObject.isNull("username") ? "" : infoObject.getString("username"));
-                    ti.entity_parent = (infoObject.isNull("entity_parent") ? "" : infoObject.getString("entity_parent"));
-                    ti.entity_id = (infoObject.isNull("entity_id") ? "" : infoObject.getString("entity_id"));
-                    ti.entity_label = (infoObject.isNull("entity_label") ? "" : infoObject.getString("entity_label"));
-                    ti.email = (infoObject.isNull("email") ? "" : infoObject.getString("email"));
-                    ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
-                    ti.apk_version = (infoObject.isNull("apk_version") ? "" : infoObject.getString("apk_version"));
-                    ti.battery_status = (infoObject.isNull("battery") ? "" : infoObject.getString("battery") +" %");
-                }else{
+                if(json_data.getString("terminalInfo").equals("Nan")){
                     ti.terminalUser = "";
                     ti.entity_parent = "";
                     ti.entity_id = "";
@@ -402,8 +444,44 @@ public class Terminals extends AppCompatActivity {
                     ti.email = "";
                     ti.phone = "";
                     ti.apk_version = "";
+                    ti.battery_status = "";
+                }else{
+                    if(!json_data.getString("terminalInfo").isEmpty() || json_data.getString("terminalInfo") != null && !json_data.getString("terminalInfo").equals("Nan")){
+                        String terminalInfo = json_data.isNull("terminalInfo") ? "" : json_data.getString("terminalInfo");
+                        JSONObject infoObject = new JSONObject(terminalInfo);
+
+                        ti.terminalUser = (infoObject.isNull("username") ? "" : infoObject.getString("username"));
+                        ti.entity_parent = (infoObject.isNull("entity_parent") ? "" : infoObject.getString("entity_parent"));
+                        ti.entity_id = (infoObject.isNull("entity_id") ? "" : infoObject.getString("entity_id"));
+                        ti.entity_label = (infoObject.isNull("entity_label") ? "" : infoObject.getString("entity_label"));
+                        ti.email = (infoObject.isNull("email") ? "" : infoObject.getString("email"));
+                        ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
+                        ti.apk_version = (infoObject.isNull("apk_version") ? "" : "Version de l'app : " +infoObject.getString("apk_version"));
+                        ti.battery_status = (infoObject.isNull("battery") ? "" : infoObject.getString("battery") +" %");
+                    }else{
+                        ti.terminalUser = "";
+                        ti.entity_parent = "";
+                        ti.entity_id = "";
+                        ti.entity_label = "";
+                        ti.email = "";
+                        ti.phone = "";
+                        ti.apk_version = "";
+                        ti.battery_status = "";
+                    }
                 }
 
+//                infosArray = new JSONArray(EntityInfo);
+//                for (int j = 0; j < infosArray.length(); j++) {
+//                    JSONObject infoObject = infosArray.getJSONObject(j);
+//
+//                    permission = infoObject.isNull("permissionID") ? "" : infoObject.getString("permissionID");
+//                    restID = infoObject.isNull("resaturantChainID") ? "" : infoObject.getString("resaturantChainID");
+//
+//                    if (!ti.channel_id.isEmpty() && ti.channel_id.equals(restID)) {
+//                            ti.userPermission = permission;
+//                    }
+//                    System.out.println("ti.userpermission "+ti.userPermission);
+//                }
                 /**
                  * configure a time laps for getting ON/OFF
                  */

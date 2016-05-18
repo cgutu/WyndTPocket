@@ -125,7 +125,8 @@ public class EditRestaurant extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
+        //Volley.newRequestQueue(getApplicationContext()).add(getRestaurant);
+        ApplicationController.getInstance().addToRequestQueue(getRestaurant, "getRestaurant");
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

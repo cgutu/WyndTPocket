@@ -25,5 +25,6 @@ public class TerminalInfo {
     protected String terminalActive;
     protected String nb_orders;
     protected String battery_status;
+    protected String userPermission;
 }
 

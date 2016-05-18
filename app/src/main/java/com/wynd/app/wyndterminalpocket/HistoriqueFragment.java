@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -35,6 +37,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
@@ -53,6 +56,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -65,7 +69,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.TimeZone;
+
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.view.LineChartView;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -86,7 +97,7 @@ public class HistoriqueFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private String uuid, id, channel_id, userID, parentID, permission, rest_channel, myuserID, EntityInfo, selectedID, terminalID;
-    private FloatingActionButton fab;
+    private Button fab;
     private TextView vDate1, vDate2, vTime1, vTime2;
     private View rootView;
     private SharedPreferences pref;
@@ -100,8 +111,12 @@ public class HistoriqueFragment extends Fragment {
     private BarChart chart;
     private LineChart lineChart;
     private RelativeLayout rLperiod;
+    private String thisterminal;
 
-    private RelativeLayout rlChart;
+    private LinearLayout rlChart;
+    private LineChartView lview;
+    private TextView errorText;
+    private TextInputLayout spinner2, spinner3;
 
     public HistoriqueFragment() {
         // Required empty public constructor
@@ -191,7 +206,7 @@ public class HistoriqueFragment extends Fragment {
                     }
                 };
 
-                Volley.newRequestQueue(getContext()).add(parentRequest);
+                ApplicationController.getInstance().addToRequestQueue(parentRequest, "parentRequest");
             }
         }catch (JSONException e){
 
@@ -210,24 +225,25 @@ public class HistoriqueFragment extends Fragment {
         restSpinner = (Spinner) rootView.findViewById(R.id.rest_channel_id);
         parentSpinner = (Spinner) rootView.findViewById(R.id.parent);
         deviceSpinner = (Spinner) rootView.findViewById(R.id.device);
-        rlChart = (RelativeLayout) rootView.findViewById(R.id.layoutChart);
+        rlChart = (LinearLayout) rootView.findViewById(R.id.layoutChart);
         rLperiod = (RelativeLayout) rootView.findViewById(R.id.period);
-
-        fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+        errorText = (TextView) rootView.findViewById(R.id.error);
+        fab = (Button) rootView.findViewById(R.id.fab);
+        spinner2 = (TextInputLayout) rootView.findViewById(R.id.spinner2);
+        spinner3 = (TextInputLayout) rootView.findViewById(R.id.spinner3);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                chart.invalidate();
-                loadMap();
+                errorText.setVisibility(View.GONE);
+                loadMap(terminalID);
             }
         });
 
 
        // chart = (BarChart) rootView.findViewById(R.id.chart);
 
-        chart = new BarChart(getActivity());
-        lineChart = new LineChart(getActivity());
+       // chart = new BarChart(getActivity());
+        //lineChart = new LineChart(getActivity());
         LinearLayout back = (LinearLayout) rootView.findViewById(R.id.lback);
 
 
@@ -242,10 +258,14 @@ public class HistoriqueFragment extends Fragment {
                 ft.commit();
             }
         });
+
+        chart = new BarChart(getActivity());
+        lineChart = new LineChart(getActivity());
+
         return rootView;
     }
 
-    private void loadMap(){
+    private void loadMap(String id){
 
 
         rlChart.setVisibility(View.VISIBLE);
@@ -253,122 +273,85 @@ public class HistoriqueFragment extends Fragment {
         final String date1 = vDate1.getText().toString();
         final String date2 = vDate2.getText().toString();
 
-        final String time1 = vTime1.getText().toString();
-        final String time2 = vTime2.getText().toString();
+      //  getValues(date1, date2);
+
 
         JsonObjectRequest request = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+terminalID+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, Globales.baseUrl+"api/terminal/get/status/history/terminal/"+id+"/"+date1+"/"+date2, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
 
                         try {
-                            JSONArray values = response.getJSONArray("data");
-/*
-                            ArrayList<String> xValues = new ArrayList<String>();
-                            ArrayList<BarEntry> entries = new ArrayList<>();
+                            if(response.getString("result").equals("success")) {
 
-                            for(int i=0; i<values.length(); i++){
-                                String status = values.getJSONObject(i).getString("t_status");
-                                String date = values.getJSONObject(i).getString("t_last_seen");
-                                System.out.println("date "+date);
-                                Float f= Float.parseFloat(status);
-                                entries.add(new BarEntry(f, i));
-                                xValues.add(date);
+                                JSONArray values = response.getJSONArray("data");
+
+                                ArrayList<String> xAxis = new ArrayList<>();
+                                ArrayList<LineDataSet> dataSets = null;
+                                ArrayList<Entry> valueSet1 = new ArrayList<>();
+
+                                for (int j = 0; j < values.length(); j++) {
+                                    String status = values.getJSONObject(j).getString("status");
+                                    String date = values.getJSONObject(j).getString("timestamp");
+                                    Float f = Float.parseFloat(status);
+                                    xAxis.add(j, date);
+                                    Entry v1e1 = new Entry(f, j);
+                                    valueSet1.add(j, v1e1);
+                                }
+
+                                LineDataSet barDataSet1 = new LineDataSet(valueSet1, "Status");
+                                barDataSet1.setColor(Color.WHITE);
+
+                                barDataSet1.setDrawCubic(false);
+                                barDataSet1.setDrawCircleHole(false);
+                                barDataSet1.setLineWidth(1.8f);
+                                barDataSet1.setCircleSize(3.6f);
+                                barDataSet1.setHighLightColor(Color.RED);
+                                barDataSet1.setValueTextColor(Color.WHITE);
+                                barDataSet1.disableDashedLine();
+
+                                dataSets = new ArrayList<>();
+                                dataSets.add(barDataSet1);
+
+                                XAxis xAxis1 = lineChart.getXAxis();
+                                xAxis1.setDrawGridLines(false);
+
+                                YAxis yAxis = lineChart.getAxisLeft();
+                                yAxis.setDrawGridLines(false);
+                                yAxis.setAxisMaxValue(1);
+                                yAxis.setAxisMinValue(0);
+
+                                LineData data = new LineData(xAxis, dataSets);
+                                lineChart.setData(data);
+                                lineChart.setDescription("Chart");
+                                lineChart.animateXY(2000, 2000);
+                                lineChart.setMinimumWidth(1200);
+                                lineChart.setMinimumHeight(1200);
+                                lineChart.setGridBackgroundColor(Color.GRAY);
+                                lineChart.invalidate();
+                                lineChart.setPadding(10, 10, 10, 10);
+                                lineChart.getAxisLeft().setDrawLabels(true);
+                                lineChart.getAxisRight().setDrawLabels(true);
+                                lineChart.getXAxis().setDrawLabels(true);
+
+                                lineChart.setScaleEnabled(true);
+                                lineChart.setPinchZoom(true);
+                                //lineChart.getAxisRight().setEnabled(false);
+
+                                lineChart.setVisibility(View.VISIBLE);
+                                if (lineChart.getParent() != null)
+                                    ((ViewGroup) lineChart.getParent()).removeView(lineChart); // <- fix
+                                rlChart.addView(lineChart);
+
+                            }else{
+                                lineChart.setVisibility(View.GONE);
+                                errorText.setVisibility(View.VISIBLE);
+                                errorText.setError("Veuillez choisir une autre date");
+                                errorText.setTextColor(Color.RED);
+                                View focusView = errorText;
+                                focusView.requestFocus();
+
                             }
-
-                            BarDataSet dataset = new BarDataSet(entries, "1 = ON / 0 = OFF");
-
-                            BarData data = new BarData(xValues, dataset);
-
-                            chart.setData(data);
-                            chart.setDescription("Device status");
-                            chart.setMinimumWidth(1300);
-                            chart.setMinimumHeight(1200);
-
-                            YAxis mYAxis = chart.getAxisLeft();
-                            mYAxis.setDrawAxisLine(false);
-                            mYAxis.setDrawGridLines(false);
-                            mYAxis.setStartAtZero(false);
-
-                            XAxis xAxis = chart.getXAxis();
-                            xAxis.setTextColor(Color.RED);
-
-                            chart.animateXY(3000, 3000);
-
-                            if(chart.getParent()!=null)
-                                ((ViewGroup)chart.getParent()).removeView(chart); // <- fix
-                            rlChart.addView(chart);*/
-                            ArrayList<String> xValues = new ArrayList<String>();
-                            ArrayList<Entry> entries = new ArrayList<>();
-                            XAxis xAxis = lineChart.getXAxis();
-//                            try{
-//                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.FRANCE);
-//                                Date startDate = formatter.parse(date1 + " " + time1);
-//                                Date endDate = formatter.parse(date2 + " " + time2);
-//
-//                                    GregorianCalendar gcal = new GregorianCalendar();
-//                                    gcal.setTime(startDate);
-//                                    while (gcal.getTime().before(endDate)) {
-//                                        gcal.add(Calendar.HOUR_OF_DAY, 2);
-//                                        String hours = gcal.getTime().toString();
-//                                        System.out.println(gcal.getTime().toString());
-//
-//                                        xValues.add(hours);
-//                                    }
-//                            }catch (ParseException e){
-//
-//                            }
-
-                            for(int j=0; j<values.length(); j++){
-                                String status = values.getJSONObject(j).getString("t_status");
-                                String date = values.getJSONObject(j).getString("t_last_seen");
-                                Float f= Float.parseFloat(status);
-                                entries.add(new Entry(f, j));
-                                xValues.add(j, date);
-                            }
-                            LineDataSet dataset = new LineDataSet(entries, "1 = ON / 0 = OFF");
-                            dataset.setDrawCubic(true);
-                            LineData data = new LineData(xValues, dataset);
-                            data.setDrawValues(true);
-
-                            lineChart.setData(data);
-                            lineChart.setDescription("Device status");
-                            lineChart.setMinimumWidth(1200);
-                            lineChart.setMinimumHeight(1200);
-                            lineChart.setDragEnabled(true);
-                            lineChart.setScaleEnabled(true);
-//                            lineChart.setMinimumWidth(500);
-//                            lineChart.setMinimumHeight(500);
-
-                            YAxis mYAxis = lineChart.getAxisLeft();
-                            mYAxis.setShowOnlyMinMax(true);
-                            mYAxis.setAxisMaxValue(1f);
-                            mYAxis.setAxisMinValue(0f);
-
-                            YAxis rAxis = lineChart.getAxisRight();
-                            rAxis.setShowOnlyMinMax(true);
-                            rAxis.setAxisMaxValue(1f);
-                            rAxis.setAxisMinValue(0f);
-
-
-                            xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                            xAxis.setTextColor(Color.RED);
-                            xAxis.setTextSize(3f);
-                            xAxis.setDrawAxisLine(true);
-                            xAxis.setDrawGridLines(true);
-                            dataset.setColors(new int[]{R.color.red}, getActivity());
-
-                            lineChart.animateXY(3000, 3000);
-                            data.setHighlightEnabled(true);
-
-                            lineChart.setTouchEnabled(true);
-
-                            if(lineChart.getParent()!=null)
-                                ((ViewGroup)lineChart.getParent()).removeView(lineChart); // <- fix
-                            rlChart.addView(lineChart);
-
-
-
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -378,8 +361,18 @@ public class HistoriqueFragment extends Fragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
-                        error.printStackTrace();
+                        lineChart.setVisibility(View.GONE);
+                        errorText.setVisibility(View.VISIBLE);
+                        errorText.setError("Veuillez choisir une autre date");
+                        errorText.setTextColor(Color.RED);
+                        View focusView = errorText;
+                        focusView.requestFocus();
+                        // Reload current fragment
+//                         FragmentTransaction ft = getFragmentManager().beginTransaction();
+//                        HistoriqueFragment fragment = new HistoriqueFragment();
+//                        ft.detach(fragment);
+//                        ft.attach(fragment);
+//                        ft.commit();
                     }
                 }) {
             @Override
@@ -392,8 +385,10 @@ public class HistoriqueFragment extends Fragment {
             }
         };
 
-        Volley.newRequestQueue(getContext()).add(request);
+        //Volley.newRequestQueue(getActivity()).add(request);
+        ApplicationController.getInstance().addToRequestQueue(request, "request");
     }
+
     private void initViews(){
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.FRANCE);
@@ -402,13 +397,16 @@ public class HistoriqueFragment extends Fragment {
         SimpleDateFormat stm = new SimpleDateFormat("HH:mm", Locale.FRANCE);
         String time = stm.format(new Date());
         String data = sdf.format(new Date());
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        String yesterday = sdf.format(cal.getTime());
 
         vDate1 = (TextView) rootView.findViewById(R.id.date1);
         vTime1 = (TextView) rootView.findViewById(R.id.time1);
         vDate2 = (TextView) rootView.findViewById(R.id.date2);
         vTime2 = (TextView) rootView.findViewById(R.id.time2);
 
-        vDate1.setText(data);
+        vDate1.setText(yesterday);
         vTime1.setText(time);
         vDate2.setText(data);
         vTime2.setText(time);
@@ -536,7 +534,7 @@ public class HistoriqueFragment extends Fragment {
         list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("parent_name");
+                String name = jsonArray.getJSONObject(i).getString("parent_label");
                 if(!list.contains(name)){
                     list.add("" + name);
                 }
@@ -564,14 +562,17 @@ public class HistoriqueFragment extends Fragment {
                     deviceSpinner.setVisibility(View.GONE);
                     fab.setVisibility(View.GONE);
                     rlChart.setVisibility(View.GONE);
+                    spinner2.setVisibility(View.GONE);
+                    spinner3.setVisibility(View.GONE);
                 }else{
                     restSpinner.setVisibility(View.VISIBLE);
+                    spinner2.setVisibility(View.VISIBLE);
                     fab.setVisibility(View.GONE);
                 }
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
-                            String name = jsonArray.getJSONObject(i).getString("parent_name");
+                            String name = jsonArray.getJSONObject(i).getString("parent_label");
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
                                 //autocompleter la liste des restaurants après avoir sélctionner le parent
@@ -615,7 +616,8 @@ public class HistoriqueFragment extends Fragment {
                                     }
                                 };
 
-                                Volley.newRequestQueue(getContext()).add(entityRequest);
+                                //Volley.newRequestQueue(getContext()).add(entityRequest);
+                                ApplicationController.getInstance().addToRequestQueue(entityRequest, "entityRequest");
 
 
                             }
@@ -670,8 +672,10 @@ public class HistoriqueFragment extends Fragment {
                     deviceSpinner.setVisibility(View.GONE);
                     fab.setVisibility(View.GONE);
                     rlChart.setVisibility(View.GONE);
+                    spinner3.setVisibility(View.GONE);
                 }else{
                     deviceSpinner.setVisibility(View.VISIBLE);
+                    spinner3.setVisibility(View.VISIBLE);
                     fab.setVisibility(View.GONE);
                     rlChart.setVisibility(View.GONE);
                 }
@@ -723,7 +727,8 @@ public class HistoriqueFragment extends Fragment {
                                     }
                                 };
 
-                                Volley.newRequestQueue(getContext()).add(userRequest);
+                                //Volley.newRequestQueue(getContext()).add(userRequest);
+                                ApplicationController.getInstance().addToRequestQueue(userRequest, "userRequest");
                             }
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block

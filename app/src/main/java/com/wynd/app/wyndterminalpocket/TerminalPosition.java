@@ -61,6 +61,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -112,10 +114,6 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
         Intent intent = getIntent();
         uuid = intent.getStringExtra("terminalUuid");
         id = intent.getStringExtra("terminalID");
@@ -123,9 +121,12 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         channel_id = intent.getStringExtra("channelID");
         phone = intent.getStringExtra("phone");
 
-        System.out.println("channelid getting location "+channel_id+ " "+channel+" "+phone+ " "+uuid);
-        //  getMarkers();
+        System.out.println("channelid getting location "+channel_id+ " channel "+channel+" phone "+phone+ " uuid "+uuid);
         timer.schedule(task, DELAY, DELAY);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -161,6 +162,35 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         });
 
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Toast.makeText(getApplicationContext(), "Annuler localisation", Toast.LENGTH_LONG).show();
+                timer.cancel();
+                handler.removeCallbacks(task);
+                Intent i = new Intent(TerminalPosition.this, Terminals.class);
+                i.putExtra("channel", channel);
+                startActivity(i);
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(getApplicationContext(), "Annuler localisation", Toast.LENGTH_LONG).show();
+        timer.cancel();
+        handler.removeCallbacks(task);
+        Intent i = new Intent(TerminalPosition.this, Terminals.class);
+        i.putExtra("channel", channel);
+        startActivity(i);
+        finish();
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -173,6 +203,14 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
 
+        Intent intent = getIntent();
+        uuid = intent.getStringExtra("terminalUuid");
+        id = intent.getStringExtra("terminalID");
+        channel = intent.getStringExtra("terminalChannel");
+        channel_id = intent.getStringExtra("channelID");
+
+        System.out.println("channelid getting location on map ready " + channel_id);
+
         //get all restaurant
         JsonObjectRequest positionRequest = new JsonObjectRequest
                 (Request.Method.GET, Globales.baseUrl+"api/terminal/get/location/by/channel/"+channel_id, null, new Response.Listener<JSONObject>() {
@@ -182,32 +220,32 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
                         try {
                             JSONArray data = response.getJSONArray("data");
 
-                            String macadd = "TEST";
+                            String macadd = "";
                             for(int i=0; i<data.length(); i++){
                                 JSONObject result = data.getJSONObject(i);
                                 macadd = result.getString("t_name");
                                 if(!macadd.isEmpty() && macadd.equals(uuid)){
                                     String Position = result.getString("t_lat_lng");
                                     JSONObject objet = new JSONObject(Position);
-                                    LAT = objet.getString("lat");
-                                    LNG = objet.getString("lng");
+                                    LAT = (objet.isNull("lat") ? "" : objet.getString("lat"));
+                                    LNG = (objet.isNull("lng") ? "" : objet.getString("lng"));
                                 }
 
                             }
 
                             Toast.makeText(TerminalPosition.this, "GPS INFO "+LAT + " "+LNG, Toast.LENGTH_SHORT).show();
 
-                            // Add a marker and move the camera
-                            Float lat = Float.parseFloat(LAT);
-                            Float lng = Float.parseFloat(LNG);
-                            LatLng position = new LatLng(lat, lng);
-                            marker = mMap.addMarker(new MarkerOptions().position(position).title(macadd));
+                            if(!LAT.equals("null") && !LNG.equals("null")){
+                                // Add a marker and move the camera
+                                Float lat = Float.parseFloat(LAT);
+                                Float lng = Float.parseFloat(LNG);
+                                LatLng position = new LatLng(lat, lng);
+                                marker = mMap.addMarker(new MarkerOptions().position(position).title(macadd));
 
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
-                            CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
-                            mMap.animateCamera(zoom);
-
-
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+                                CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
+                                mMap.animateCamera(zoom);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -231,10 +269,13 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(positionRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(positionRequest);
+        ApplicationController.getInstance().addToRequestQueue(positionRequest, "positionRequest");
 
     }
     private void getMarkers() {
+
+        System.out.println("channelid getting location get markers " + channel_id );
 
         //get all restaurant
         JsonObjectRequest positionRequest = new JsonObjectRequest
@@ -259,17 +300,17 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
 
                             Toast.makeText(TerminalPosition.this, "GPS INFO "+LAT + " "+LNG, Toast.LENGTH_SHORT).show();
 
-                            // Add a marker and move the camera
-                            Float lat = Float.parseFloat(LAT);
-                            Float lng = Float.parseFloat(LNG);
-                            LatLng position = new LatLng(lat, lng);
-                            animateMarker(marker, position, false);
+                            if(!LAT.equals("null") && !LNG.equals("null")){
+                                // Add a marker and move the camera
+                                Float lat = Float.parseFloat(LAT);
+                                Float lng = Float.parseFloat(LNG);
+                                LatLng position = new LatLng(lat, lng);
+                                animateMarker(marker, position, false);
 
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
-                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 16);
-                            mMap.animateCamera(cameraUpdate);
-
-
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+                                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 16);
+                                mMap.animateCamera(cameraUpdate);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -293,7 +334,8 @@ public class TerminalPosition extends AppCompatActivity implements OnMapReadyCal
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(positionRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(positionRequest);
+        ApplicationController.getInstance().addToRequestQueue(positionRequest, "positionRequest");
 
 
     }

@@ -163,7 +163,8 @@ public class EditUserProfil extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        ApplicationController.getInstance().addToRequestQueue(userRequest, "userRequest");
 
         /**
          * verify form and update user profil

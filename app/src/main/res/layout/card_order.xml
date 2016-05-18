@@ -12,6 +12,7 @@
 
     <RelativeLayout
         android:id="@+id/head"
+        android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
   
@@ -22,7 +23,8 @@
 
             <RelativeLayout
                 android:layout_width="50dp"
-                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:layout_marginStart="5dp"
                 android:layout_centerVertical="true"
                 android:layout_height="50dp">
 
@@ -42,18 +44,19 @@
                     android:id="@+id/iconStatut"/>
             </RelativeLayout>
 
-            <RelativeLayout
+            <LinearLayout
                 android:id="@+id/relativelayout1"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="60dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:layout_gravity="end">
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:layout_gravity="center">
 
                 <TextView
                     android:id="@+id/order_ref"
-                    android:layout_width="match_parent"
+                    android:layout_weight="0.5"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
                     android:text="Référence"
@@ -62,30 +65,29 @@
                     android:textSize="14sp"/>
                 <TextView
                     android:id="@+id/order_status"
-                    android:layout_width="wrap_content"
+                    android:layout_weight="0.3"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="Status"
-                    android:textSize="10sp"
-                    android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true" />
+                    android:textSize="14sp"
+                    />
 
                 <TextView
                 android:id="@+id/terminal"
-                android:layout_width="wrap_content"
+                    android:layout_weight="0.2"
+                    android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Terminal"
-                android:textSize="10sp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:layout_alignParentEnd="true" />
-            </RelativeLayout>
+                android:textSize="14sp"
+                />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/status_report_timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="INFO TIME"
-                android:textSize="10sp"
+                android:textSize="12sp"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true" />
 

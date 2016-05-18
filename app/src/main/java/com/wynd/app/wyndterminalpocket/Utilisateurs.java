@@ -87,12 +87,6 @@ public class Utilisateurs extends Fragment {
         myuserID =  pref.getString("myuserID", "");
         EntityInfo = pref.getString("EntityInfo", "");
 
-        try{
-            infosArray = new JSONArray(EntityInfo);
-            JSONObject infoObject;
-
-            for (int j = 0; j < infosArray.length(); j++) {
-                infoObject = infosArray.getJSONObject(j);
                 /**
                  * show parents allowed to see
                  */
@@ -132,11 +126,7 @@ public class Utilisateurs extends Fragment {
                     }
                 };
 
-                Volley.newRequestQueue(getContext()).add(parentRequest);
-            }
-        }catch (JSONException e){
-
-        }
+                ApplicationController.getInstance().addToRequestQueue(parentRequest, "parentRequest");
 
     }
 
@@ -311,7 +301,8 @@ public class Utilisateurs extends Fragment {
                                     }
                                 };
 
-                                Volley.newRequestQueue(getContext()).add(userRequest);
+                                //Volley.newRequestQueue(getContext()).add(userRequest);
+                                ApplicationController.getInstance().addToRequestQueue(userRequest, "userRequest");
                             }
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block
@@ -365,7 +356,7 @@ public class Utilisateurs extends Fragment {
         list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("parent_name");
+                String name = jsonArray.getJSONObject(i).getString("parent_label");
                 if(!list.contains(name)){
                     list.add("" + name);
                 }
@@ -404,7 +395,7 @@ public class Utilisateurs extends Fragment {
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
-                            String name = jsonArray.getJSONObject(i).getString("parent_name");
+                            String name = jsonArray.getJSONObject(i).getString("parent_label");
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
 
@@ -447,7 +438,8 @@ public class Utilisateurs extends Fragment {
                                     }
                                 };
 
-                                Volley.newRequestQueue(getContext()).add(entityRequest);
+                                //Volley.newRequestQueue(getContext()).add(entityRequest);
+                                ApplicationController.getInstance().addToRequestQueue(entityRequest, "entityRequest");
 
 
                             }

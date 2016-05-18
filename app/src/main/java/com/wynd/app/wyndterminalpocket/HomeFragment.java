@@ -93,6 +93,14 @@ public class HomeFragment extends Fragment {
                     terminals.setVisibility(View.VISIBLE);
                     historique.setVisibility(View.VISIBLE);
                     parents.setVisibility(View.VISIBLE);
+                }else{
+                    Restaurants fragment = new Restaurants();
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    Bundle args = new Bundle();
+                    args.putString("userID", userID);
+                    fragment.setArguments(args);
+                    ft.replace(R.id.content_frame, fragment);
+                    ft.commit();
                 }
 
             }

@@ -74,7 +74,7 @@ public class ParentsAdapter extends RecyclerView.Adapter<ParentsAdapter.ParentsV
             }
         });
         if(ri.status.equals("0")){
-            restaurantViewHolder.vName.setText(ri.name+" (inactive)");
+            restaurantViewHolder.vName.setText(ri.label+" (inactive)");
         }else{
             restaurantViewHolder.vName.setText(ri.name);
         }

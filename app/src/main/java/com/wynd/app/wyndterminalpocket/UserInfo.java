@@ -15,6 +15,7 @@ public class UserInfo {
     protected String phone;
     protected String permission;
     protected String rest_channel;
+    protected String userPermission;
 
     protected static final String ID_PREFIX = "";
     protected static final String USERNAME_PREFIX = "";

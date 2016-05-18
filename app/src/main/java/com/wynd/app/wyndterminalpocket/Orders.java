@@ -49,6 +49,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -107,12 +109,77 @@ public class Orders extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //rl.setVisibility(View.VISIBLE);
-                orders = new JSONArray();
-                deviceSpinner.setVisibility(View.VISIBLE);
-                statusSpinner.setVisibility(View.VISIBLE);
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(Orders.this);
+                LayoutInflater inflater = Orders.this.getLayoutInflater();
+                promptView = inflater.inflate(R.layout.dialog_layout, null);
+                initViews();
                 getTerminals();
                 byStatus();
+
+                builder1.setView(inflater.inflate(R.layout.dialog_layout, null));
+                builder1.setCancelable(true);
+                builder1.setTitle("Trier les commandes");
+
+                bydate = (CheckBox) promptView.findViewById(R.id.bydate);
+                byperiod = (CheckBox) promptView.findViewById(R.id.byperiod);
+                final LinearLayout period1 = (LinearLayout) promptView.findViewById(R.id.period1);
+                final LinearLayout period2 = (LinearLayout) promptView.findViewById(R.id.period2);
+                final LinearLayout onedate = (LinearLayout) promptView.findViewById(R.id.onlyonedate);
+                final LinearLayout between = (LinearLayout) promptView.findViewById(R.id.between);
+
+                byperiod.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(byperiod.isChecked()){
+                            bydate.setEnabled(false);
+                            deviceSpinner.setEnabled(false);
+                            statusSpinner.setEnabled(false);
+                            period1.setVisibility(View.VISIBLE);
+                            period2.setVisibility(View.VISIBLE);
+                            between.setVisibility(View.VISIBLE);
+                        }else{
+                            deviceSpinner.setEnabled(true);
+                            statusSpinner.setEnabled(true);
+                            bydate.setEnabled(true);
+                            period1.setVisibility(View.GONE);
+                            period2.setVisibility(View.GONE);
+                            between.setVisibility(View.GONE);
+                        }
+                    }
+                });
+                bydate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(bydate.isChecked()){
+                            deviceSpinner.setEnabled(false);
+                            statusSpinner.setEnabled(false);
+                            byperiod.setEnabled(false);
+                            onedate.setVisibility(View.VISIBLE);
+                        }else{
+                            deviceSpinner.setEnabled(true);
+                            statusSpinner.setEnabled(true);
+                            byperiod.setEnabled(true);
+                            onedate.setVisibility(View.GONE);
+                        }
+                    }
+                });
+
+                builder1.setPositiveButton(
+                        "Voir",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if(byperiod.isChecked()){
+                                    getPeriodOrders();
+                                }else if(bydate.isChecked()){
+                                    getOrdersbyDate();
+                                }
+                                dialog.dismiss();
+                            }
+                        });
+                AlertDialog alert11 = builder1.create();
+
+                alert11.setView(promptView);
+                alert11.show();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -132,11 +199,17 @@ public class Orders extends AppCompatActivity {
         Intent intent = getIntent();
         channelID = intent.getStringExtra("restId");
 
+        System.out.println("restid channelID "+channelID);
+
         if(channelID == null){
             restId = savedChannel;
         }else{
             restId = channelID;
         }
+        editor = pref.edit();
+        editor.putString("restId", restId);
+        editor.commit();
+        editor.apply();
 
         checkOrders();
 
@@ -220,14 +293,6 @@ public class Orders extends AppCompatActivity {
                                 dialog.dismiss();
                             }
                         });
-//
-//                builder1.setNegativeButton(
-//                        "Annuler",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                dialog.dismiss();
-//                            }
-//                        });
 
                 AlertDialog alert11 = builder1.create();
 
@@ -280,8 +345,7 @@ public class Orders extends AppCompatActivity {
                 return params;
             }
         };
-
-        Volley.newRequestQueue(getApplicationContext()).add(deviceRequest);
+        ApplicationController.getInstance().addToRequestQueue(deviceRequest, "deviceRequest");
     }
     private List<OrderInfo> createList(JSONArray jsonArray) {
 
@@ -311,6 +375,7 @@ public class Orders extends AppCompatActivity {
                 ui.order_desired_delivery = (json_data.isNull("order_desired_delivery") ? "" : json_data.getString("order_desired_delivery"));
                 ui.reporting_terminal_id = (json_data.isNull("terminal") ? "" : json_data.getString("terminal"));
                 ui.status_report_timestamp = (json_data.isNull("status_report_timestamp") ? "" : json_data.getString("status_report_timestamp"));
+                ui.entity_id = (json_data.isNull("entity_id") ? "" : json_data.getString("entity_id"));
 
                 result.add(ui);
 
@@ -359,13 +424,14 @@ public class Orders extends AppCompatActivity {
                         * get orders informations by status
                         */
                        JsonObjectRequest orderRequest = new JsonObjectRequest
-                               (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/status/" + selectedStatus, null, new Response.Listener<JSONObject>() {
+                               (Request.Method.GET, Globales.baseUrl + "api/order/get/by/status/" + selectedStatus, null, new Response.Listener<JSONObject>() {
                                    @TargetApi(Build.VERSION_CODES.KITKAT)
                                    @Override
                                    public void onResponse(JSONObject response) {
 
                                        try {
-                                           orders = new JSONArray();
+                                           ArrayList<JSONObject> list = new ArrayList<>();
+//                                orders = new JSONArray();
                                            JSONArray values = response.getJSONArray("data");
                                            Log.i("ORDER_INFO", values.toString());
 
@@ -377,33 +443,35 @@ public class Orders extends AppCompatActivity {
                                                newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                                newobj.put("terminal", obj.getString("macadress"));
                                                newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                               newobj.put("entity_id", obj.getString("entity_id"));
 
-                                               if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
-                                                   Integer status = Integer.parseInt(obj.getString("order_status"));
-                                                   String  ref = obj.getString("order_ref");
-                                                   for(int j=0; j<orders.length(); j++){
-                                                       JSONObject oneorder = orders.getJSONObject(j);
-                                                       Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
-                                                       String oldRef = oneorder.getString("order_ref");
-                                                       if(status > oldStatus && oldRef.equals(ref)){
-                                                           orders.remove(j);
-                                                           orders.put(newobj);
-                                                           System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                       }else if(status == -1 && oldRef.equals(ref)){
-                                                           orders.remove(j);
-                                                           orders.put(newobj);
-                                                           System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                       }else if(status == 3 && oldRef.equals(ref)){
-                                                           orders.remove(j);
-                                                           orders.put(newobj);
-                                                           System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                       }
+                                               if(obj.getString("entity_id").equals(restId)) {
+                                                   if (list.toString().contains("\"order_ref\":\"" + obj.getString("order_ref") + "\"")) {
+                                                       Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                       String ref = obj.getString("order_ref");
+                                                       JSONArray test = new JSONArray(list.toString());
+                                                           for (int j = 0; j < test.length(); j++) {
+                                                               JSONObject oneorder = test.getJSONObject(j);
+                                                               Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                               String oldRef = oneorder.getString("order_ref");
+                                                               if (status > oldStatus && oldRef.equals(ref)) {
+                                                                   list.remove(j);
+                                                                   list.add(newobj);
+                                                               } else if (status == -1 && oldRef.equals(ref)) {
+                                                                   list.remove(j);
+                                                                   list.add(newobj);
+                                                               } else if (status == 3 && oldRef.equals(ref)) {
+                                                                   list.remove(j);
+                                                                   list.add(newobj);
+                                                               }
+                                                           }
+                                                   } else {
+                                                       list.add(newobj);
                                                    }
-                                               }else{
-                                                   orders.put(newobj);
                                                }
 
                                            }
+                                           orders = new JSONArray(list.toString());
                                            if (orders.length() == 0) {
                                                total.setText("Aucune commande");
                                            } else {
@@ -433,8 +501,7 @@ public class Orders extends AppCompatActivity {
                                return params;
                            }
                        };
-
-                       Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                       ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
                    }else{
                        System.out.println("checkOrders device spinner " + selectedStatus + " " + terminalIMEI);
                        checkOrders();
@@ -455,11 +522,13 @@ public class Orders extends AppCompatActivity {
                                          */
                                         JsonObjectRequest orderRequest = new JsonObjectRequest
                                                 (Request.Method.GET, Globales.baseUrl + "api/order/get/by/mns/"+terminalIMEI+"/"+selectedStatus, null, new Response.Listener<JSONObject>() {
+                                                    @TargetApi(Build.VERSION_CODES.KITKAT)
                                                     @Override
                                                     public void onResponse(JSONObject response) {
 
                                                         try {
-                                                            orders = new JSONArray();
+                                                            ArrayList<JSONObject> list = new ArrayList<>();
+//                                orders = new JSONArray();
                                                             JSONArray values = response.getJSONArray("data");
                                                             Log.i("ORDER_INFO", values.toString());
 
@@ -471,32 +540,34 @@ public class Orders extends AppCompatActivity {
                                                                 newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                                                 newobj.put("terminal", obj.getString("macadress"));
                                                                 newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                                newobj.put("entity_id", obj.getString("entity_id"));
 
-                                                                if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
-                                                                    Integer status = Integer.parseInt(obj.getString("order_status"));
-                                                                    String  ref = obj.getString("order_ref");
-                                                                    for(int j=0; j<orders.length(); j++){
-                                                                        JSONObject oneorder = orders.getJSONObject(j);
-                                                                        Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
-                                                                        String oldRef = oneorder.getString("order_ref");
-                                                                        if(status > oldStatus && oldRef.equals(ref)){
-                                                                            orders.remove(j);
-                                                                            orders.put(newobj);
-                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                                        }else if(status == -1 && oldRef.equals(ref)){
-                                                                            orders.remove(j);
-                                                                            orders.put(newobj);
-                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                                        }else if(status == 3 && oldRef.equals(ref)){
-                                                                            orders.remove(j);
-                                                                            orders.put(newobj);
-                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                                        }
+                                                                if(obj.getString("entity_id").equals(restId)) {
+                                                                    if (list.toString().contains("\"order_ref\":\"" + obj.getString("order_ref") + "\"")) {
+                                                                        Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                                        String ref = obj.getString("order_ref");
+                                                                        JSONArray test = new JSONArray(list.toString());
+                                                                            for (int j = 0; j < test.length(); j++) {
+                                                                                JSONObject oneorder = test.getJSONObject(j);
+                                                                                Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                                                String oldRef = oneorder.getString("order_ref");
+                                                                                if (status > oldStatus && oldRef.equals(ref)) {
+                                                                                    list.remove(j);
+                                                                                    list.add(newobj);
+                                                                                } else if (status == -1 && oldRef.equals(ref)) {
+                                                                                    list.remove(j);
+                                                                                    list.add(newobj);
+                                                                                } else if (status == 3 && oldRef.equals(ref)) {
+                                                                                    list.remove(j);
+                                                                                    list.add(newobj);
+                                                                                }
+                                                                            }
+                                                                    } else {
+                                                                        list.add(newobj);
                                                                     }
-                                                                }else{
-                                                                    orders.put(newobj);
                                                                 }
                                                             }
+                                                            orders = new JSONArray(list.toString());
                                                             if(orders.length() == 0){
                                                                 total.setText("Aucune commande");
                                                             }else{
@@ -528,7 +599,8 @@ public class Orders extends AppCompatActivity {
                                             }
                                         };
 
-                                        Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                                        //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                                        ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
                                     }else{
                                         selectedStatus = "";
                                         System.out.println("selected by terminal "+terminalIMEI);
@@ -536,13 +608,13 @@ public class Orders extends AppCompatActivity {
                                          * get orders informations by terminal
                                          */
                                         JsonObjectRequest orderRequest = new JsonObjectRequest
-                                                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalIMEI, null, new Response.Listener<JSONObject>() {
+                                                (Request.Method.GET, Globales.baseUrl + "api/order/get/by/macadd/"+terminalIMEI, null, new Response.Listener<JSONObject>() {
+                                                    @TargetApi(Build.VERSION_CODES.KITKAT)
                                                     @Override
                                                     public void onResponse(JSONObject response) {
 
                                                         try {
-                                                            orders = new JSONArray();
-
+                                                            ArrayList<JSONObject> list = new ArrayList<>();
                                                             JSONArray values = response.getJSONArray("data");
                                                             Log.i("ORDER_INFO", values.toString());
 
@@ -554,33 +626,34 @@ public class Orders extends AppCompatActivity {
                                                                 newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                                                 newobj.put("terminal", obj.getString("macadress"));
                                                                 newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                                newobj.put("entity_id", obj.getString("entity_id"));
 
-                                                                if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                                                if (list.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
                                                                     Integer status = Integer.parseInt(obj.getString("order_status"));
                                                                     String  ref = obj.getString("order_ref");
-                                                                    for(int j=0; j<orders.length(); j++){
-                                                                        JSONObject oneorder = orders.getJSONObject(j);
+
+                                                                    JSONArray test = new JSONArray(list.toString());
+                                                                    for(int j=0; j<test.length(); j++){
+                                                                        JSONObject oneorder = test.getJSONObject(j);
                                                                         Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
                                                                         String oldRef = oneorder.getString("order_ref");
                                                                         if(status > oldStatus && oldRef.equals(ref)){
-                                                                            orders.remove(j);
-                                                                            orders.put(newobj);
-                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                            list.remove(j);
+                                                                            list.add(newobj);
                                                                         }else if(status == -1 && oldRef.equals(ref)){
-                                                                            orders.remove(j);
-                                                                            orders.put(newobj);
-                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                            list.remove(j);
+                                                                            list.add(newobj);
                                                                         }else if(status == 3 && oldRef.equals(ref)){
-                                                                            orders.remove(j);
-                                                                            orders.put(newobj);
-                                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                                            list.remove(j);
+                                                                            list.add(newobj);
                                                                         }
                                                                     }
                                                                 }else{
-                                                                    orders.put(newobj);
+                                                                    list.add(newobj);
                                                                 }
 
                                                             }
+                                                            orders = new JSONArray(list.toString());
                                                             if(orders.length() == 0){
                                                                 total.setText("Aucune commande");
                                                             }else{
@@ -611,7 +684,8 @@ public class Orders extends AppCompatActivity {
                                             }
                                         };
 
-                                        Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                                        //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                                        ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
                                     }
                                 }
                             } catch (JSONException e) {
@@ -635,6 +709,7 @@ public class Orders extends AppCompatActivity {
     }
     private void byStatus(){
 
+        System.out.println("restId cliked "+restId);
         List<String> list = new ArrayList<String>();
 
         list.add(0, "Par status");
@@ -667,13 +742,14 @@ public class Orders extends AppCompatActivity {
                          * get orders informations by terminal
                          */
                         JsonObjectRequest orderRequest = new JsonObjectRequest
-                                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalIMEI, null, new Response.Listener<JSONObject>() {
+                                (Request.Method.GET, Globales.baseUrl + "api/order/get/by/macadd/"+terminalIMEI, null, new Response.Listener<JSONObject>() {
                                     @TargetApi(Build.VERSION_CODES.KITKAT)
                                     @Override
                                     public void onResponse(JSONObject response) {
 
                                         try {
-                                            orders = new JSONArray();
+                                            ArrayList<JSONObject> list = new ArrayList<>();
+//                                orders = new JSONArray();
                                             JSONArray values = response.getJSONArray("data");
                                             Log.i("ORDER_INFO", values.toString());
 
@@ -685,33 +761,36 @@ public class Orders extends AppCompatActivity {
                                                 newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                                 newobj.put("terminal", obj.getString("macadress"));
                                                 newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                newobj.put("entity_id", obj.getString("entity_id"));
 
-                                                if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
-                                                    Integer status = Integer.parseInt(obj.getString("order_status"));
-                                                    String  ref = obj.getString("order_ref");
-                                                    for(int j=0; j<orders.length(); j++){
-                                                        JSONObject oneorder = orders.getJSONObject(j);
-                                                        Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
-                                                        String oldRef = oneorder.getString("order_ref");
-                                                        if(status > oldStatus && oldRef.equals(ref)){
-                                                            orders.remove(j);
-                                                            orders.put(newobj);
-                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                        }else if(status == -1 && oldRef.equals(ref)){
-                                                            orders.remove(j);
-                                                            orders.put(newobj);
-                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                        }else if(status == 3 && oldRef.equals(ref)){
-                                                            orders.remove(j);
-                                                            orders.put(newobj);
-                                                            System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                        }
+                                                if(obj.getString("entity_id").equals(restId)) {
+                                                    if (list.toString().contains("\"order_ref\":\"" + obj.getString("order_ref") + "\"")) {
+                                                        Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                        String ref = obj.getString("order_ref");
+
+                                                        JSONArray test = new JSONArray(list.toString());
+                                                            for (int j = 0; j < test.length(); j++) {
+                                                                JSONObject oneorder = test.getJSONObject(j);
+                                                                Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                                String oldRef = oneorder.getString("order_ref");
+                                                                if (status > oldStatus && oldRef.equals(ref)) {
+                                                                    list.remove(j);
+                                                                    list.add(newobj);
+                                                                } else if (status == -1 && oldRef.equals(ref)) {
+                                                                    list.remove(j);
+                                                                    list.add(newobj);
+                                                                } else if (status == 3 && oldRef.equals(ref)) {
+                                                                    list.remove(j);
+                                                                    list.add(newobj);
+                                                                }
+                                                            }
+                                                    } else {
+                                                        list.add(newobj);
                                                     }
-                                                }else{
-                                                    orders.put(newobj);
                                                 }
 
                                             }
+                                            orders = new JSONArray(list.toString());
                                             if(orders.length() == 0){
                                                 total.setText("Aucune commande");
                                             }else{
@@ -742,7 +821,8 @@ public class Orders extends AppCompatActivity {
                             }
                         };
 
-                        Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                        //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                        ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
                     }else {
                         System.out.println("checkOrders status spinner " + selectedStatus + " " + terminalIMEI);
                         checkOrders();
@@ -777,7 +857,8 @@ public class Orders extends AppCompatActivity {
                                         public void onResponse(JSONObject response) {
 
                                             try {
-                                                orders = new JSONArray();
+                                                ArrayList<JSONObject> list = new ArrayList<>();
+//                                orders = new JSONArray();
                                                 JSONArray values = response.getJSONArray("data");
                                                 Log.i("ORDER_INFO", values.toString());
 
@@ -789,33 +870,37 @@ public class Orders extends AppCompatActivity {
                                                     newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                                     newobj.put("terminal", obj.getString("macadress"));
                                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                    newobj.put("entity_id", obj.getString("entity_id"));
 
-                                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
-                                                        Integer status = Integer.parseInt(obj.getString("order_status"));
-                                                        String  ref = obj.getString("order_ref");
-                                                        for(int j=0; j<orders.length(); j++){
-                                                            JSONObject oneorder = orders.getJSONObject(j);
-                                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
-                                                            String oldRef = oneorder.getString("order_ref");
-                                                            if(status > oldStatus && oldRef.equals(ref)){
-                                                                orders.remove(j);
-                                                                orders.put(newobj);
-                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                            }else if(status == -1 && oldRef.equals(ref)){
-                                                                orders.remove(j);
-                                                                orders.put(newobj);
-                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                            }else if(status == 3 && oldRef.equals(ref)){
-                                                                orders.remove(j);
-                                                                orders.put(newobj);
-                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                            }
+                                                    if(obj.getString("entity_id").equals(restId)) {
+                                                        if (list.toString().contains("\"order_ref\":\"" + obj.getString("order_ref") + "\"")) {
+                                                            Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                            String ref = obj.getString("order_ref");
+
+                                                            JSONArray test = new JSONArray(list.toString());
+                                                                for (int j = 0; j < test.length(); j++) {
+                                                                    JSONObject oneorder = test.getJSONObject(j);
+                                                                    Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                                    String oldRef = oneorder.getString("order_ref");
+                                                                    if (status > oldStatus && oldRef.equals(ref)) {
+                                                                        list.remove(j);
+                                                                        list.add(newobj);
+                                                                    } else if (status == -1 && oldRef.equals(ref)) {
+                                                                        list.remove(j);
+                                                                        list.add(newobj);
+                                                                    } else if (status == 3 && oldRef.equals(ref)) {
+                                                                        list.remove(j);
+                                                                        list.add(newobj);
+                                                                    }
+                                                                }
+
+                                                        } else {
+                                                            list.add(newobj);
                                                         }
-                                                    }else{
-                                                        orders.put(newobj);
                                                     }
 
                                                 }
+                                                orders = new JSONArray(list.toString());
                                                 if(orders.length() == 0){
                                                     total.setText("Aucune commande");
                                                 }else{
@@ -846,7 +931,8 @@ public class Orders extends AppCompatActivity {
                                 }
                             };
 
-                            Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                            //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                            ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
                         }else{
                             terminalIMEI = "";
                             System.out.println("selected by status "+selectedStatus);
@@ -854,13 +940,14 @@ public class Orders extends AppCompatActivity {
                              * get orders informations by status
                              */
                             JsonObjectRequest orderRequest = new JsonObjectRequest
-                                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/status/"+selectedStatus, null, new Response.Listener<JSONObject>() {
+                                    (Request.Method.GET, Globales.baseUrl + "api/order/get/by/status/"+selectedStatus, null, new Response.Listener<JSONObject>() {
                                         @TargetApi(Build.VERSION_CODES.KITKAT)
                                         @Override
                                         public void onResponse(JSONObject response) {
 
                                             try {
-                                                orders = new JSONArray();
+                                                ArrayList<JSONObject> list = new ArrayList<>();
+//                                orders = new JSONArray();
                                                 JSONArray values = response.getJSONArray("data");
                                                 Log.i("ORDER_INFO", values.toString());
 
@@ -872,32 +959,39 @@ public class Orders extends AppCompatActivity {
                                                     newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                                     newobj.put("terminal", obj.getString("macadress"));
                                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                                    newobj.put("entity_id", obj.getString("entity_id"));
 
-                                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
-                                                        Integer status = Integer.parseInt(obj.getString("order_status"));
-                                                        String  ref = obj.getString("order_ref");
-                                                        for(int j=0; j<orders.length(); j++){
-                                                            JSONObject oneorder = orders.getJSONObject(j);
-                                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
-                                                            String oldRef = oneorder.getString("order_ref");
-                                                            if(status > oldStatus && oldRef.equals(ref)){
-                                                                orders.remove(j);
-                                                                orders.put(newobj);
-                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                            }else if(status == -1 && oldRef.equals(ref)){
-                                                                orders.remove(j);
-                                                                orders.put(newobj);
-                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                                            }else if(status == 3 && oldRef.equals(ref)){
-                                                                orders.remove(j);
-                                                                orders.put(newobj);
-                                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                    if(obj.getString("entity_id").equals(restId)) {
+                                                        if (list.toString().contains("\"order_ref\":\"" + obj.getString("order_ref") + "\"")) {
+                                                            Integer status = Integer.parseInt(obj.getString("order_status"));
+                                                            String ref = obj.getString("order_ref");
+
+                                                            JSONArray test = new JSONArray(list.toString());
+
+                                                            System.out.println("selected entity_id " + obj.getString("entity_id") + " rest id " + restId);
+
+                                                            for (int j = 0; j < test.length(); j++) {
+                                                                JSONObject oneorder = test.getJSONObject(j);
+                                                                Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                                String oldRef = oneorder.getString("order_ref");
+                                                                if (status > oldStatus && oldRef.equals(ref)) {
+                                                                    list.remove(j);
+                                                                    list.add(newobj);
+                                                                } else if (status == -1 && oldRef.equals(ref)) {
+                                                                    list.remove(j);
+                                                                    list.add(newobj);
+                                                                } else if (status == 3 && oldRef.equals(ref)) {
+                                                                    list.remove(j);
+                                                                    list.add(newobj);
+                                                                }
                                                             }
+
+                                                        } else {
+                                                            list.add(newobj);
                                                         }
-                                                    }else{
-                                                        orders.put(newobj);
                                                     }
                                                 }
+                                                orders = new JSONArray(list.toString());
                                                 if(orders.length() == 0){
                                                     total.setText("Aucune commande");
                                                 }else{
@@ -928,7 +1022,8 @@ public class Orders extends AppCompatActivity {
                                 }
                             };
 
-                            Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                            //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+                            ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
                         }
                     }
 
@@ -953,18 +1048,20 @@ public class Orders extends AppCompatActivity {
              * get all orders by entity
              */
             JsonObjectRequest orderRequest = new JsonObjectRequest
-                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
+                    (Request.Method.GET, Globales.baseUrl + "api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
                         @TargetApi(Build.VERSION_CODES.KITKAT)
                         @Override
                         public void onResponse(JSONObject response) {
 
                             try {
-                                orders = new JSONArray();
+                                ArrayList<JSONObject> list = new ArrayList<>();
                                 JSONArray values = response.getJSONArray("data");
                                 Log.i("ORDER_INFO", values.toString());
                                 editor = pref.edit();
                                 editor.putString("clickedchannel", restId);
+                                editor.commit();
                                 editor.apply();
+                                System.out.println("rest id saved of order "+restId);
                                 for(int i=0; i<values.length();i++){
                                     JSONObject obj = values.getJSONObject(i);
                                     JSONObject newobj = new JSONObject();
@@ -973,35 +1070,38 @@ public class Orders extends AppCompatActivity {
                                     newobj.put("order_status", obj.getString("order_status"));
                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
                                     newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                    newobj.put("entity_id", obj.getString("entity_id"));
 
-                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
-                                        Integer status = Integer.parseInt(obj.getString("order_status"));
-                                        String  ref = obj.getString("order_ref");
-                                        for(int j=0; j<orders.length(); j++){
-                                            JSONObject oneorder = orders.getJSONObject(j);
-                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
-                                            String oldRef = oneorder.getString("order_ref");
-                                            if(status > oldStatus && oldRef.equals(ref)){
-                                                orders.remove(j);
-                                                orders.put(newobj);
-                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                            }else if(status == -1 && oldRef.equals(ref)){
-                                                orders.remove(j);
-                                                orders.put(newobj);
-                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                            }else if(status == 3 && oldRef.equals(ref)){
-                                                orders.remove(j);
-                                                orders.put(newobj);
-                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                            }
+                                    if(obj.getString("entity_id").equals(restId)) {
+                                        if (list.toString().contains("\"order_ref\":\"" + obj.getString("order_ref") + "\"")) {
+                                            Integer status = Integer.parseInt(obj.getString("order_status"));
+                                            String ref = obj.getString("order_ref");
+
+                                            JSONArray test = new JSONArray(list.toString());
+                                                for (int j = 0; j < test.length(); j++) {
+                                                    JSONObject oneorder = test.getJSONObject(j);
+                                                    Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                    String oldRef = oneorder.getString("order_ref");
+                                                    if (status > oldStatus && oldRef.equals(ref)) {
+                                                        list.remove(j);
+                                                        list.add(newobj);
+                                                    } else if (status == -1 && oldRef.equals(ref)) {
+                                                        list.remove(j);
+                                                        list.add(newobj);
+                                                    } else if (status == 3 && oldRef.equals(ref)) {
+                                                        list.remove(j);
+                                                        list.add(newobj);
+                                                    }
+                                                }
+                                        } else {
+                                            //orders.put(newobj);
+                                            list.add(newobj);
                                         }
-                                    }else{
-                                        orders.put(newobj);
                                     }
 
                                 }
-
-                                System.out.println("orders "+orders.toString());
+                                orders = new JSONArray(list.toString());
+                                System.out.println("orders list "+orders);
                                 if(orders.length() == 0){
                                     total.setText("Aucune commande");
                                 }else{
@@ -1034,7 +1134,8 @@ public class Orders extends AppCompatActivity {
                 }
             };
 
-            Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+            //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+            ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
         }
     }
     public class SortByDate implements Comparator<JSONObject> {
@@ -1217,14 +1318,20 @@ public class Orders extends AppCompatActivity {
          * get all orders by entity
          */
         JsonObjectRequest orderRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, Globales.baseUrl + "api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
                     @TargetApi(Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(JSONObject response) {
-                        orders = new JSONArray();
+                        ArrayList<JSONObject> list = new ArrayList<>();
+//                                orders = new JSONArray();
                         try {
                             JSONArray values = response.getJSONArray("data");
                             Log.i("ORDER_INFO", values.toString());
+                            editor = pref.edit();
+                            editor.putString("clickedchannel", restId);
+                            editor.commit();
+                            editor.apply();
+                            System.out.println("rest id saved of order 2 " + restId);
                             for(int i=0; i<values.length();i++){
                                     JSONObject obj = values.getJSONObject(i);
 
@@ -1249,34 +1356,34 @@ public class Orders extends AppCompatActivity {
                                         newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                         newobj.put("terminal", obj.getString("macadress"));
                                         newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                        newobj.put("entity_id", obj.getString("entity_id"));
 
-                                        if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
+                                        if (list.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
                                             Integer status = Integer.parseInt(obj.getString("order_status"));
                                             String  ref = obj.getString("order_ref");
-                                            for(int j=0; j<orders.length(); j++){
-                                                JSONObject oneorder = orders.getJSONObject(j);
+                                            JSONArray test = new JSONArray(list.toString());
+                                            for(int j=0; j<test.length(); j++){
+                                                JSONObject oneorder = test.getJSONObject(j);
                                                 Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
                                                 String oldRef = oneorder.getString("order_ref");
                                                 if(status > oldStatus && oldRef.equals(ref)){
-                                                    orders.remove(j);
-                                                    orders.put(newobj);
-                                                    System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                    list.remove(j);
+                                                    list.add(newobj);
                                                 }else if(status == -1 && oldRef.equals(ref)){
-                                                    orders.remove(j);
-                                                    orders.put(newobj);
-                                                    System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                    list.remove(j);
+                                                    list.add(newobj);
                                                 }else if(status == 3 && oldRef.equals(ref)){
-                                                    orders.remove(j);
-                                                    orders.put(newobj);
-                                                    System.out.println("status orders " + oldRef + " "+ref+" "+ status);
+                                                    list.remove(j);
+                                                    list.add(newobj);
                                                 }
                                             }
                                         }else{
-                                            orders.put(newobj);
+                                            list.add(newobj);
                                         }
 
                                     }
                             }
+                            orders = new JSONArray(list.toString());
                             if(orders.length() == 0){
                                 total.setText("Aucune commande");
                             }else{
@@ -1311,7 +1418,31 @@ public class Orders extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+        ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
+    }
+    @Override
+    public void onResume() {
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
+        super.onPause();
     }
     private void getOrdersbyDate(){
         final String date1 = vDateOne.getText().toString();
@@ -1319,13 +1450,19 @@ public class Orders extends AppCompatActivity {
          * get all orders by entity
          */
         JsonObjectRequest orderRequest = new JsonObjectRequest
-                (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
+                (Request.Method.GET, Globales.baseUrl + "api/order/get/by/entity/"+restId, null, new Response.Listener<JSONObject>() {
                     @TargetApi(Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(JSONObject response) {
-                        orders = new JSONArray();
+                        ArrayList<JSONObject> list = new ArrayList<>();
+//                                orders = new JSONArray();
                         try {
                             JSONArray values = response.getJSONArray("data");
+                            editor = pref.edit();
+                            editor.putString("clickedchannel", restId);
+                            editor.commit();
+                            editor.apply();
+                            System.out.println("rest id saved of order 3 " + restId);
                             for(int i=0; i<values.length();i++){
                                 JSONObject obj = values.getJSONObject(i);
                                 JSONObject newobj = new JSONObject();
@@ -1347,34 +1484,36 @@ public class Orders extends AppCompatActivity {
                                     newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
                                     newobj.put("terminal", obj.getString("macadress"));
                                     newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
+                                    newobj.put("entity_id", obj.getString("entity_id"));
 
-                                    if (orders.toString().contains("\"order_ref\":\""+obj.getString("order_ref")+"\"")){
-                                        Integer status = Integer.parseInt(obj.getString("order_status"));
-                                        String  ref = obj.getString("order_ref");
-                                        for(int j=0; j<orders.length(); j++){
-                                            JSONObject oneorder = orders.getJSONObject(j);
-                                            Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
-                                            String oldRef = oneorder.getString("order_ref");
-                                            if(status > oldStatus && oldRef.equals(ref)){
-                                                orders.remove(j);
-                                                orders.put(newobj);
-                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                            }else if(status == -1 && oldRef.equals(ref)){
-                                                orders.remove(j);
-                                                orders.put(newobj);
-                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                            }else if(status == 3 && oldRef.equals(ref)){
-                                                orders.remove(j);
-                                                orders.put(newobj);
-                                                System.out.println("status orders " + oldRef + " "+ref+" "+ status);
-                                            }
+                                    if(obj.getString("entity_id").equals(restId)) {
+                                        if (list.toString().contains("\"order_ref\":\"" + obj.getString("order_ref") + "\"")) {
+                                            Integer status = Integer.parseInt(obj.getString("order_status"));
+                                            String ref = obj.getString("order_ref");
+                                            JSONArray test = new JSONArray(list.toString());
+                                                for (int j = 0; j < test.length(); j++) {
+                                                    JSONObject oneorder = test.getJSONObject(j);
+                                                    Integer oldStatus = Integer.parseInt(oneorder.getString("order_status"));
+                                                    String oldRef = oneorder.getString("order_ref");
+                                                    if (status > oldStatus && oldRef.equals(ref)) {
+                                                        list.remove(j);
+                                                        list.add(newobj);
+                                                    } else if (status == -1 && oldRef.equals(ref)) {
+                                                        list.remove(j);
+                                                        list.add(newobj);
+                                                    } else if (status == 3 && oldRef.equals(ref)) {
+                                                        list.remove(j);
+                                                        list.add(newobj);
+                                                    }
+                                                }
+                                        } else {
+                                            list.add(newobj);
                                         }
-                                    }else{
-                                        orders.put(newobj);
                                     }
 
                                 }
                             }
+                            orders = new JSONArray(list.toString());
                             if(orders.length() == 0){
                                 total.setText("Aucune commande");
                             }else{
@@ -1409,6 +1548,7 @@ public class Orders extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(orderRequest);
+        ApplicationController.getInstance().addToRequestQueue(orderRequest, "orderRequest");
     }
 }

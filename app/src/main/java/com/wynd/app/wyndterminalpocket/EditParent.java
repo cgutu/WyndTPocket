@@ -117,7 +117,7 @@ public class EditParent extends AppCompatActivity {
                             for(int i=0; i<values.length();i++){
                                 JSONObject parent = values.getJSONObject(i);
                                 if(parent.getString("id").equals(parentID)){
-                                    vName.setText(parent.getString("parent_name"));
+                                    vName.setText(parent.getString("parent_label"));
                                     vEmail.setText(parent.getString("parent_email"));
                                     vPhone.setText(parent.getString("parent_phone"));
                                     vAddress.setText(parent.getString("parent_address"));
@@ -147,7 +147,8 @@ public class EditParent extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(entityRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(entityRequest);
+        ApplicationController.getInstance().addToRequestQueue(entityRequest, "entityRequest");
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.wynd.app.wyndterminalpocket.Historique"
     tools:showIn="@layout/activity_historique">
@@ -18,7 +19,26 @@
             android:orientation="vertical"
             >
 
+            <LinearLayout
+                android:id="@+id/desc"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimary"
+                    android:textColor="@color/white"
+                    android:padding="10dp"
+                    android:text="@string/chartdesc"/>
+            </LinearLayout>
+
+
             <RelativeLayout
+                android:layout_below="@id/desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -31,12 +51,16 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:text="Date"
-                        android:background="@drawable/shape_button"
+                        android:paddingTop="20dp"
+                        android:paddingBottom="20dp"
+                        android:paddingStart="40dp"
+                        android:paddingEnd="40dp"
+                        android:background="@color/red"
                         android:textColor="@color/white"
-                        android:padding="10dp"
                         android:textStyle="bold"
                         android:id="@+id/date1"
                         />
@@ -44,6 +68,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Time"
+                        android:visibility="gone"
                         android:background="@drawable/circle_shape"
                         android:textStyle="bold"
                         android:textColor="@color/white"
@@ -75,11 +100,15 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:paddingTop="20dp"
+                        android:paddingBottom="20dp"
+                        android:paddingStart="40dp"
+                        android:paddingEnd="40dp"
                         android:text="Date"
-                        android:padding="10dp"
-                        android:background="@drawable/shape_button"
+                        android:background="@color/red"
                         android:textColor="@color/white"
                         android:textStyle="bold"
                         android:id="@+id/date2"
@@ -88,6 +117,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Time"
+                        android:visibility="gone"
                         android:background="@drawable/circle_shape"
                         android:textStyle="bold"
                         android:textColor="@color/white"
@@ -97,15 +127,42 @@
                         />
 
                 </LinearLayout>
-
             </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/layoutChart"
+            <Button
+                android:layout_marginTop="20dp"
+                android:id="@+id/fab"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:paddingStart="50dp"
+                android:paddingEnd="50dp"
+                android:layout_below="@+id/period"
+                android:layout_centerHorizontal="true"
+                style="?android:textAppearanceSmall"
                 android:layout_width="wrap_content"
-                android:layout_below="@id/period"
-                android:layout_height="wrap_content">
-            </RelativeLayout>
+                android:layout_height="wrap_content"
+                android:text="Afficher"
+                android:background="@drawable/shape_button"
+                android:textColor="@android:color/white"
+                android:textStyle="bold" />
+            <LinearLayout
+                android:id="@+id/layoutChart"
+                android:layout_marginTop="20dp"
+                android:gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_below="@id/fab"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/error"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:text="Date invalide "
+                    android:layout_height="wrap_content"
+                    />
+            </LinearLayout>
 
         </RelativeLayout>
     </ScrollView>

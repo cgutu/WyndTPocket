@@ -135,7 +135,9 @@ public class EditMyProfil extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(userRequest);
+        ApplicationController.getInstance().addToRequestQueue(userRequest, "userRequest");
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

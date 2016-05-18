@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_height="wrap_content"
+    android:layout_width="match_parent" android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_gravity="bottom" >
+
+
+    <LinearLayout
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical" android:id="@+id/buttonlayout">
+
+        <Button android:id="@+id/btnSignInPopup"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:background="@drawable/blue_btn"
+            android:textColor="@drawable/txt_color"
+            android:paddingStart="50dp"
+            android:paddingEnd="50dp"
+            android:text=" Commencer" />
+
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_gravity="center">
+        <ImageView android:layout_height="10dp" android:layout_width="10dp"
+            android:id="@+id/btn1" android:src="@drawable/holo_circle" android:layout_gravity="center_vertical"/>
+        <ImageView android:layout_height="10dp" android:layout_width="10dp"
+            android:id="@+id/btn2" android:layout_toEndOf="@id/btn1"
+            android:src="@drawable/holo_circle" android:layout_margin="10dp"/>
+        <ImageView android:layout_height="10dp" android:layout_width="10dp"
+            android:id="@+id/btn3" android:layout_toEndOf="@id/btn2"
+            android:src="@drawable/holo_circle" android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+</LinearLayout>

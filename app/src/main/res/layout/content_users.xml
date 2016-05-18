@@ -9,20 +9,25 @@
     tools:showIn="@layout/activity_users">
 
     <LinearLayout
-        android:id="@+id/header"
+        android:id="@+id/desc"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <TextView
+            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/slideshow"/>
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
+            android:padding="10dp"
+            android:text="@string/usersdesc"/>
     </LinearLayout>
 
-
     <android.support.v7.widget.RecyclerView
+        android:layout_below="@id/desc"
         android:id="@+id/cardList"
-        android:layout_below="@id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />

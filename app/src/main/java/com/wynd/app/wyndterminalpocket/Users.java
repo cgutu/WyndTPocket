@@ -109,7 +109,8 @@ public class Users extends Fragment {
             }
         };
 
-        Volley.newRequestQueue(getContext()).add(restaurantRequest);
+        //Volley.newRequestQueue(getContext()).add(restaurantRequest);
+        ApplicationController.getInstance().addToRequestQueue(restaurantRequest, "restaurantRequest");
     }
 
     @Override

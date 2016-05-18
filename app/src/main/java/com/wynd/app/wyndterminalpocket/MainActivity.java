@@ -10,6 +10,9 @@ import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageView;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -34,6 +40,14 @@ public class MainActivity extends AppCompatActivity {
         /**
          * @main go to login after 5s
          */
+
+        ImageView mImageView = (ImageView)findViewById(R.id.bgmain);
+
+        int widthInDp = ConvertPixelsToDp(getResources().getDisplayMetrics().widthPixels);
+        int heightInDp =  ConvertPixelsToDp(getResources().getDisplayMetrics().heightPixels);
+        mImageView.setImageBitmap(
+                Globales.decodeSampledBitmapFromResource(getResources(), R.drawable.bg_main, widthInDp, heightInDp));
+
         new Handler().postDelayed(new Runnable() {
 
             @Override
@@ -71,13 +85,18 @@ public class MainActivity extends AppCompatActivity {
                     editor.clear();
                     editor.apply();
 
-                    Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                    Intent i = new Intent(MainActivity.this, SlideShow.class);
                     startActivity(i);
                     finish();
                 }
 
 
             }
-        }, 1000);
+        }, 3000);
+    }
+    private int ConvertPixelsToDp(float pixelValue)
+    {
+        int dp = (int) ((pixelValue)/getResources().getDisplayMetrics().density);
+        return dp;
     }
 }

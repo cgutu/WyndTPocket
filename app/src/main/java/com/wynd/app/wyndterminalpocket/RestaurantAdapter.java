@@ -9,11 +9,17 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +35,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +60,9 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
     public RestaurantAdapter(List<RestaurantInfo> restaurantList) {
         this.restaurantList = restaurantList;
     }
-    public RestaurantAdapter(Context appContext, List <RestaurantInfo> restaurantList, FragmentManager fmanager) {
+    public RestaurantAdapter(Context appContext, List <RestaurantInfo> restaurantList) {
         this.mContext = appContext;
         this.restaurantList = restaurantList;
-        this.FragManager = fmanager;
-
     }
     public RestaurantAdapter(Context appContext) {
         this.mContext = appContext;
@@ -78,6 +86,15 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         if(ri.status.equals("0")){
             restaurantViewHolder.vType.setVisibility(View.VISIBLE);
+        }
+        if(ri.phone.isEmpty()){
+            restaurantViewHolder.vPhone.setVisibility(View.GONE);
+        }
+        if(ri.address.isEmpty()){
+            restaurantViewHolder.vAddress.setVisibility(View.GONE);
+        }
+        if(ri.email.isEmpty()){
+            restaurantViewHolder.vEmail.setVisibility(View.GONE);
         }
 
         permission = ri.userPermission;
@@ -103,6 +120,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), Terminals.class);
+                System.out.println("terminal info "+ri.id+" "+ri.channel);
                 intent.putExtra("restId",ri.id);
                 intent.putExtra("channel", ri.channel);
                 v.getContext().startActivity(intent);
@@ -122,13 +140,33 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         restaurantViewHolder.vBtnOrders.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("channelID send"+ ri.id);
+                System.out.println("channelID send" + ri.id);
                 Intent intent = new Intent(v.getContext(), Orders.class);
                 intent.putExtra("restId", ri.id);
                 intent.putExtra("channel", ri.channel);
                 v.getContext().startActivity(intent);
             }
         });
+
+        new DownloadImageTask(restaurantViewHolder.vPicture)
+                .execute(ri.photo);
+
+        if(ri.email.isEmpty()){
+            restaurantViewHolder.lEmail.setVisibility(View.GONE);
+        }
+        if(ri.phone.isEmpty()){
+            restaurantViewHolder.lPhone.setVisibility(View.GONE);
+        }
+        System.out.println("adapter size "+ri.nbOrders + " terminals "+ri.nbTerminals);
+        Resources res = mContext.getResources();
+        String msgT = String.format(res.getString(R.string.terminals), ri.nbTerminals);
+        restaurantViewHolder.vBtnTerminals.setText(msgT);
+
+        String msgO = String.format(res.getString(R.string.orders), ri.nbOrders);
+        restaurantViewHolder.vBtnOrders.setText(msgO);
+
+        String msgU = String.format(res.getString(R.string.users), ri.nbUsers);
+        restaurantViewHolder.vBtnUsers.setText(msgU);
     }
 
     @Override
@@ -141,6 +179,30 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
 
         return restaurantViewHolder;
     }
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
+    }
 
     public static class RestaurantViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener{
         protected TextView vEmail;
@@ -150,12 +212,14 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
         protected Button vBtnUsers;
         protected Button vBtnOrders;
         protected Button vBtnTerminals;
-        protected RelativeLayout vHeader;
+        protected LinearLayout vHeader;
         protected LinearLayout vExpandable;
         protected CardView vCardView;
         protected ImageView vInfo;
         protected TextView vAddress, vType;
         private boolean isViewExpanded = false;
+        protected ImageView vPicture;
+        protected LinearLayout lEmail, lPhone;
 
         public RestaurantViewHolder(View v) {
             super(v);
@@ -168,17 +232,20 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Re
             vBtnOrders = (Button) v.findViewById(R.id.orders);
 
             vExpandable = (LinearLayout) v.findViewById(R.id.expandable);
-            vHeader = (RelativeLayout) v.findViewById(R.id.header);
+            vHeader = (LinearLayout) v.findViewById(R.id.header);
             vCardView = (CardView) v.findViewById(R.id.card_view);
 
             vInfo = (ImageView) v.findViewById(R.id.info);
             vAddress = (TextView) v.findViewById(R.id.txtAdd);
             vType = (TextView) v.findViewById(R.id.txtType);
 
-            vExpandable.setVisibility(View.GONE);
+           // vExpandable.setVisibility(View.GONE);
+            vPicture = (ImageView) v.findViewById(R.id.picture);
+            lEmail = (LinearLayout) v.findViewById(R.id.lEmail);
+            lPhone = (LinearLayout) v.findViewById(R.id.lPhone);
 
 
-            v.setOnClickListener(this);
+           // v.setOnClickListener(this);
 
         }
 

@@ -112,15 +112,19 @@ public class ProfilActivity extends AppCompatActivity {
 
                                                 try {
                                                     response = response.getJSONObject("data");
+                                                    String value ="";
                                                     if (!permissionID.isEmpty() && permissionID.equals("1")) {
                                                         permission = "USER";
+                                                        value = "utilisateur";
                                                     } else if (!permissionID.isEmpty() && permissionID.equals("2")) {
                                                         permission = "ADMIN";
+                                                        value = "administrateur";
                                                     } else if (!permissionID.isEmpty() && permissionID.equals("3")) {
                                                         permission = "SUPER_ADMIN";
+                                                        value = "super administrateur";
                                                     }
                                                     restaurant = response.isNull("name") ? "" : response.getString("name");
-                                                    listItems.add(permission + " <----------> " + restaurant);
+                                                    listItems.add("Il est " + value + " pour le point de vente "+restaurant);
                                                     addItem(listItems);
                                                 } catch (JSONException e) {
                                                     e.printStackTrace();
@@ -145,7 +149,8 @@ public class ProfilActivity extends AppCompatActivity {
                                     }
                                 };
 
-                                Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
+                                //Volley.newRequestQueue(getApplicationContext()).add(restaurantRequest);
+                                ApplicationController.getInstance().addToRequestQueue(restaurantRequest, "restaurantRequest");
                             }
 
 
@@ -183,7 +188,8 @@ public class ProfilActivity extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(userProfil);
+        //Volley.newRequestQueue(getApplicationContext()).add(userProfil);
+        ApplicationController.getInstance().addToRequestQueue(userProfil, "userProfil");
 
 
     }

@@ -2,14 +2,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context="com.wynd.app.wyndterminalpocket.HomeFragment">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
       >
         <LinearLayout
             android:id="@+id/header"
@@ -20,16 +23,17 @@
 
             <TextView
                 android:id="@+id/user"
+                android:layout_marginStart="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
                 android:text="Bonjour"/>
         </LinearLayout>
     <LinearLayout
         android:id="@+id/layout1"
         android:layout_below="@id/header"
         android:layout_marginTop="10dp"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
+        android:gravity="left"
         android:background="@drawable/category_shape"
         android:orientation="horizontal"
         android:layout_height="wrap_content">
@@ -41,20 +45,21 @@
             android:contentDescription="@string/desc_logo"/>
 
         <TextView
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:textColor="@android:color/white"
-            android:layout_marginLeft="20dp"
-            android:gravity="right"
             android:text="Restaurants"/>
     </LinearLayout>
         <LinearLayout
             android:id="@+id/layout2"
             android:layout_below="@id/layout1"
-            android:layout_width="match_parent"
+            android:layout_width="300dp"
             android:background="@drawable/category_shape"
             android:orientation="horizontal"
             android:visibility="gone"
+            android:gravity="left"
             android:layout_height="wrap_content">
 
             <ImageView
@@ -64,17 +69,18 @@
                 android:contentDescription="@string/desc_logo"/>
 
             <TextView
+                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
                 android:textColor="@android:color/white"
-                android:gravity="right"
+                android:layout_marginStart="10dp"
                 android:text="Utilisateurs"/>
         </LinearLayout>
     <LinearLayout
         android:id="@+id/layout3"
+        android:gravity="left"
         android:layout_below="@id/layout2"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:visibility="gone"
         android:background="@drawable/category_shape"
         android:orientation="horizontal"
@@ -87,18 +93,19 @@
             android:contentDescription="@string/desc_logo"/>
 
         <TextView
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:layout_marginLeft="20dp"
-            android:gravity="right"
+            android:layout_marginStart="10dp"
             android:text="Terminaux"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout4"
         android:visibility="gone"
         android:layout_below="@id/layout3"
-        android:layout_width="match_parent"
+        android:gravity="left"
+        android:layout_width="300dp"
         android:background="@drawable/category_shape"
         android:orientation="horizontal"
         android:layout_height="wrap_content">
@@ -110,18 +117,19 @@
             android:contentDescription="@string/desc_logo"/>
 
         <TextView
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:textColor="@android:color/white"
-            android:layout_marginLeft="20dp"
-            android:gravity="right"
             android:text="Historique status"/>
     </LinearLayout>
     <LinearLayout
         android:id="@+id/layout5"
         android:layout_below="@id/layout4"
-        android:layout_width="match_parent"
+        android:layout_width="300dp"
         android:visibility="gone"
+        android:gravity="left"
         android:background="@drawable/category_shape"
         android:orientation="horizontal"
         android:layout_height="wrap_content">
@@ -133,13 +141,16 @@
             android:contentDescription="@string/desc_logo"/>
 
         <TextView
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
             android:textColor="@android:color/white"
-            android:gravity="right"
             android:text="Parents"/>
     </LinearLayout>
-</RelativeLayout>
+
+
+
+</LinearLayout>
     </ScrollView>
 </FrameLayout>

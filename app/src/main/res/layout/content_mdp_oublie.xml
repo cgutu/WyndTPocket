@@ -9,7 +9,6 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:focusableInTouchMode="true"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.wynd.app.wyndterminalpocket.MdpOublie"
     tools:showIn="@layout/activity_mdp_oublie">
 
@@ -24,30 +23,58 @@
 
     <LinearLayout
         android:id="@+id/form"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        >
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true">
+        <TextView
+            android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Veuillez nous indiquer votre adresse email"
+       />
 
-        <android.support.design.widget.TextInputLayout
+        <EditText
+            android:layout_marginTop="20dp"
+            android:id="@+id/email"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:hint="@string/prompt_email"
+            android:imeActionId="@+id/email"
+            android:imeActionLabel="@string/action_sign_in_short"
+            android:imeOptions="actionUnspecified"
+            android:inputType="textEmailAddress" />
+        <TextView
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="et votre restaurant"
+            />
+        <EditText
+            android:layout_marginTop="20dp"
+            android:id="@+id/entity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Restaurant"
+            android:imeActionId="@+id/txtChannel"
+            android:imeActionLabel="@string/action_sign_in_short"
+            android:imeOptions="actionUnspecified"
+            android:inputType="text" />
 
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Email"
-                android:imeActionId="@+id/email"
-                android:imeActionLabel="@string/action_sign_in_short"
-                android:imeOptions="actionUnspecified"
-                android:inputType="textEmailAddress"
-                android:maxLines="1"
-                android:singleLine="true" />
+        <Button
+            android:layout_marginTop="20dp"
+            android:id="@+id/fab"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Envoyer"
+            android:background="@drawable/blue_btn"
+            android:textColor="@drawable/txt_color"
+            android:textStyle="bold" />
 
-        </android.support.design.widget.TextInputLayout>
+
     </LinearLayout>
+
 
 
 </RelativeLayout>

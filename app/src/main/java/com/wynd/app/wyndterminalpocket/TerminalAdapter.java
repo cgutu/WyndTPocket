@@ -10,6 +10,7 @@ import android.animation.ValueAnimator;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -100,6 +101,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
                 intent.putExtra("terminalID", ti.id);
                 intent.putExtra("terminalUuid", ti.uuid);
                 intent.putExtra("channelID", ti.channel_id);
+                intent.putExtra("terminalChannel", ti.channel);
                 intent.putExtra("phone", ti.phone);
                 v.getContext().startActivity(intent);
             }
@@ -112,76 +114,6 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
                 intent.putExtra("terminalUuid", ti.uuid);
                 intent.putExtra("channelID", ti.channel_id);
                 v.getContext().startActivity(intent);
-            }
-        });
-
-        terminalViewHolder.vExpandable.setVisibility(View.GONE);
-
-        terminalViewHolder.vCardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (terminalViewHolder.vExpandable.getVisibility() == View.GONE) {
-                    terminalViewHolder.vExpandable.setVisibility(View.VISIBLE);
-
-                    final int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                    final int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                    terminalViewHolder.vExpandable.measure(widthSpec, heightSpec);
-
-
-                    ValueAnimator animator = ValueAnimator.ofInt(0, terminalViewHolder.vExpandable.getMeasuredHeight());
-
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            //Update Height
-                            int value = (Integer) valueAnimator.getAnimatedValue();
-                            ViewGroup.LayoutParams layoutParams = terminalViewHolder.vExpandable.getLayoutParams();
-                            layoutParams.height = value;
-                            terminalViewHolder.vExpandable.setLayoutParams(layoutParams);
-                        }
-                    });
-                    animator.start();
-                } else {
-                    int finalHeight = terminalViewHolder.vExpandable.getHeight();
-
-
-                    ValueAnimator animator = ValueAnimator.ofInt(finalHeight, 0);
-
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            //Update Height
-                            int value = (Integer) valueAnimator.getAnimatedValue();
-                            ViewGroup.LayoutParams layoutParams = terminalViewHolder.vExpandable.getLayoutParams();
-                            layoutParams.height = value;
-                            terminalViewHolder.vExpandable.setLayoutParams(layoutParams);
-                        }
-                    });
-
-                    animator.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            //Height=0, but it set visibility to GONE
-                            terminalViewHolder.vExpandable.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-
-                        }
-                    });
-                    animator.start();
-                }
             }
         });
 
@@ -206,9 +138,9 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             terminalViewHolder.lBattery.setVisibility(View.VISIBLE);
             terminalViewHolder.vBattery.setText(ti.battery_status);
         }
-
-
-
+//        if(!ti.userPermission.equals("3")){
+//            terminalViewHolder.vLExpandable.setVisibility(View.GONE);
+//        }
     }
 
     @Override
@@ -237,6 +169,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
         protected TextView vApk;
         protected Button vLocalise;
         protected LinearLayout vExpandable;
+        protected LinearLayout vLExpandable;
         protected CardView vCardView;
         protected LinearLayout lApk, lEmail, lPhone, lUser;
         protected Button vHistory;
@@ -260,6 +193,7 @@ public class TerminalAdapter extends RecyclerView.Adapter<TerminalAdapter.Termin
             vApk = (TextView) v.findViewById(R.id.txtApk);
             vLocalise = (Button) v.findViewById(R.id.btnLocaliser);
             vExpandable = (LinearLayout) v.findViewById(R.id.expandable);
+            vLExpandable = (LinearLayout) v.findViewById(R.id.lexpandables);
             vCardView = (CardView) v.findViewById(R.id.card_view);
             lApk = (LinearLayout) v.findViewById(R.id.lApk);
             lEmail = (LinearLayout) v.findViewById(R.id.lEmail);

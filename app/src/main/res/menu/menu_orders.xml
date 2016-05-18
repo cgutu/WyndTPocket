@@ -6,6 +6,7 @@
     <item android:id="@+id/search"
         android:icon="@drawable/ic_search_white"
         android:title="Settings"
+        android:visible="false"
         android:orderInCategory="100"
         app:showAsAction="always" />
 

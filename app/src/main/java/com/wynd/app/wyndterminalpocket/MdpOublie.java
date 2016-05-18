@@ -23,9 +23,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class MdpOublie extends AppCompatActivity {
 
-    private EditText vEmail;
+    private EditText vEmail, vEntity;
     private Button btn;
-    private String email;
+    private String email, entity;
     private View mProgressView;
     private View mFormView;
 
@@ -39,7 +39,7 @@ public class MdpOublie extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
                 MdpOublie.class));
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        Button fab = (Button) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,15 +52,18 @@ public class MdpOublie extends AppCompatActivity {
         mProgressView = findViewById(R.id.login_progress);
 
         vEmail = (EditText) findViewById(R.id.email);
+        vEntity = (EditText) findViewById(R.id.entity);
 
     }
     private void checkForm() {
 
         // Reset errors.
         vEmail.setError(null);
+        vEntity.setError(null);
 
         // Store values at the time of the login attempt.
         email = vEmail.getText().toString();
+        entity = vEntity.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -71,11 +74,16 @@ public class MdpOublie extends AppCompatActivity {
             focusView = vEmail;
             cancel = true;
         }
+        if (TextUtils.isEmpty(entity)) {
+            vEntity.setError(getString(R.string.error_field_required));
+            focusView = vEmail;
+            cancel = true;
+        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
-            focusView.requestFocus();
+           focusView.requestFocus();
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
@@ -90,10 +98,10 @@ public class MdpOublie extends AppCompatActivity {
     }
     public void sendEmail(){
         //send notification
-        System.out.println("email "+email);
+        System.out.println("email "+email + entity);
         Resources res = getResources();
 
-        String msgTemplate = String.format(res.getString(R.string.email_template), email);
+        String msgTemplate = String.format(res.getString(R.string.email_template), email, entity);
 
         try {
             GmailSender sender = new GmailSender("peestashgirls", "peestash2015");

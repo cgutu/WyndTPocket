@@ -2,6 +2,7 @@ package com.wynd.app.wyndterminalpocket;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +14,7 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -48,6 +50,16 @@ public class MenuActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
+
+//        Intent intent01 = new Intent(getApplicationContext(), MenuActivity.class);
+//        PendingIntent pendingIntent01 = PendingIntent.getActivity(getApplicationContext(), 1, intent01, 0);
+//        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+//        builder.setSmallIcon(R.drawable.picto_wynd);
+//        builder.setContentIntent(pendingIntent01);
+//        builder.setContentTitle("Commandes");
+//        builder.setContentText("Vous avez recu une nouvelle commande");
+//        notificationManager.notify(1, builder.build());
 
         Intent alarm = new Intent(getApplicationContext(), MyReceiver.class);
         boolean alarmRunning = (PendingIntent.getBroadcast(getApplicationContext(), 0, alarm, PendingIntent.FLAG_NO_CREATE) != null);
@@ -109,7 +121,8 @@ public class MenuActivity extends AppCompatActivity
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
+        //Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
+        ApplicationController.getInstance().addToRequestQueue(rolesRequest, "rolesRequest");
 
 
         /**
@@ -123,7 +136,7 @@ public class MenuActivity extends AppCompatActivity
             editor.putString("Check", "0");
             editor.apply();
 
-            displayView(R.id.nav_slideshow);
+            //displayView(R.id.nav_slideshow);
         }else if(!s1.isEmpty() && s1.equals("editmonprofil")){
             editor = pref.edit();
             editor.putString("Check", "0");
@@ -135,25 +148,25 @@ public class MenuActivity extends AppCompatActivity
             editor.putString("Check", "0");
             editor.apply();
 
-            displayView(R.id.nav_slideshow);
+            //displayView(R.id.nav_slideshow);
         }else if(!s1.isEmpty() && s1.equals("infouser")){
             editor = pref.edit();
             editor.putString("Check", "0");
             editor.apply();
 
-            displayView(R.id.nav_slideshow);
+           // displayView(R.id.nav_slideshow);
         }else if(!s1.isEmpty() && s1.equals("addentity")){
             editor = pref.edit();
             editor.putString("Check", "0");
             editor.apply();
 
-            displayView(R.id.nav_slideshow);
+            //displayView(R.id.nav_slideshow);
         }else if(!s1.isEmpty() && s1.equals("exitorders")){
             editor = pref.edit();
             editor.putString("Check", "0");
             editor.apply();
 
-            displayView(R.id.nav_slideshow);
+            //displayView(R.id.nav_slideshow);
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -168,7 +181,6 @@ public class MenuActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
     }
 
     @Override
@@ -224,6 +236,12 @@ public class MenuActivity extends AppCompatActivity
                                 Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(intent);
+                                finish();
+
+                                Intent background = new Intent(MenuActivity.this, BackgroundService.class);
+                                getApplicationContext().stopService(background);
+                                NotificationManager notificationManager = (NotificationManager) MenuActivity.this.getSystemService(Context.NOTIFICATION_SERVICE);
+                                notificationManager.cancelAll();
 
                             }
                         });
@@ -278,13 +296,6 @@ public class MenuActivity extends AppCompatActivity
                 title  = "Profil";
                 viewIsAtHome = false;
 
-                break;
-            case R.id.nav_slideshow:
-
-                fragment = new Restaurants();
-                title = "Restaurants";
-
-                viewIsAtHome = false;
                 break;
             default:
                 fragment = new HomeFragment();

@@ -157,7 +157,8 @@ public class AddUser extends AppCompatActivity{
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(parentRequest);
+       // Volley.newRequestQueue(getApplicationContext()).add(parentRequest);
+        ApplicationController.getInstance().addToRequestQueue(parentRequest, "parentRequest");
 
         selectEntityButton = (Button) findViewById(R.id.addrest);
         selectEntityButton.setOnClickListener(new View.OnClickListener() {
@@ -378,6 +379,7 @@ public class AddUser extends AppCompatActivity{
                 httpPost.setHeader("Api-Hash", Globales.API_HASH);
                 httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
 
+                System.out.println("add user posting " + nameValuePairs);
                 //getting the response
                 HttpResponse response = httpClient.execute(httpPost);
 
@@ -452,7 +454,7 @@ public class AddUser extends AppCompatActivity{
 
         try {
             GmailSender sender = new GmailSender("peestashgirls", "peestash2015");
-            sender.sendMail("Demande de nouveau compte",
+            sender.sendMail("Création de nouveau compte",
                     msgTemplate,
                     "peestashgirls@gmail.com",
                     email);
@@ -501,7 +503,7 @@ public class AddUser extends AppCompatActivity{
         list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("parent_name");
+                String name = jsonArray.getJSONObject(i).getString("parent_label");
                 if(!list.contains(name)){
                     list.add("" + name);
                 }
@@ -534,7 +536,7 @@ public class AddUser extends AppCompatActivity{
                 if (item != null) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         try {
-                            String name = jsonArray.getJSONObject(i).getString("parent_name");
+                            String name = jsonArray.getJSONObject(i).getString("parent_label");
                             if(item.equals(name)){
                                 final String selectedID = jsonArray.getJSONObject(i).getString("id");
 
@@ -578,7 +580,7 @@ public class AddUser extends AppCompatActivity{
                                     }
                                 };
 
-                                Volley.newRequestQueue(getApplicationContext()).add(entityRequest);
+                                ApplicationController.getInstance().addToRequestQueue(entityRequest, "entityRequest");
 
                             }
                         } catch (JSONException e) {

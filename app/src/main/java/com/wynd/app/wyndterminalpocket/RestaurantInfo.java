@@ -1,5 +1,7 @@
 package com.wynd.app.wyndterminalpocket;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by cgutu on 21/01/16.
  */
@@ -14,6 +16,12 @@ public class RestaurantInfo {
     protected String userPermission;
     protected String status;
     protected String address;
+    protected String photo;
+    protected Bitmap bitmap;
+    protected String nbOrders;
+    protected String nbTerminals;
+    protected String nbUsers;
+
 
     protected static final String ID_PREFIX = "";
     protected static final String NAME_PREFIX = "";

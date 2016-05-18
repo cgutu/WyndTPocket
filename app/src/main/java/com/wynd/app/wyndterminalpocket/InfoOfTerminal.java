@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -112,15 +113,27 @@ public class InfoOfTerminal extends AppCompatActivity {
                                     status = id.getString("terminalActive");
 
                                     String terminalInfo = id.isNull("terminalInfo") ? "" : id.getString("terminalInfo");
-                                    if(!terminalInfo.isEmpty()){
+                                if(!id.getString("terminalInfo").isEmpty() || id.getString("terminalInfo") != null && !id.getString("terminalInfo").equals("Nan")){
                                         JSONObject infoObject = new JSONObject(terminalInfo);
                                         vPhone.setText(infoObject.getString("phone"));
                                         vRestaurant.setText(infoObject.getString("entity_label"));
                                         vEmail.setText(infoObject.getString("email"));
                                         vApk.setText(infoObject.getString("apk_version"));
                                         vUser.setText(infoObject.getString("username"));
-                                    }
 
+                                        if(infoObject.getString("phone").isEmpty()){
+                                            LinearLayout l1 = (LinearLayout)findViewById(R.id.layout2);
+                                            l1.setVisibility(View.GONE);
+                                        }
+                                        if(infoObject.getString("email").isEmpty()){
+                                            LinearLayout l1 = (LinearLayout)findViewById(R.id.layout4);
+                                            l1.setVisibility(View.GONE);
+                                        }
+                                        if(infoObject.getString("username").isEmpty()){
+                                            LinearLayout l1 = (LinearLayout)findViewById(R.id.layout5);
+                                            l1.setVisibility(View.GONE);
+                                        }
+                                    }
 
                             }
                         } catch (JSONException e) {
@@ -146,7 +159,8 @@ public class InfoOfTerminal extends AppCompatActivity {
             }
         };
 
-        Volley.newRequestQueue(getApplicationContext()).add(getTerminal);
+        //Volley.newRequestQueue(getApplicationContext()).add(getTerminal);
+        ApplicationController.getInstance().addToRequestQueue(getTerminal, "getTerminal");
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

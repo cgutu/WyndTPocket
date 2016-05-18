@@ -10,16 +10,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -31,9 +34,12 @@ import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.apache.http.HttpEntity;
@@ -81,6 +87,8 @@ public class LoginActivity extends AppCompatActivity {
     private String message;
     private Button askaccount;
     private JSONArray EntityInfo = new JSONArray();
+    private RequestQueue mQueue;
+    private String REQUEST_TAG = "LoginActivity";
     /**
      * set up the login form
      */
@@ -89,8 +97,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this,
                 LoginActivity.class));
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         /**
          * Set the API HASH
@@ -165,24 +178,24 @@ public class LoginActivity extends AppCompatActivity {
 
         Button print = (Button) findViewById(R.id.print);
         print.setVisibility(View.GONE);
-        print.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                Intent i = new Intent(LoginActivity.this, BlueToothPrinterApp.class);
-//                startActivity(i);
-
-                    try{
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage("+33612491829", null, "hello", null, null);
-                        Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
-
-                    }catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "SMS failed, please try again.", Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                    }
-
-            }
-        });
+//        print.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                Intent i = new Intent(LoginActivity.this, BlueToothPrinterApp.class);
+////                startActivity(i);
+//
+////                    try{
+////                        SmsManager smsManager = SmsManager.getDefault();
+////                        smsManager.sendTextMessage("+33612491829", null, "hello", null, null);
+////                        Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+////
+////                    }catch (Exception e) {
+////                    Toast.makeText(getApplicationContext(), "SMS failed, please try again.", Toast.LENGTH_LONG).show();
+////                    e.printStackTrace();
+////                    }
+//
+//            }
+//        });
     }
 
     /**
@@ -190,7 +203,7 @@ public class LoginActivity extends AppCompatActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
+    private void attemptLogin(){
 
         // Reset errors.
         mUserView.setError(null);
@@ -236,14 +249,29 @@ public class LoginActivity extends AppCompatActivity {
             } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
                 Log.e("Error sha1 password", e.toString());
             }
-
-
-
-            new LoginTask().execute();
+           new LoginTask().execute();
 
         }
 
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent i = new Intent(LoginActivity.this, SlideShow.class);
+                startActivity(i);
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(LoginActivity.this, SlideShow.class);
+        startActivity(i);
+        finish();
     }
     /**
      * @POST - background task for login
@@ -272,7 +300,7 @@ public class LoginActivity extends AppCompatActivity {
                     httpPost.setHeader("Api-User", Globales.API_USER);
                     httpPost.setHeader("Api-Hash", Globales.API_HASH);
                     httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "utf-8"));
-
+                    System.out.println("json array nameValuePairs " + nameValuePairs);
                     //getting the response
                     HttpResponse response = httpClient.execute(httpPost);
 
@@ -340,8 +368,7 @@ public class LoginActivity extends AppCompatActivity {
                          * @return resaturantChainID
                          */
 
-                        JsonObjectRequest rolesRequest = new JsonObjectRequest
-                                (Request.Method.GET, Globales.baseUrl+"api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
+                        JsonObjectRequest rolesRequest = new JsonObjectRequest(Request.Method.GET, Globales.baseUrl+"api/user/get/info/" + userID, null, new Response.Listener<JSONObject>() {
                                     @Override
                                     public void onResponse(JSONObject response) {
                                         // the response is already constructed as a JSONObject!
@@ -359,9 +386,8 @@ public class LoginActivity extends AppCompatActivity {
 
                                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                                             startActivity(intent);
-                                            showProgress(false);
                                             finish();
-
+                                            showProgress(false);
 
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -387,7 +413,8 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         };
 
-                        Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
+                        //Volley.newRequestQueue(getApplicationContext()).add(rolesRequest);
+                        ApplicationController.getInstance().addToRequestQueue(rolesRequest, "rolesRequest");
 
                     } else {
                         showProgress(false);
@@ -441,7 +468,6 @@ public class LoginActivity extends AppCompatActivity {
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
-
 
 }
 

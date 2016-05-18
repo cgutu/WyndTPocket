@@ -4,7 +4,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_username">Login</string>
+    <string name="prompt_username">Nom d\'utilisateur</string>
     <string name="prompt_password">Mot de passe</string>
     <string name="action_sign_in">Connexion</string>
     <string name="action_sign_in_short">Sign in</string>
@@ -25,8 +25,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="description">DASHBOARD</string>
-    <string name="btn_connexion">CONNEXION</string>
-    <string name="wyndt_name">Wynd Terminal DASHBOARD</string>
+    <string name="btn_connexion">Se connecter</string>
+    <string name="wyndt_name">Wynd Terminal Monitoring</string>
     <string name="desc_logo">wynd</string>
     <string name="mdp">Mot de passe oublié</string>
     <string name="ask_count">Demander un compte</string>
@@ -118,10 +118,10 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
-    <string name="title_activity_info_order">InfoOrder</string>
+    <string name="title_activity_info_order">Informations commande</string>
 
     <string name="email_template">Bonjour administrateur,
-        \n\nL\'utilisateur suivant %1$s a perdu son mot de passe et souhaiterais recevoir un nouveau.
+        \n\nL\'utilisateur suivant %1$s du restaurant %2$s a perdu son mot de passe et souhaiterait recevoir un nouveau.
         \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
     </string>
      <string name="new_account">Bonjour administrateur,
@@ -148,5 +148,18 @@
          \n\nSi vous avez un problème, veuillez nous appeler au 01.76.44.03.53 ou nous envoyer un email à support@wynd.eu.
         \n\n---------------\n\nCeci est un mail automatique, Merci de ne pas y répondre.
     </string>
+    <string name="chartdesc">Afin d\'afficher un graphique représentant \n\nle status d\'un terminal pendant une certaine période,\n\n sélectionner 2 dates, ainsi que le terminal</string>
+    <string name="terminaldesc">Afficher les informations de\n\n tous terminaux ou filtrer par restaurant</string>
+    <string name="usersdesc">Afficher et modifier les\n\n utilisateurs du monitoring</string>
+    <string name="restdesc">Afficher et modifier les restaurants, commandes et terminaux</string>
+    <string name="ordersdesc">Afficher les commandes reçues\n\n par un restaurant et leur états</string>
+    <string name="title_activity_slide_show">SlideShow</string>
+    <string name="section_format">%1$s</string>
+    <string name="orders">%1$s Commandes</string>
+    <string name="terminals">%1$s Terminaux</string>
+    <string name="users">%1$s Utilisateurs</string>
+    <string name="fragment_three">Gérer vos pointes de ventes, ainsi que vos équipiers</string>
+    <string name="fragment_two">Avoir un aperçu du nombre des commandes reçues par un point de vente</string>
+    <string name="fragment_one">Suivre les états des Wynd Terminaux</string>
 
 </resources>

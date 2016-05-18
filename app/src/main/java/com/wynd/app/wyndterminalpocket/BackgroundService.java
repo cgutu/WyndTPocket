@@ -63,6 +63,11 @@ public class BackgroundService extends Service {
     }
 
     @Override
+    public boolean stopService(Intent name) {
+        return super.stopService(name);
+    }
+
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(!this.isRunning) {
             this.isRunning = true;
@@ -77,7 +82,6 @@ public class BackgroundService extends Service {
 
         SharedPreferences pref = context.getSharedPreferences("Infos", 0);
         String EntityInfo = pref.getString("EntityInfo", "");
-        final String username = pref.getString("username", "");
         try{
             JSONArray infosArray = new JSONArray(EntityInfo);
 
@@ -207,7 +211,8 @@ public class BackgroundService extends Service {
                     }
                 };
 
-                Volley.newRequestQueue(c).add(terminalRequest);
+               // Volley.newRequestQueue(c).add(terminalRequest);
+                ApplicationController.getInstance().addToRequestQueue(terminalRequest, "terminalRequest");
 
             }
         }catch (JSONException e){

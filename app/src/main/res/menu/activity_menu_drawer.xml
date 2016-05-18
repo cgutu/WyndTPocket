@@ -5,33 +5,17 @@
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_home"
-            android:title="Home" />
+            android:title="Accueil" />
         <item
             android:id="@+id/nav_camera"
             android:icon="@drawable/ic_account_circle_white"
             android:title="Profil" />
 
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_entity"
-            android:title="Restaurants" />
         <!--<item-->
-            <!--android:id="@+id/nav_manage"-->
-            <!--android:icon="@drawable/ic_menu_manage"-->
-            <!--android:title="Utilisateurs" />-->
+            <!--android:id="@+id/nav_slideshow"-->
+            <!--android:icon="@drawable/ic_entity"-->
+            <!--android:title="Restaurants" />-->
     </group>
 
-    <!--<item android:title="Communicate">-->
-        <!--<menu>-->
-            <!--<item-->
-                <!--android:id="@+id/nav_share"-->
-                <!--android:icon="@drawable/ic_menu_share"-->
-                <!--android:title="Share" />-->
-            <!--<item-->
-                <!--android:id="@+id/nav_send"-->
-                <!--android:icon="@drawable/ic_menu_send"-->
-                <!--android:title="Send" />-->
-        <!--</menu>-->
-    <!--</item>-->
 
 </menu>

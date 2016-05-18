@@ -96,15 +96,19 @@ public class ProfilFragment extends Fragment {
 
                                                             try {
                                                                 response = response.getJSONObject("data");
+                                                                String value ="";
                                                                 if(!permissionID.isEmpty() && permissionID.equals("1")){
                                                                     permission = "USER";
+                                                                    value = "utilisateur";
                                                                 }else if(!permissionID.isEmpty() && permissionID.equals("2")){
                                                                     permission = "ADMIN";
+                                                                    value = "administrateur";
                                                                 }else if(!permissionID.isEmpty() && permissionID.equals("3")){
                                                                     permission = "SUPER_ADMIN";
+                                                                    value = "super administrateur";
                                                                 }
                                                                 restaurant = response.isNull("name") ? "" : response.getString("name");
-                                                                listItems.add(permission + " <----------> "+restaurant);
+                                                                listItems.add("Je suis " + value + " pour le point de vente "+restaurant);
                                                                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
                                                                         android.R.layout.simple_list_item_1, listItems);
                                                                 mListView.setAdapter(adapter);
@@ -131,7 +135,8 @@ public class ProfilFragment extends Fragment {
                                                 }
                                             };
 
-                                            Volley.newRequestQueue(getContext()).add(restaurantRequest);
+                                            //Volley.newRequestQueue(getContext()).add(restaurantRequest);
+                                        ApplicationController.getInstance().addToRequestQueue(restaurantRequest, "restaurantRequest");
                                     }
 
 
@@ -159,7 +164,8 @@ public class ProfilFragment extends Fragment {
                 }
             };
 
-            Volley.newRequestQueue(getContext()).add(jsonRequest);
+            //Volley.newRequestQueue(getContext()).add(jsonRequest);
+        ApplicationController.getInstance().addToRequestQueue(jsonRequest, "jsonRequest");
 
     }
 

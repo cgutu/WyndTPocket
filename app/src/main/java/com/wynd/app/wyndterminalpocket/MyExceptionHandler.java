@@ -3,9 +3,12 @@ package com.wynd.app.wyndterminalpocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Process;
+import android.util.Log;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by cgutu on 12/02/16.
@@ -23,6 +26,13 @@ public class MyExceptionHandler implements
 
     public void uncaughtException(Thread thread, Throwable exception) {
 
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
         StringWriter stackTrace = new StringWriter();
         exception.printStackTrace(new PrintWriter(stackTrace));
         System.err.println(stackTrace);// You can use LogCat too

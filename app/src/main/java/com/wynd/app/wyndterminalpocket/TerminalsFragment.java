@@ -3,6 +3,7 @@ package com.wynd.app.wyndterminalpocket;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -21,13 +22,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -40,6 +45,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,6 +76,7 @@ public class TerminalsFragment extends Fragment {
     private JSONArray parents = new JSONArray();
     private NotificationManager mNotificationManager= null;
     private View mProgressView, mListView;
+    private Handler handler;
 
     public TerminalsFragment() {
         // Required empty public constructor
@@ -137,7 +145,8 @@ public class TerminalsFragment extends Fragment {
                     }
                 };
 
-                Volley.newRequestQueue(getContext()).add(parentRequest);
+                //Volley.newRequestQueue(getContext()).add(parentRequest);
+                ApplicationController.getInstance().addToRequestQueue(parentRequest, "parentRequest");
             }
         }catch (JSONException e){
 
@@ -190,15 +199,41 @@ public class TerminalsFragment extends Fragment {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ApplicationController.getInstance().cancelPendingRequests("getTerminalTask");
+                ApplicationController.getInstance().cancelPendingRequests("terminalRequest");
+                ApplicationController.getInstance().cancelPendingRequests("entityRequest");
+                ApplicationController.getInstance().cancelPendingRequests("parentRequest");
+                ApplicationController.getInstance().cancelPendingRequests("getTerminalByEntity");
+                handler.removeCallbacks(getList);
                 FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.content_frame, new HomeFragment());
                 ft.commit();
             }
         });
 
+        ImageView refresh = (ImageView) rootView.findViewById(R.id.refresh);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                restSpinner.setSelection(0);
+                parentSpinner.setSelection(0);
+                recList.setVisibility(View.VISIBLE);
+                getList.run();
+            }
+        });
+
+        getList.run();
         return rootView;
     }
+    Runnable getList = new Runnable() {
+        @Override
+        public void run() {
+            getTerminalTask();
 
+            handler = new Handler();
+            handler.postDelayed(getList, 60000);
+        }
+    };
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -229,12 +264,13 @@ public class TerminalsFragment extends Fragment {
     }
     private void addList(final JSONArray jsonArray){
 
+
         List<String> list = new ArrayList<String>();
 
-        list.add(0, "Séléctionner un restaurant");
+        list.add(0, "Séléctionner un channel");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("name");
+                String name = jsonArray.getJSONObject(i).getString("channel");
                 list.add("" + name);
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
@@ -250,6 +286,7 @@ public class TerminalsFragment extends Fragment {
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         restSpinner.setAdapter(dataAdapter);
 
+
         /**
          * adapt views on restaurant selected
          */
@@ -261,27 +298,12 @@ public class TerminalsFragment extends Fragment {
                 // TODO Auto-generated method stub
                 Object item = arg0.getItemAtPosition(arg2);
                 if (arg2 == 0) {
-                    /**
-                     * show terminal's selected informations
-                     */
-                   getTerminalByParent();
-                }else{
+                    recList.setVisibility(View.GONE);
+                } else {
+                    recList.setVisibility(View.VISIBLE);
                     if (item != null) {
-                        for (int i = 0; i < jsonArray.length(); i ++) {
-                            try {
-                                String name = jsonArray.getJSONObject(i).getString("name");
-                                if (item.equals(name)) {
-                                    selectedID = jsonArray.getJSONObject(i).getString("id");
-                                    /**
-                                     * show terminal's selected informations
-                                     */
-                                    getTerminalTaskByChannel();
-                                }
-                            } catch (JSONException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        }
+                        handler.removeCallbacks(getList);
+                        getTerminalByEntity(item.toString());
                     }
 
                 }
@@ -318,8 +340,12 @@ public class TerminalsFragment extends Fragment {
                     ti.uuid = (json_data.isNull("terminalMacadd") ? "" :  json_data.getString("terminalMacadd"));
                 }
 
-                ti.nb_orders = (json_data.isNull("nb_orders") ? "" :  json_data.getString("nb_orders") + " commandes");
-                System.out.println("count orders " + ti.nb_orders);
+                ti.nb_orders = (json_data.isNull("nb_orders") ? "" :  json_data.getString("nb_orders"));
+                if(Integer.parseInt(ti.nb_orders) == 1){
+                    ti.nb_orders +=  " commande \r\ntraitée \r\naujourd'hui";
+                }else{
+                    ti.nb_orders +=  " commandes \r\ntraitées \r\naujourd'hui";
+                }
                 ti.restaurant = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
                 ti.terminalStatus = (json_data.isNull("terminalStatus") ? "" : json_data.getString("terminalStatus"));
                 ti.terminalStatusUpdateTime = (json_data.isNull("terminalLastUpdated") ? "" : json_data.getString("terminalLastUpdated"));
@@ -327,7 +353,7 @@ public class TerminalsFragment extends Fragment {
 
                 ti.channel = (json_data.isNull("channelName") ? "" : json_data.getString("channelName"));
 
-                if(!json_data.getString("terminalInfo").isEmpty() && json_data.getString("terminalInfo") != null){
+                if(!json_data.getString("terminalInfo").isEmpty() && json_data.getString("terminalInfo") != null && !json_data.getString("terminalInfo").equals("Nan")){
                     String terminalInfo = json_data.isNull("terminalInfo") ? "" : json_data.getString("terminalInfo");
                     JSONObject infoObject = new JSONObject(terminalInfo);
 
@@ -337,7 +363,7 @@ public class TerminalsFragment extends Fragment {
                     ti.entity_label = (infoObject.isNull("entity_label") ? "" : infoObject.getString("entity_label"));
                     ti.email = (infoObject.isNull("email") ? "" : infoObject.getString("email"));
                     ti.phone = (infoObject.isNull("phone") ? "" : infoObject.getString("phone"));
-                    ti.apk_version = (infoObject.isNull("apk_version") ? "" : infoObject.getString("apk_version"));
+                    ti.apk_version = (infoObject.isNull("apk_version") ? "" : "Version de l'app : " +infoObject.getString("apk_version"));
                     ti.battery_status = (infoObject.isNull("battery") ? "" : infoObject.getString("battery") +" %");
                 }else{
                     ti.terminalUser = "";
@@ -347,6 +373,7 @@ public class TerminalsFragment extends Fragment {
                     ti.email = "";
                     ti.phone = "";
                     ti.apk_version = "";
+                    ti.battery_status = "";
                 }
 
                 /**
@@ -356,9 +383,6 @@ public class TerminalsFragment extends Fragment {
 
                     Date date1 = sdf.parse(currentDateandTime);
                     Date date2 = sdf.parse(ti.terminalStatusUpdateTime);
-
-                    System.out.println("date 1"+date1);
-                    System.out.println("date 2"+date2);
 
                     long diffInMs = date1.getTime() - date2.getTime();
                     long secondsInMilli = 1000;
@@ -381,7 +405,6 @@ public class TerminalsFragment extends Fragment {
                             (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 
 
-                    System.out.println("elapsedHours "+elapsedHours+" elapsedMinutes "+elapsedMinutes+ " elapsedSeconds "+elapsedSeconds);
                     /*if(ti.terminalStatus.equalsIgnoreCase("0")) {
                         NotificationCompat.Builder mBuilder =
                                 new NotificationCompat.Builder(this)
@@ -432,6 +455,29 @@ public class TerminalsFragment extends Fragment {
 
         return result;
     }
+    @Override
+    public void onResume() {
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        try {
+
+            Globales.API_HASH = AeSimpleSHA1.SHA1(Globales.hash);
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            Log.e("Error sha1 API_HASH", e.toString());
+        }
+        super.onPause();
+    }
     private void addParent(final JSONArray jsonArray){
 
         List<String> list = new ArrayList<String>();
@@ -439,7 +485,7 @@ public class TerminalsFragment extends Fragment {
         list.add(0, "Séléctionner une franchise");
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
-                String name = jsonArray.getJSONObject(i).getString("parent_name");
+                String name = jsonArray.getJSONObject(i).getString("parent_label");
                 if(!list.contains(name)){
                     list.add("" + name);
                 }
@@ -468,21 +514,17 @@ public class TerminalsFragment extends Fragment {
                                        int arg2, long arg3) {
 
                 Object item = arg0.getItemAtPosition(arg2);
-                if(arg2 == 0){
+                if (arg2 == 0) {
                     restSpinner.setVisibility(View.GONE);
-                    //afficher tous les terminaux auxquels l'utilisateur est autorisé
-                    /**
-                     * show terminal's informations
-                     */
-                    getTerminalTask();
-                }else{
+                } else {
                     restSpinner.setVisibility(View.VISIBLE);
+                    recList.setVisibility(View.GONE);
                     if (item != null) {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             try {
                                 // complete entities list
-                                String name = jsonArray.getJSONObject(i).getString("parent_name");
-                                if(item.equals(name)){
+                                String name = jsonArray.getJSONObject(i).getString("parent_label");
+                                if (item.equals(name)) {
                                     final String selectedID = jsonArray.getJSONObject(i).getString("id");
 
                                     final JSONArray entities = new JSONArray();
@@ -524,7 +566,8 @@ public class TerminalsFragment extends Fragment {
                                         }
                                     };
 
-                                    Volley.newRequestQueue(getContext()).add(entityRequest);
+                                    // Volley.newRequestQueue(getContext()).add(entityRequest);
+                                    ApplicationController.getInstance().addToRequestQueue(entityRequest, "entityRequest");
                                 }
                             } catch (JSONException e) {
                                 // TODO Auto-generated catch block
@@ -549,6 +592,10 @@ public class TerminalsFragment extends Fragment {
     }
     private void getTerminalTask(){
 
+
+        terminals = new JSONArray();
+        ta = new TerminalAdapter(createList(terminals));
+        recList.setAdapter(ta);
         showProgress(true);
         /**
          * get all terminals request
@@ -559,6 +606,7 @@ public class TerminalsFragment extends Fragment {
                     public void onResponse(JSONObject response) {
 
                         try {
+                            recList.setVisibility(View.VISIBLE);
                             terminals = new JSONArray();
                             JSONArray values = response.getJSONArray("data");
                             for (int i = 0; i < values.length(); i++) {
@@ -571,10 +619,10 @@ public class TerminalsFragment extends Fragment {
 
                                         try{
                                             /**
-                                             * get orders informations by entity
+                                             * get orders informations by terminal
                                              */
                                             JsonObjectRequest orderRequest = new JsonObjectRequest
-                                                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
+                                                    (Request.Method.GET, Globales.baseUrl + "api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
                                                         @Override
                                                         public void onResponse(JSONObject response) {
 
@@ -662,7 +710,8 @@ public class TerminalsFragment extends Fragment {
                                                 }
                                             };
 
-                                            Volley.newRequestQueue(getActivity()).add(orderRequest);
+                                           // Volley.newRequestQueue(getActivity()).add(orderRequest);
+                                            ApplicationController.getInstance().addToRequestQueue(orderRequest, "getTerminalTask");
 
                                         }catch (JSONException e){
 
@@ -700,12 +749,13 @@ public class TerminalsFragment extends Fragment {
             }
         };
 
-        Volley.newRequestQueue(getActivity()).add(terminalRequest);
+       // Volley.newRequestQueue(getActivity()).add(terminalRequest);
+        ApplicationController.getInstance().addToRequestQueue(terminalRequest, "terminalRequest");
     }
+    private void getTerminalByEntity(final String selectedName){
 
-    private void getTerminalTaskByChannel(){
-        terminals = new JSONArray();
-
+        System.out.println("channel name "+selectedName);
+        showProgress(true);
         /**
          * get all terminals request
          */
@@ -715,12 +765,11 @@ public class TerminalsFragment extends Fragment {
                     public void onResponse(JSONObject response) {
 
                         try {
+                            terminals = new JSONArray();
                             JSONArray values = response.getJSONArray("data");
                             for (int i = 0; i < values.length(); i++) {
 
                                 final JSONObject terminalObject = values.getJSONObject(i);
-                                final String channel = terminalObject.isNull("channelName") ? "" : terminalObject.getString("channelName");
-                                final String idchannel = terminalObject.isNull("channelID") ? "" : terminalObject.getString("channelID");
 
                                 Handler handler = new Handler();
                                 handler.postDelayed(new Runnable() {
@@ -731,7 +780,7 @@ public class TerminalsFragment extends Fragment {
                                              * get orders informations by entity
                                              */
                                             JsonObjectRequest orderRequest = new JsonObjectRequest
-                                                    (Request.Method.GET, Globales.baseUrl + "/api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
+                                                    (Request.Method.GET, Globales.baseUrl + "api/order/get/by/macadd/"+terminalObject.getString("terminalMacadd"), null, new Response.Listener<JSONObject>() {
                                                         @Override
                                                         public void onResponse(JSONObject response) {
 
@@ -750,14 +799,13 @@ public class TerminalsFragment extends Fragment {
                                                                 String monthDate1String = String.valueOf(monthDate1Cal + 1);
                                                                 String yearDate1String = String.valueOf(yearDate1Cal);
 
-                                                                System.out.println("currentdate 1 "+yearDate1String+"-"+monthDate1String+"-"+dayDate1String+"");
                                                                 JSONArray orders = new JSONArray();
                                                                 JSONArray values = response.getJSONArray("data");
+
                                                                 for(int i=0; i<values.length();i++){
                                                                     JSONObject obj = values.getJSONObject(i);
-
+                                                                    JSONObject newobj = new JSONObject();
                                                                     try{
-                                                                        // Date date1 = sdf.parse(yearDate1String+"-"+monthDate1String+"-"+dayDate1String);
                                                                         Date date2 = sdf.parse(obj.getString("status_report_timestamp"));
                                                                         Calendar date2Cal = Calendar.getInstance();
                                                                         date2Cal.setTime(date2);
@@ -770,24 +818,17 @@ public class TerminalsFragment extends Fragment {
                                                                         String monthDate2String = String.valueOf(monthDate2Cal + 1);
                                                                         String yearDate2String = String.valueOf(yearDate2Cal);
 
-                                                                        //  date2 = sdf.parse(yearDate2String+"-"+monthDate2String+"-"+dayDate2String);
-                                                                        System.out.println("currentdate 2 "+yearDate2String+"-"+monthDate2String+"-"+dayDate2String+"");
-
                                                                         String firstdate = yearDate1String+"-"+monthDate1String+"-"+dayDate1String;
                                                                         String seconddate = yearDate2String+"-"+monthDate2String+"-"+dayDate2String;
-                                                                        System.out.println("date1 "+firstdate);
-                                                                        System.out.println("date2 "+seconddate);
 
                                                                         if(firstdate.equals(seconddate)){
-                                                                            Log.i("DATE", "dates are equals");
+                                                                            newobj.put("order_ref", obj.getString("order_ref"));
+                                                                            newobj.put("order_status", obj.getString("order_status"));
+                                                                            newobj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
+                                                                            newobj.put("terminal", obj.getString("macadress"));
+                                                                            newobj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
 
-                                                                            obj.put("order_ref", obj.getString("order_ref"));
-                                                                            obj.put("order_status", obj.getString("order_status"));
-                                                                            obj.put("order_desired_delivery", obj.getString("selected_delivery_time"));
-                                                                            obj.put("terminal", obj.getString("macadress"));
-                                                                            obj.put("status_report_timestamp", obj.getString("status_report_timestamp"));
-
-                                                                            orders.put(obj);
+                                                                            orders.put(newobj);
                                                                         }
                                                                     }catch (ParseException e){
 
@@ -798,10 +839,10 @@ public class TerminalsFragment extends Fragment {
                                                                 Log.i("ORDER_INFO", count.toString() + " commandes");
                                                                 terminalObject.put("nb_orders", count);
 
-                                                                if(!idchannel.isEmpty() && idchannel.equalsIgnoreCase(selectedID)){
+                                                                if(terminalObject.getString("channelName").equals(selectedName)){
                                                                     terminals.put(terminalObject);
                                                                 }
-
+                                                                showProgress(false);
                                                                 ta = new TerminalAdapter(createList(terminals));
                                                                 recList.setAdapter(ta);
 
@@ -828,7 +869,8 @@ public class TerminalsFragment extends Fragment {
                                                 }
                                             };
 
-                                            Volley.newRequestQueue(getActivity()).add(orderRequest);
+                                            //Volley.newRequestQueue(getActivity()).add(orderRequest);
+                                            ApplicationController.getInstance().addToRequestQueue(orderRequest, "getTerminalByEntity");
 
                                         }catch (JSONException e){
 
@@ -866,48 +908,47 @@ public class TerminalsFragment extends Fragment {
             }
         };
 
-        Volley.newRequestQueue(getActivity()).add(terminalRequest);
+        //Volley.newRequestQueue(getActivity()).add(terminalRequest);
+        ApplicationController.getInstance().addToRequestQueue(terminalRequest, "terminalRequest");
     }
     /**
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        if(isAdded()){
+            // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+            // for very easy animations. If available, use these APIs to fade-in
+            // the progress spinner.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+                int shortAnimTime = this.getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mListView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mListView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+                mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+                mListView.animate().setDuration(shortAnimTime).alpha(
+                        show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+                    }
+                });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                mProgressView.animate().setDuration(shortAnimTime).alpha(
+                        show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                    }
+                });
+            } else {
+                // The ViewPropertyAnimator APIs are not available, so simply show
+                // and hide the relevant UI components.
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                mListView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
         }
-    }
-    private void getTerminalByParent() {
-        terminals = new JSONArray();
 
-        ta = new TerminalAdapter(createList(terminals));
-        recList.setAdapter(ta);
     }
+
 
 }

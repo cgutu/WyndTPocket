@@ -79,6 +79,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
                 Intent intent = new Intent(v.getContext(), InfoOrder.class);
                 intent.putExtra("order_ref",ri.order_reference);
                 intent.putExtra("order_delivery",ri.order_desired_delivery);
+                intent.putExtra("restId",ri.entity_id);
+                System.out.println("rest id from adapter "+ri.entity_id);
                 v.getContext().startActivity(intent);
             }
         });
